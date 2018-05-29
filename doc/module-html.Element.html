@@ -1,0 +1,823 @@
+<!-- 
+   Copyright 2018 SOL Software
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: Element</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+	<link type="text/css" rel="stylesheet" href="../config/jsdoc/custom.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: Element</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-html.html">html</a>.</span>Element<span class="signature">(tagNameOrNamespaceOrElement, opt_tagNameOrEventOutputs<span class="signature-attributes">opt</span>, opt_eventOutputs<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description"><ul><li> <a href="module-capsula.Capsule.html">Capsule</a><ul><li> <a href="module-html.HasRootHTML.html">HasRootHTML</a><ul><li> Element</ul></ul></ul><p> Wrapper capsule for DOM elements. Can be used either to wrap an existing DOM element or to create a new one (and wrap it).<p> Element capsule has one loop named <i>loop</i> which is inherited from the HasRootHTML capsule. This loop is there to enable this capsule's wrapped DOM element to be included on the page (as a child of another DOM element). Also, this capsule has a hook named <i>hook</i> that enables this capsule's wrapped DOM element include other DOM elements inside itself (as its children).</div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="Element"><span class="type-signature"></span>new Element<span class="signature">(tagNameOrNamespaceOrElement, opt_tagNameOrEventOutputs<span class="signature-attributes">opt</span>, opt_eventOutputs<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    When creating an instance of Element capsule you either create new DOM element or wrap an already existing DOM element. In any case, newly created capsule behaves as a wrapper for the underlying DOM element. Creating an instance of Element capsule is simple, although there are three different legal ways to do it. See examples bellow for more details.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>tagNameOrNamespaceOrElement</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Element</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">denotes: a) the tag name of the DOM element to be created, or b) the namespace of the DOM element to be created (in case of creating SVG element for example), or c) the DOM element itself (in case you just want to wrap it)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opt_tagNameOrEventOutputs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">if the first parameter is a namespace then this one should be a tag name of the DOM element to be created, otherwise it is an optional array of events (e.g. ['click', 'dbclick']) for which output operations should be created (see <a href="module-html.Element.html#addEventOutput">addEventOutput</a>)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opt_eventOutputs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">if the first parameter is a namespace then this one should be an optional array of events (e.g. ['click', 'dbclick']) for which output operations should be created (see <a href="module-html.Element.html#addEventOutput">addEventOutput</a>), otherwise this parameter has no meaning</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="html.js.html">html.js</a>, <a href="html.js.html#line552">line 552</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-html.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">Creating new HTML (DOM) element and new Element capsule as its wrapper</p>
+    
+    <pre class="prettyprint"><code>let htmlElement = new html.Element('div'); // using tag name</code></pre>
+
+        <p class="code-caption">Creating new SVG (DOM) element (needs namespace) and new Element capsule as its wrapper</p>
+    
+    <pre class="prettyprint"><code>let svgElement = new html.Element('http://www.w3.org/2000/svg', 'rect'); // using namespace and tag name</code></pre>
+
+        <p class="code-caption">Creating new Element capsule to wrap an existing DOM element</p>
+    
+    <pre class="prettyprint"><code>let existingElement = document.createElement('div'); // or document.getElementById or whatever...let htmlElement = new html.Element(existingElement);</code></pre>
+
+        <p class="code-caption">Specifying output operations (optional in all three ways of instantiation)</p>
+    
+    <pre class="prettyprint"><code>let htmlElement = new html.Element('div', ['click', 'dblclick']); // reacts on click and double clickhtmlElement.click.wire(function(e){    alert('Clicked!');});</code></pre>
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="CollectionofHooks"><span class="type-signature"></span>Collection of Hooks<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hook</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A hook that represents the underlying DOM element of this capsule.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="html.js.html">html.js</a>, <a href="html.js.html#line563">line 563</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="CollectionofLoops"><span class="type-signature"></span>Collection of Loops<span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>loop</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">(inherited from <a href="module-html.HasRootHTML.html">HasRootHTML</a>) A loop that represents the underlying DOM element of this capsule.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="html.js.html">html.js</a>, <a href="html.js.html#line573">line 573</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="addEventOutput"><span class="type-signature"></span>addEventOutput<span class="signature">(eventName, opt_outputName<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Creates new output operation for the given event name (e.g. 'click'). Each time the event is captured output operation is called with event object as an argument. If output name is provided in the second argument, output operation would take that name, otherwise it would default to the event name.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>eventName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">event for which to create output operation, e.g. 'click' or 'dblclick'</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opt_outputName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">output operation name, if not specified the default value is the eventName</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="html.js.html">html.js</a>, <a href="html.js.html#line626">line 626</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-html.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+        <p class="code-caption">Reacting on click event</p>
+    
+    <pre class="prettyprint"><code>let htmlElement = new html.Element('div');...htmlElement.addEventOutput('click');...htmlElement.click.wire(function(e){    alert('I have just been ' + e.type + 'ed.'); // I have just been clicked.});</code></pre>
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> on Tue May 29 2018 11:18:50 GMT+0200 (Central Europe Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

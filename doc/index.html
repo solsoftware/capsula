@@ -1,0 +1,407 @@
+<!-- 
+   Copyright 2018 SOL Software
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+	<link type="text/css" rel="stylesheet" href="../config/jsdoc/custom.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h2>Capsula</h2><p><strong>Capsula</strong> is a JavaScript library for building user interfaces and other types of applications using truly encapsulated software components called <em>capsules</em>. In many ways capsules are similar to the typical OO classes. They support single inheritance model and polymorphism the way OO classes do. However, capsules differ from OO classes in many ways as well. They are dynamic the way JavaScript language is. Also, they employ rather novel encapsulation model and accommodate many new and powerful concepts designed to handle complexity and favour encapsulation, flexibility and reuse. Applications built with Capsula are neatly structured, ease to manage, and with clearly visible multi-level architecture.</p>
+<h3>The Encapsulation Model</h3><p>The base concept of Capsula library is the <em>Capsule</em> class. The Capsule is a class similar to an OO class with different encapsulation model and many new and powerful concepts.</p>
+<p>In a typical OO encapsulation model, all public properties and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we have to carefully manage references to avoid our code becoming &quot;spaghetti&quot;. And this may be a bit too difficult.</p>
+<p>Capsula proposes a restriction to the typical OO policy of access rights. The restriction is simple to understand and use while being rather effective. It enables engineers to manage their code effortlessly.</p>
+<h3>Decoupling Layout from Behavior</h3><p>Apart from the novel encapsulation model which is useful in any application domain, Capsula exhibits concepts specifically dedicated to the domain of user interfaces (or more generally, to domains where one of the tasks is to manage a hierarchy). These concepts are developed to decouple managing hierarchy from managing any other behavior. This brings lots of flexibility.</p>
+<p>Let's reach out for an example. Imagine a menu widget controlling the visibility of a couple of other widgets. The menu and the widgets are interacting in sense that when a menu item is selected a corresponding widget is displayed. In a typical UI library, if the menu and the widgets are to be promoted into a single reusable component (let's call it a tab), they must all be placed under the same roof, i.e. under the single root widget (root panel, div, or whatever). This way, the functionality of interaction between them is tightly coupled to a specific layout of the tab's root widget. If requested to have the menu rendered in one part of the screen and the widgets in another while preserving their interaction, the whole concept fails short.</p>
+<p>The way Capsula handles this is much more flexible and allows engineers to combine interacting widgets into a larger pieces without gluing them together in terms of layout. This particular idea brings huge flexibility and enables engineers to create extremely rich and complex components that have very high potential for reuse because their parts while interacting are not bound to each other in terms of layout.</p>
+<p>Read more on encapsulation model and core concepts of Capsula library in the <em>capsula.js</em> module.</p>
+<h3>Declarative vs Imperative Approach: Templates vs Object-Orientation</h3><p>Duality of declarative and imperative programming styles is a reality when developing software nowadays. While imperative approach brings more flexibility, control, and easier debugging, declarative styles are more expressive, easier to use, and reduce number of bugs in the program. Capsula provides for both styles, letting the programmer decide when to use which of the two and of course when to combine them. </p>
+<p>For example, this duality becomes obvious when building user interfaces: is it better to use templates (being a declarative approach) or object-oriented style (imperative)? </p>
+<p>Capsula library tries to resolve this by providing means to build user interfaces by using either one of the styles or both. It allows engineers to choose between templates and object-orientation according to their personal preferences or assessment of the tasks to be performed. Although syntactically different, artifacts developed using the two different styles in Capsula are semantically alike and could easily be combined and used together.</p>
+<p>Check out the <em>html.js</em> module for more information.</p>
+<h3>Empowering Communication and Decoupling Communication Parties</h3><p>It is quite usual for applications to have components that perform a communication based on request-response paradigm. This is especially true when building user interfaces. </p>
+<p>Capsula library provides the concept of <em>service</em> to decouple clients from the server and enable them to be more powerful and yet independent and reusable. Service is a named facade that simplifies server's interface and handles communication. For example, a widget that performs communication with the server to display data usually depends on both the communication channel (by using the select communication API) and the server (by using the server's URL). The concept of service helps here to completely decouple the clients (widgets) from the specifics of communication channel or the opposite communication party.</p>
+<p>To learn how services empower communication read the <em>services.js</em> module for more information.</p>
+<h3>Further Reading</h3><p>To continue reading, please check the capsula.js module to make yourself familiar with all the basic concepts of Capsula library, then proceed to html.js and services.js modules.</p></article>
+    </section>
+
+
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>capsula.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Capsula.js module introduces the encapsulation model and all the essential concepts of the Capsula library. Read <a href="module-capsula.html">more</a>.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-copyright">Copyright:</dt>
+    <dd class="tag-copyright"><ul class="dummy"><li>2018 SOL Software</li></ul></dd>
+    
+
+    
+    <dt class="tag-license">License:</dt>
+    <dd class="tag-license"><ul class="dummy"><li>Apache-2.0</li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>html.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">HTML module provides a mechanism to bind the world of capsules to the world of HTML using both templates and object-orientation. Read <a href="module-html.html">more</a>.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-copyright">Copyright:</dt>
+    <dd class="tag-copyright"><ul class="dummy"><li>2018 SOL Software</li></ul></dd>
+    
+
+    
+    <dt class="tag-license">License:</dt>
+    <dd class="tag-license"><ul class="dummy"><li>Apache-2.0</li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="html.js.html">html.js</a>, <a href="html.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>services.js</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Services module enables capsules to communicate with third-parties in an optimal way, free of implementation-level details. Read <a href="module-services.html">more</a>.</div>
+        
+
+        
+
+
+<dl class="details">
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-copyright">Copyright:</dt>
+    <dd class="tag-copyright"><ul class="dummy"><li>2018 SOL Software</li></ul></dd>
+    
+
+    
+    <dt class="tag-license">License:</dt>
+    <dd class="tag-license"><ul class="dummy"><li>Apache-2.0</li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="services.js.html">services.js</a>, <a href="services.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> on Tue May 29 2018 11:18:50 GMT+0200 (Central Europe Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

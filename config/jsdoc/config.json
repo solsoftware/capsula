@@ -1,0 +1,16 @@
+{
+    "opts": {
+        "destination": "./doc/",
+        "encoding": "utf8"
+    },
+    "templates": {
+        "default": {
+            "layoutFile": "layout.tmpl",
+            "staticFiles": {
+                "include": [
+                    "./static"
+                ]
+            }
+        }
+    }
+}

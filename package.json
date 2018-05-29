@@ -1,0 +1,19 @@
+{
+    "name": "capsula",
+    "version": "0.1.0",
+    "description": "Capsula is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated components called 'capsules'.",
+    "keywords": ["capsula", "encapsulation", "user interfaces"],
+    "homepage": "https://github.com/solsoftware/capsula",
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/solsoftware/capsula/issues",
+        "email": "zarko.mijailovic@sol.rs"
+    },
+    "contributors": ["Zarko Mijailovic <zarko.mijailovic@sol.rs> (https://github.com/zarkomijailovic)", "Dragan Milicev <dragan.milicev@sol.rs> (http://afrodita.rcub.bg.ac.rs/~dmilicev)"
+    ],
+    "main": "dist/capsula.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/solsoftware/capsula.git"
+    }
+}

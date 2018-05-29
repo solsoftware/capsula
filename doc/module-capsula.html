@@ -1,0 +1,2989 @@
+<!-- 
+   Copyright 2018 SOL Software
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: capsula</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+	<link type="text/css" rel="stylesheet" href="../config/jsdoc/custom.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Module: capsula</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description"><p> Capsula.js is the core module of Capsula library. The base concept of Capsula library is the <i>Capsule</i>, a class similar to an OO class with different encapsulation model and many new and powerful concepts. Start learning by reading the documentation for <a href="module-capsula.Capsule.html">the Capsule class</a>. Then carefully cover the concepts of <a href="module-capsula.Operation.html">Operations</a>, <a href="module-capsula.Hook.html">Hooks</a>, and <a href="module-capsula.Loop.html">Loops</a>.<p> To create new Capsule class, use <a href="module-capsula.html#.defCapsule">defCapsule</a> method.<p> To wrap any external element and use it as a capsule instance, check out <a href="module-capsula.ElementRef.html">ElementRef</a> capsule.</div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-version">Version:</dt>
+    <dd class="tag-version"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5442">line 5442</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+        <h3 class="subsection-title">Requires</h3>
+
+        <ul>
+            <li><a href="module-services.html">module:services</a></li>
+        </ul>
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="module-capsula.Capsule.html">Capsule</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-capsula.ElementRef.html">ElementRef</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-capsula.Hook.html">Hook</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-capsula.Input.html">Input</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-capsula.Loop.html">Loop</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-capsula.Operation.html">Operation</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-capsula.Output.html">Output</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl>
+            <dt><a href="module-capsula.Errors.html">Errors</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-capsula.ServiceType.html">ServiceType</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".STOP"><span class="type-signature">(static, constant) </span>STOP<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Constant to return from operation's filter function or to use as an argument in operation's <a href="module-capsula.Operation.html#setFilter">setFilter</a> to stop propagation of operation call (read more on filters in <a href="module-capsula.Operation.html#setFilter">setFilter</a>, <a href="module-capsula.Operation.html#getFilter">getFilter</a>, and <a href="module-capsula.Operation.html">operation's documentation</a>).
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5296">line 5296</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".contextualize"><span class="type-signature">(static) </span>contextualize<span class="signature">(f)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called; when called, the returned (contextualized) function executes the given (in argument) function in that ("remembered") context. More on contexts is given <a href="module-capsula.Capsule.html">here</a>.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>f</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function to be executed by the returned contextualized function in the context in which contextualize is called</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line749">line 749</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    contextualized function that executes the given function in the context in which contextualize is called
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">function</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".defCapsule"><span class="type-signature">(static) </span>defCapsule<span class="signature">(def)</span><span class="type-signature"> &rarr; {function}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Creates and returns a capsule constructor function based on the given capsule (class) definition object.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>def</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">capsule (class) definition object</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line889">line 889</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.DUPLICATE_NAME">DUPLICATE_NAME</a>, <a href="module-capsula.Errors.html#.ILLEGAL_METHODS_VISIBILITY">ILLEGAL_METHODS_VISIBILITY</a>, <a href="module-capsula.Errors.html#.ELEMENT_NOT_FOUND">ELEMENT_NOT_FOUND</a>, <a href="module-capsula.Errors.html#.WIRE_INCOMPATIBILITY">WIRE_INCOMPATIBILITY</a>, <a href="module-capsula.Errors.html#.TIE_INCOMPATIBILITY">TIE_INCOMPATIBILITY</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    capsule constructor function
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">function</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+    <h5>Examples</h5>
+    
+        <p class="code-caption">The simplest possible capsule (class)</p>
+    
+    <pre class="prettyprint"><code>let TheSimplest = sol.defCapsule({}); // creates capsule classlet capsule = new TheSimplest();      // creates capsule object</code></pre>
+
+        <p class="code-caption">Simple capsule (class) with two operations, hook, and loop</p>
+    
+    <pre class="prettyprint"><code>let Simple = sol.defCapsule({    '> in': null,  // an input operation named in    '&lt; out': null, // an output operation named out    hooks: 'h',    // a hook named h    loops: 'l'     // a loop named l});</code></pre>
+
+        <p class="code-caption">Full-featured capsule (class)</p>
+    
+    <pre class="prettyprint"><code>var FullFeatured = sol.defCapsule({    isAbstract: false, // or true (to prevent creation of direct instances)    base: TheSimplest, // inherit from TheSimplest    init: function(){  // the constructor function        // ...    },    handle: function(error){ // error handler function, for all errors thrown inside this capsule        // ...    },    // hooks and loops    hooks: ['h1', 'h2'], // an array of hooks, or a single string in case of a single hook    loops: 'l1',         // an array of loops, or a single string in case of a single loop    // input declarations    '> in1': null,       // declaration of an input operation    '> in2': function(){ // input operation wired to a protected method with the same name        return 'Hi';    },    '> in3': 'this.out1',            // input operation wired to an existing output operation    '> in4': ['this.out1', 'p1.in'], // input operation wired to several existing output operations    // output declarations    '&lt; out1': null,                   // declaration of an output operation    '&lt; out2': function(arg1, arg2){}, // operation parameters declaratively listed, the body does not count    // filters    'f this.in1': function(){ // operation filter returning an array of filtered values        return [...];    },    'f this.in2': function(){ // operation filter preventing propagation of operation calls        return sol.STOP;    },    // public and protected methods    '+ publicMethod': function(){ // declaration of public method        return 'Hi';    },    privateMethod: function(){    // declaration of protected method        return 'Hello world';    },    // part declarations    p1: Part,             // no arguments    p2: {                 // the same as above        capsule: Part    },    p3: {                 // fixed arguments        capsule: Part,        args: 'Hi world'  // args or arguments (can be used interchangeably)    },    p4: {                 // the same arguments used for instantiation of this (FullFeatured) capsule        capsule: Part,        args: 'this.args'    },    p5: {                 // arguments created "on spot" using function        capsule: Part,        deferredArgs: function(){            return {message: 'Hello world'};        }    },    // wires    'this.in1': ['this.out1', 'p1.in'],    'this.in2': 'this.out2',    'p2.out': 'this.out1',    'p3.out': ['this.out2', 'p4.in'],    // ties    'this.l1': 'p1.l',    'p1.h': ['p2.l', 'p3.l', 'this.h1'],    // data    sharedInitialValue: {...}, // all instances share the same value (object, array, or whatever), but the reference is not static, it is just initialized with the same value for each FullFeatured capsule    myObject: '*{}',        // each capsule gets its own Object in myObject    myArray: '*[]',         // each capsule gets its own Array in myArray    myMap: '*Map',          // each capsule gets its own Map in myMap    mySet: '*Set',          // each capsule gets its own Set in mySet    myWeakMap: '*WeakMap',  // each capsule gets its own WeakMap in myWeakMap    myWeakSet: '*WeakSet',  // each capsule gets its own WeakSet in myWeakSet    myData: {               // general case for data        call: function(){   // "call" can be replaced with "new" if the function is to be called using the "new" operator            return ...;     // myData becomes what is returned here        },        args: ...           // (arguments / deferredArgs) arguments for the function above it; the same as with parts (see above)    },});</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".extend"><span class="type-signature">(static) </span>extend<span class="signature">(Sub, Base)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p> Not meant to be used by regular users; only by those who work on the framework itself.<p> Declares that the derived class Sub (i.e. its constructor function) inherits the base class Base. Sets the prototype chain so that instanceof operator and constructor property work correctly. Also, provides the access to the base class constructor via super$ property of the Sub constructor.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>Sub</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function that acts as a sub-class constructor</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>Base</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function constructor that acts as a base class constructor</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5093">line 5093</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".isCapsule"><span class="type-signature">(static) </span>isCapsule<span class="signature">(obj)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Checks whether the given object is (instance of) capsule or not.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">object to be checked</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4390">line 4390</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    whether the given object is (instance of) capsule or not
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".isCapsuleConstructor"><span class="type-signature">(static) </span>isCapsuleConstructor<span class="signature">(func)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Checks whether the given function is capsule constructor (i.e. created using <a href="module-capsula.html#.defCapsule">defCapsule</a>) or not.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>func</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function to be checked</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4404">line 4404</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    whether the given function is capsule constructor or not
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".isHook"><span class="type-signature">(static) </span>isHook<span class="signature">(obj)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Checks whether the given object is <a href="module-capsula.Hook.html">hook</a> or not.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">object to be checked</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4454">line 4454</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    whether the given object is hook or not
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".isLoop"><span class="type-signature">(static) </span>isLoop<span class="signature">(obj)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Checks whether the given object is <a href="module-capsula.Loop.html">loop</a> or not.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">object to be checked</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4475">line 4475</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    whether the given object is loop or not
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".isOperation"><span class="type-signature">(static) </span>isOperation<span class="signature">(obj)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Checks whether the given object is <a href="module-capsula.Operation.html">operation</a> or not.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">object to be checked</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4510">line 4510</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    whether the given object is operation or not
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".setDefaultElementHandlers"><span class="type-signature">(static) </span>setDefaultElementHandlers<span class="signature">(onHook, offHook, setClasses)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p> This function gives the (domain-specific) meaning to connecting hooks and loops. Before reading this, one should be familiar with <a href="module-capsula.Hook.html">information on hooks and loops</a>.<p> Function setDefaultElementHandlers injects onHook, offHook, and setClasses functions into the framework, later to be called by the framework when certain events occur. Events that trigger calls to onHook, offHook, and setClasses functions are related to paths of hooks and loops.<p> onHook, offHook, and setClasses functions are therefore always called with respect to a path that changed: when a path of hooks and loops gets completed onHook function is called; when completed path of hooks and loops gets broken (fragmented) offHook is called; when <a href="module-capsula.Hook.html#setClass">setClass</a> is called on a hook that sits on a complete path of hooks and loops setClasses is called. In each of the cases the function may be called more than once, depending on a number of affected elements.<p> onHook and offHook functions should actually modify the hierarchy of (external) elements. onHook function should create a parent-child relationship between two elements. offHook function should break a parent-child relationship between two elements.<p> onHook function is called by the framework with the following arguments: <br>- hookElement - parent element in the parent-child relationship to be created by the onHook function; this element is represented by the connector hook of the path that just got completed <br>- loopElement - child element in the parent-child relationship to be created by the onHook function; this element is represented by the connector loop of the path that just got completed <br>- afterElement - the element before which the loopElement should be placed in a collection of child elements of the hookElement <br>- classes - a collection of classes to add to the loopElement (interpretation of classes is left undefined and depends on the domain); (see hook's <a href="module-capsula.Hook.html#setClass">setClass method</a>) <br><p> offHook function is called by the framework with the following arguments: <br>- hookElement - parent element in the parent-child relationship to be broken by the offHook function; this element is represented by the connector hook of the path that just got broken <br>- loopElement - child element in the parent-child relationship to be broken by the offHook function; this element is represented by the connector loop of the path that just got broken <br>- classes - a collection of classes to remove from the loopElement <br><p> setClasses function should apply the list of classes to an element.<p> setClasses function is called by the framework with the following arguments: <br>- loopElement - this element is represented by the connector loop of the complete path in which any of the hooks got its class modified (by setClass) <br>- classes - a collection of classes to set to the loopElement <br><p> The example bellow shows how to implement onHook, offHook, and setClasses functions for DOM elements. This example is exactly how <a href="module-html.html">html.js module</a> injects these functions into the framework to handle hierarchy of HTML (DOM) elements.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>onHook</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function that creates a parent-child relationship between two (external) elements</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>offHook</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function that breaks a parent-child relationship between two (external) elements</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setClasses</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function that updates classes of an element</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3124">line 3124</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+        <p class="code-caption">Example of setting onHook and offHook functions when elements are assumed to be the DOM elements</p>
+    
+    <pre class="prettyprint"><code>capsula.setDefaultElementHandlers(    function onHook(hookElement, loopElement, afterElement, classes) {        if (afterElement)            hookElement.insertBefore(loopElement, afterElement); // DOM's insertBefore        else            hookElement.appendChild(loopElement); // DOM's appendChild        for (var i = 0; i &lt; classes.length; i++)            loopElement.classList.add(classes[i]); // DOM's classList and add    },    function offHook(hookElement, loopElement, classes) {        if (loopElement.parentElement === hookElement)            hookElement.removeChild(loopElement); // DOM's removeChild        for (var i = 0; i &lt; classes.length; i++)            loopElement.classList.remove(classes[i]); // DOM's classList and remove    },    function setClasses(loopElement, classes){        var classList = loopElement.classList;        while (classList.length > 0)            classList.remove(classList.item(0));        classList.add.apply(classList, classes);    });</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".signOffForPostProcessing"><span class="type-signature">(static) </span>signOffForPostProcessing<span class="signature">(fn)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p> <i>Experimental feature. </i><p> Removes the given function from the list of callbacks that will be called each time asynhronous propagation of <a href="module-capsula.Operation.html">operation</a> calls is completed.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function to be removed</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2202">line 2202</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".signOnForPostProcessing"><span class="type-signature">(static) </span>signOnForPostProcessing<span class="signature">(fn)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p> <i>Experimental feature. </i><p> Adds the given function to the list of callbacks that will be called each time asynhronous propagation of <a href="module-capsula.Operation.html">operation</a> calls is completed.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">function to be added</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2185">line 2185</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".tie"><span class="type-signature">(static) </span>tie<span class="signature">(hkLp1, hkLp2)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Ties the two given <a href="module-capsula.Hook.html">hooks</a> or <a href="module-capsula.Loop.html">loops</a> according to the current context of execution. There is no requirement in terms of ordering of the two arguments.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hkLp1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
+|
+
+<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hook or loop to be tied</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hkLp2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
+|
+
+<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hook or loop to be tied</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3340">line 3340</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".untie"><span class="type-signature">(static) </span>untie<span class="signature">(hkLp1, hkLp2)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Unties (breaks the tie between) the two given <a href="module-capsula.Hook.html">hooks</a> or <a href="module-capsula.Loop.html">loops</a> according to the current context of execution. There is no requirement in terms of ordering of the two arguments.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hkLp1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
+|
+
+<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hook or loop to be untied</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hkLp2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
+|
+
+<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">hook or loop to be untied</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3356">line 3356</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".unwire"><span class="type-signature">(static) </span>unwire<span class="signature">(oper1, oper2)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Unwires (breaks the wire between) the two given <a href="module-capsula.Operation.html">operations</a> (if the wire exists) according to the current context of execution. At least one of the two arguments must be an operation. There is no requirement in terms of ordering of the two arguments.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>oper1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Operation.html">module:capsula.Operation</a></span>
+|
+
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">operation or function to be unwired</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>oper2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Operation.html">module:capsula.Operation</a></span>
+|
+
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">operation or function to be unwired</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2368">line 2368</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".wire"><span class="type-signature">(static) </span>wire<span class="signature">(oper1, oper2)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Wires the two given <a href="module-capsula.Operation.html">operations</a> or the given operation and function according to the current context of execution. At least one of the two arguments must be an operation. There is no requirement in terms of ordering of the two arguments.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>oper1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Operation.html">module:capsula.Operation</a></span>
+|
+
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">operation or function to be wired</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>oper2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Operation.html">module:capsula.Operation</a></span>
+|
+
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">operation or function to be wired</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2348">line 2348</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> on Tue May 29 2018 11:18:50 GMT+0200 (Central Europe Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
