@@ -8,9 +8,26 @@ At this stage, the most valuable contribution would be to provide us with both p
 
 Additional information for contributors are given in the following lines of this document.
 
+## Issues
+
+Use [Github issues](https://github.com/solsoftware/capsula/issues) to report problems, suggest improvements, etc.
+
 ## Source
 
 All modules are located in src folder. To create new modules, make sure you put them there.
+
+## Files
+
+This project's files are placed into the following folders:
+
+- config: configuration (for contributors)
+- dist: minified files
+- doc: documentation
+- draw.io: source files for images used in documentation
+- jasmine: tests
+- src: source code
+- static: static files that JSDoc uses to generate documentation
+- sandbox: web project example (for getting started quickly and easily)
 
 ## Tests
 
@@ -76,9 +93,10 @@ For a quick start, just copy the contents of the sandbox folder into the root fo
 ## New Release Procedure
 
 1. Modify source code (src folder) or tests (jasmine and jasmine/spec folders) or anything else (documentation, drawings, configuration, etc.) which makes up your contribution.
-2. Run all tests (see [Tests](#tests)) and verify that everything works as expected. All tests should pass. If that is the case, continue with this procedure. Otherwise, go back to the point 1 and do all the necessary corrections.
-3. Format the source code according to the formatting rules (see [Code Formatting](#code-formatting)).
-4. Copy all .js files from src folder to jasmine/src and sandbox/scripts/lib folders.
-5. Generate minified files (see [Dist](#dist)) and place them into the dist folder.
-6. Generate documentation (see [Documentation](#documentation)). 
-7. Increase the version in package.json file according to the rules of [semantic versioning](https://semver.org/).
+2. Format the (modified) source code according to the formatting rules (see [Code Formatting](#code-formatting)).
+3. Copy all .js files from src folder to jasmine/src.
+4. Run all tests (see [Tests](#tests)) and verify that everything works as expected. All tests should pass. If that is the case, continue with this procedure. Otherwise, go back to the point 1 and do all the necessary corrections.
+5. Copy all .js files from src folder sandbox/scripts/lib folders.
+6. Generate minified files (see [Dist](#dist)) and place them into the dist folder.
+7. Generate documentation (see [Documentation](#documentation)).
+8. Increase the version in package.json file according to the rules of [semantic versioning](https://semver.org/).

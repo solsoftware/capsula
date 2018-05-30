@@ -23,9 +23,9 @@ limitations under the License.
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['services', 'capsula'], factory);
+        define(['./services', './capsula'], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('services'), require('capsula'));
+        module.exports = factory(require('./services'), require('./capsula'));
     } else {
         root.html = factory(root.services, root.capsula);
     }

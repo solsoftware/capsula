@@ -1,4 +1,4 @@
-(function(root,factory){if(typeof define==='function'&&define.amd){define(['services','capsula'],factory);}else if(typeof module==='object'&&module.exports){module.exports=factory(require('services'),require('capsula'));}else{root.html=factory(root.services,root.capsula);}}
+(function(root,factory){if(typeof define==='function'&&define.amd){define(['./services','./capsula'],factory);}else if(typeof module==='object'&&module.exports){module.exports=factory(require('./services'),require('./capsula'));}else{root.html=factory(root.services,root.capsula);}}
 (this,function(services,cps){'use strict';cps.setDefaultElementHandlers(function onHookDefault_(hookElement,loopElement,afterElement,classes){if(afterElement)
 hookElement.insertBefore(loopElement,afterElement);else
 hookElement.appendChild(loopElement);for(var i=0;i<classes.length;i++)

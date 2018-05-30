@@ -23,9 +23,9 @@ limitations under the License.
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['services'], factory);
+        define(['./services'], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('services'));
+        module.exports = factory(require('./services'));
     } else {
         root.capsula = factory(root.services); // File name and the exported global should have matching names.
     }

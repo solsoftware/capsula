@@ -1,4 +1,4 @@
-(function(root,factory){if(typeof define==='function'&&define.amd){define(['services'],factory);}else if(typeof module==='object'&&module.exports){module.exports=factory(require('services'));}else{root.capsula=factory(root.services);}}
+(function(root,factory){if(typeof define==='function'&&define.amd){define(['./services'],factory);}else if(typeof module==='object'&&module.exports){module.exports=factory(require('./services'));}else{root.capsula=factory(root.services);}}
 (this,function(services){'use strict';var idGen_=0;function PrivateData_(){this.id=++idGen_;this.name=null;this.owner=null;}
 function CapsuleData_(){PrivateData_.call(this);this.parts=[];this.pins=[];this.hooks=[];this.loops=[];this.data={};this.currentOperation=null;this.superPrototype=null;}
 CapsuleData_.prototype=Object.create(PrivateData_.prototype);function OperationData_(){PrivateData_.call(this);this.isInput=false;this.targets=[];this.entryEnabled=true;this.exitEnabled=true;this.entryPipe=null;this.exitPipe=null;this.entryLastVal=null;this.exitLastVal=null;this.unpack=true;}
