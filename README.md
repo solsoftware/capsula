@@ -9,35 +9,71 @@ Install **Capsula** using npm.
 npm i @solsoftware/capsula
 ```
 
-At this point, Capsula consists of three modules: capsula (core module), services, and html. Module services does not have any dependencies. Module capsula depends on services module only, while the html module depends both on capsula and services modules. Module html also depends on the DOM API.
+At this point, Capsula comprises three modules: capsula (the core module), services, and html. More modules are coming soon.
 
-To start using capsula module, try:
+### Using Capsula within your web browser
 
+To start in a rather trivial way just take the following lines and put them into your web page:
+
+```html
+<script src="yourPathToCapsula/services.js"></script>
+<script src="yourPathToCapsula/capsula.js"></script>
+<script src="yourPathToCapsula/html.js"></script>
 ```
-var capsula = require('@solsoftware/capsula');
 
-var C = capsula.defCapsule({ // new capsule class
-	'> x': function(){
-		return 'Hello world!';
-	}
+Otherwise, to require modules using RequireJS try:
+
+```js
+require(['capsula'], function (capsula) {
+    ...
 });
+require(['html'], function (html) {
+    ...
+});
+require(['services'], function (services) {
+    ...
+});
+```
 
+or all in one:
+
+```js
+requirejs(['services', 'capsula', 'html'], function (services, capsula, html) {
+    ...
+});
+```
+
+Now that you are ready, try the following "Hello world" examples:
+
+```js
+var C = capsula.defCapsule({ // new capsule class
+        '> x': function () { // new input operation
+            return 'Hello world!';
+        }
+    });
 var c = new C(); // new capsule instance
-
 console.log(c.x()); // Hello world!
 ```
 
-then require services module to implement communication:
+To play with an existing html element:
 
+```js
+var bodyWrapper = new html.Element(document.body, ['click']);
+bodyWrapper.click.target(function (e) {
+    alert('Clicked!');
+});
 ```
+
+### Using Capsula with Node.js
+
+To require core capsula module and services module try:
+
+```js
+var capsula = require('@solsoftware/capsula');
 var services = require('@solsoftware/capsula/dist/services');
 ```
 
-and finally, require html module if you want to build web pages (within web browser, of course):
-
-```
-var html = require('@solsoftware/capsula/dist/html');
-```
+Module html is missing here, since it depends on the DOM API; i.e. it does not really work server side.
 
 ## Documentation
 
