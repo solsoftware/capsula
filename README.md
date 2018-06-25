@@ -93,7 +93,7 @@ Module html is missing here, since it depends on the DOM API; i.e. it does not r
 
 ## Documentation
 
-To browse documentation open follow the `docs/index.html` URL from the [project's home page](https://github.com/solsoftware/capsula).
+Documentation is available [here](https://solsoftware.github.io/capsula/).
 
 ## Contributing
 
