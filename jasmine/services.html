@@ -29,37 +29,13 @@
   <script src="lib/jquery-3.2.1.min.js"></script>
 
   <!-- include source files here... -->
-  <script src="src/services.js"></script>
-  <script src="src/capsula.js"></script>
-  <script src="src/html.js"></script>
+  <script src="../src/services.js"></script>
+  <script src="../src/capsula.js"></script>
+  <script src="../src/html.js"></script>
 
   <!-- include spec files here... -->
   <script src="spec/helpers.js"></script>
   <script src="spec/services.js"></script>
 
-  <script id="worker" type="javascript/worker">
-    self.onmessage = function(e) {
-		var response = [];
-		for (var i = 0; i < e.data.length; i++){
-			response.push({message: e.data[i].message + ' Hello main!', success: true});
-		}
-		self.postMessage(response);
-    };
-  </script>
-  
-  <script id="shared-worker" type="javascript/worker">
-	self.onconnect = function(e) {
-		var port = e.ports[0];
-		port.start();
-		
-		port.onmessage = function(e) {
-			var response = [];
-			for (var i = 0; i < e.data.length; i++){
-				response.push({message: e.data[i].message + ' Hello main!', success: true});
-			}
-			port.postMessage(response);
-		};
-	};
-  </script>
 </head>
 </html>

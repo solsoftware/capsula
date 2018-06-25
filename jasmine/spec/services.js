@@ -103,7 +103,7 @@ describe('Services', function () {
 
         it('should verify service is registered', function () {
             expect(function () {
-                services.register('s', {
+                services.register('new_service', {
                     type: html.ServiceType.AJAX
                 });
             }).not.toThrowError();
@@ -111,7 +111,10 @@ describe('Services', function () {
 
         it('should throw error when service with the given name alredy exists', function () {
             expect(function () {
-                services.register('s', {
+				services.register('duplicate_service', {
+                    type: html.ServiceType.AJAX
+                });
+                services.register('duplicate_service', {
                     type: html.ServiceType.AJAX
                 });
             }).toThrowError(errorToRegExp(services.Errors.SERVICE_ALREADY_REGISTERED));
@@ -119,14 +122,19 @@ describe('Services', function () {
 
         it('should verify service is overwritten', function () {
             expect(function () {
-                services.register('s', {
+				services.register('overwritten_service', {
+                    type: html.ServiceType.AJAX
+                }, true);
+                services.register('overwritten_service', {
                     type: html.ServiceType.AJAX
                 }, true);
             }).not.toThrowError();
         });
 
         afterAll(function () {
-            services.unregister('s');
+            services.unregister('overwritten_service');
+            services.unregister('duplicate_service');
+            services.unregister('new_service');
         });
     });
 
@@ -775,11 +783,22 @@ describe('Services', function () {
         });
 
         describe('WORKER service type', function () {
+            beforeAll(function () {});
+
             describe('dedicated worker', function () {
                 var url,
                 worker;
                 beforeAll(function () {
-                    var blob = new Blob([document.querySelector('#worker').textContent]);
+
+                    var blob = new Blob([
+                                "self.onmessage = function(e) {" + 
+								"	var response = [];" + 
+								"	for (var i = 0; i < e.data.length; i++){" + 
+								"		response.push({message: e.data[i].message + ' Hello main!', success: true});" + 
+								"	}" + 
+								"	self.postMessage(response);" + 
+								"};"]);
+
                     url = window.URL.createObjectURL(blob);
                     worker = new Worker(url);
 
@@ -813,7 +832,18 @@ describe('Services', function () {
                 var url,
                 sharedWorker;
                 beforeAll(function () {
-                    var blob = new Blob([document.querySelector('#shared-worker').textContent]);
+                    var blob = new Blob([
+                                "self.onconnect = function(e) {" + 
+								"	var port = e.ports[0];" + 
+								"	port.start();" + 
+								"	port.onmessage = function(e) {" + 
+								"		var response = [];" + 
+								"		for (var i = 0; i < e.data.length; i++){" + 
+								"			response.push({message: e.data[i].message + ' Hello main!', success: true});" + 
+								"		}" + 
+								"		port.postMessage(response);" + 
+								"	};" + 
+								"};"]);
                     url = window.URL.createObjectURL(blob);
                     sharedWorker = new SharedWorker(url);
 

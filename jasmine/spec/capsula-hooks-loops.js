@@ -17,23 +17,25 @@ limitations under the License.
 describe('hooks & loops', function () {
     var sol = window.capsula,
     XCapsule_,
-    sandboxDiv,
+    sandboxDiv = document.createElement('div'),
     sandbox;
+
+    sandboxDiv.setAttribute('id', 'hooks-and-loops-sandbox');
 
     function errorToRegExp(error) {
         return new RegExp(error.desc.replace(/\$\d/g, ".+").replace('(', '\\(').replace(')', '\\)'));
     }
 
     beforeAll(function () {
+        document.body.appendChild(sandboxDiv);
+        sandbox = new sol.ElementRef(sandboxDiv);
+
         XCapsule_ = sol.defCapsule({
                 '>doThis': function () {},
                 '<onThat': function () {},
                 hooks: 'hook',
                 loops: 'loop',
             });
-
-        sandboxDiv = document.getElementById('hooks-and-loops-sandbox');
-        sandbox = new sol.ElementRef(sandboxDiv);
     });
 
     describe('containment checks', function () {

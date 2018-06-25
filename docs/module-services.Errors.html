@@ -18,7 +18,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Request</title>
+    <title>JSDoc: Namespace: Errors</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -34,7 +34,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Request</h1>
+    <h1 class="page-title">Namespace: Errors</h1>
 
     
 
@@ -45,10 +45,8 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-services.html">services</a>.</span>Request<span class="signature">(body)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p> A class not meant to be directly instantiated by the users of the API.<p> However, when implementing a new service type i.e. when implementing service type's service function, Request object's properties are used a) to get corresponding client's request (the body property) and b) to get resolve and reject functions of the Promise of the Request object (resolve and reject properties). See the <a href="module-services.html#.registerType">registerType</a> function for more details, including the examples.</div>
+        <h2>
+            <span class="ancestors"><a href="module-services.html">services</a>.</span>Errors</h2>
         
     
 </header>
@@ -57,88 +55,19 @@
     <div class="container-overview">
     
         
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="Request"><span class="type-signature"></span>new Request<span class="signature">(body)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Creates a Request object as a wrapper of a client's request object.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
+            <div class="description">A collection of <a href="module-services.ErrorMessage.html">ErrorMessage</a> objects to use in appropriate erroneous situations.</div>
         
 
         
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>body</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">client's request object</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
 
 
 <dl class="details">
 
     
 
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
     
 
     
@@ -164,7 +93,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services.js.html">services.js</a>, <a href="services.js.html#line282">line 282</a>
+        <a href="services.js.html">services.js</a>, <a href="services.js.html#line564">line 564</a>
     </li></ul></dd>
     
 
@@ -176,22 +105,7 @@
 </dl>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
     
     </div>
 
@@ -212,26 +126,16 @@
 
         
             
-<h4 class="name" id="body"><span class="type-signature"></span>body<span class="type-signature"> :Object</span></h4>
+<h4 class="name" id=".ERRONEOUS_RESPONSE"><span class="type-signature">(static) </span>ERRONEOUS_RESPONSE<span class="type-signature"></span></h4>
 
 
 
 
 <div class="description">
-    The client's request itself (request body).
+    Usage: in case of service returns bad response. Error message (without $1 placeholder replaced and with the error code):<p><i> 'Oops! The service returned an erroneous response. $1 (#2004)' </i>
 </div>
 
 
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Object</span>
-
-
-        </li>
-    </ul>
 
 
 
@@ -266,7 +170,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services.js.html">services.js</a>, <a href="services.js.html#line289">line 289</a>
+        <a href="services.js.html">services.js</a>, <a href="services.js.html#line589">line 589</a>
     </li></ul></dd>
     
 
@@ -284,26 +188,16 @@
 
         
             
-<h4 class="name" id="promise"><span class="type-signature"></span>promise<span class="type-signature"> :Promise</span></h4>
+<h4 class="name" id=".ILLEGAL_ARGUMENT"><span class="type-signature">(static) </span>ILLEGAL_ARGUMENT<span class="type-signature"></span></h4>
 
 
 
 
 <div class="description">
-    The client request's Promise.
+    Usage: when function argument is not according to expectations. Error message (without $1 placeholder replaced and with the error code):<p><i> 'Oops! Illegal argument(s). $1 (#2000)' </i>
 </div>
 
 
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Promise</span>
-
-
-        </li>
-    </ul>
 
 
 
@@ -338,7 +232,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services.js.html">services.js</a>, <a href="services.js.html#line315">line 315</a>
+        <a href="services.js.html">services.js</a>, <a href="services.js.html#line569">line 569</a>
     </li></ul></dd>
     
 
@@ -356,26 +250,16 @@
 
         
             
-<h4 class="name" id="reject"><span class="type-signature"></span>reject<span class="type-signature"> :function</span></h4>
+<h4 class="name" id=".ILLEGAL_RESPONSE_SIZE"><span class="type-signature">(static) </span>ILLEGAL_RESPONSE_SIZE<span class="type-signature"></span></h4>
 
 
 
 
 <div class="description">
-    The client request Promise's reject function.
+    Usage: in case of service returns response of illegal size (not equal to the number of requests). Error message (with the error code):<p><i> 'Oops! Make sure the service returns an array equally sized to the number of (logical) requests. (#2003)' </i>
 </div>
 
 
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">function</span>
-
-
-        </li>
-    </ul>
 
 
 
@@ -410,7 +294,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services.js.html">services.js</a>, <a href="services.js.html#line305">line 305</a>
+        <a href="services.js.html">services.js</a>, <a href="services.js.html#line584">line 584</a>
     </li></ul></dd>
     
 
@@ -428,26 +312,16 @@
 
         
             
-<h4 class="name" id="resolve"><span class="type-signature"></span>resolve<span class="type-signature"> :function</span></h4>
+<h4 class="name" id=".SERVICE_ALREADY_REGISTERED"><span class="type-signature">(static) </span>SERVICE_ALREADY_REGISTERED<span class="type-signature"></span></h4>
 
 
 
 
 <div class="description">
-    The client request Promise's resolve function.
+    Usage: in case of someone tries to register service with the name of an already existing service. Error message (without $1 placeholder replaced and with the error code):<p><i> 'Oops! The service with the given name has already been registered: $1. (#2002)' </i>
 </div>
 
 
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">function</span>
-
-
-        </li>
-    </ul>
 
 
 
@@ -482,7 +356,69 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services.js.html">services.js</a>, <a href="services.js.html#line297">line 297</a>
+        <a href="services.js.html">services.js</a>, <a href="services.js.html#line579">line 579</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".SERVICE_UNREGISTERED"><span class="type-signature">(static) </span>SERVICE_UNREGISTERED<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Usage: in case of someone referring to an unexisting service. Error message (without $1 placeholder replaced and with the error code):<p><i> 'Oops! The service with the given name has not been registered: $1. (#2001)' </i>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="services.js.html">services.js</a>, <a href="services.js.html#line574">line 574</a>
     </li></ul></dd>
     
 
@@ -522,7 +458,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a> on Tue May 29 2018 11:18:51 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jun 25 2018 16:06:41 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

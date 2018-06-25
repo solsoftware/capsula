@@ -5428,6 +5428,16 @@ limitations under the License.
         });
 
         // *****************************
+        // Polyfills
+        // *****************************
+
+        // Object.setPrototypeOf, only works in Chrome and FireFox, does not work in IE:
+        Object.setPrototypeOf = Object.setPrototypeOf || function (obj, proto) {
+            obj.__proto__ = proto;
+            return obj;
+        };
+
+        // *****************************
         // Public Section
         // *****************************
 

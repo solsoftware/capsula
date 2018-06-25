@@ -76,6 +76,10 @@ bodyWrapper.click.target(function (e) {
 });
 ```
 
+## Sandbox
+
+For a quick start, just copy the contents of the `sandbox` folder into the root folder of your web app and open the `index.html` file from your web browser ("Hello world"). The source code for the "Hello world" example is in the `sandbox/scripts/main.js` file.
+
 ### Using Capsula with Node.js
 
 To require core capsula module and services module try:
@@ -89,7 +93,7 @@ Module html is missing here, since it depends on the DOM API; i.e. it does not r
 
 ## Documentation
 
-To browse documentation open follow the `doc/index.html` URL from the [project's home page](https://github.com/solsoftware/capsula).
+To browse documentation open follow the `docs/index.html` URL from the [project's home page](https://github.com/solsoftware/capsula).
 
 ## Contributing
 
