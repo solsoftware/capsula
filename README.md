@@ -1,17 +1,13 @@
 # Capsula
-**Capsula** is a JavaScript library for building user interfaces and other types of event-driven applications using truly encapsulated software components called *capsules*.
+**Capsula** is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated software components called *capsules*. Capsula is executable both within the browser and node.js.
 
-In many ways capsules are similar to the typical [OO](https://en.wikipedia.org/wiki/Object-oriented_programming) classes. They support single inheritance model and polymorphism the way OO classes do. However, capsules differ from OO classes in many ways as well. They are dynamic the way JavaScript language is. Also, they employ rather novel encapsulation model and accommodate many new and powerful concepts designed to handle complexity and favour encapsulation, flexibility, and reuse.
+Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favour abstraction, encapsulation, flexibility, and reuse. It also provides for both declarative and imperative programming styles, letting the programmer decide when to use which of the two and when to combine them.
 
-In a typical OO encapsulation model, all public properties and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we have to carefully manage references to avoid our code becoming "spaghetti". And this may be a bit too difficult. Capsula proposes a restriction to the typical OO policy of access rights. The restriction is simple to understand and use while being rather effective. It comes down to this: "You access what you create."
+Capsula exhibits concepts specifically dedicated to the domain of user interfaces. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
 
-Apart from the novel encapsulation model which is useful in any application domain, Capsula exhibits concepts specifically dedicated to the domain of user interfaces (or more generally, to domains where one of the tasks is to manage a hierarchy). These concepts are developed to decouple managing hierarchy from managing any other behavior. This brings lots of flexibility and improves capsules' reuse potential.
+It is quite usual for applications to have components that perform a communication based on the client-server (request-response) paradigm. Capsula provides for decoupling clients from specifics of the server, communication channel, and implementation APIs, and enables clients to become more powerful and yet independent and reusable.
 
-Duality of declarative and imperative programming styles is a reality when developing software nowadays. While imperative approach brings more flexibility, control, and easier debugging, declarative styles are more expressive, easier to use, and reduce number of bugs in the program. Capsula provides for both styles, letting the programmer decide when to use which of the two and when to combine them. Although syntactically different, artifacts developed using the two styles are semantically alike and could easily be combined and used together in Capsula.
-
-It is quite usual for applications to have components that perform a communication based on request-response paradigm. Capsula library provides for decoupling clients from both specifics of the communication channel and the server and enables clients to be more powerful and yet independent and reusable.
-
-Check the documentation to make yourself familiar with all the concepts vaguely described above.
+Check the [documentation](https://solsoftware.github.io/capsula/) to make yourself familiar with all the concepts of Capsula library.
 
 ## Getting started
 
@@ -67,7 +63,7 @@ var c = new C(); // new capsule instance
 console.log(c.x()); // Hello world!
 ```
 
-To play with an existing html element:
+To play with an existing DOM element:
 
 ```js
 var bodyWrapper = new html.Element(document.body, ['click']);
@@ -75,10 +71,6 @@ bodyWrapper.click.target(function (e) {
     alert('Body clicked!');
 });
 ```
-
-## Sandbox
-
-For a quick start, just copy the contents of the `sandbox` folder into the root folder of your web app and open the `index.html` file from your web browser ("Hello world"). The source code for the "Hello world" example is in the `sandbox/scripts/main.js` file.
 
 ### Using Capsula with Node.js
 
@@ -90,6 +82,10 @@ var services = require('@solsoftware/capsula/dist/services');
 ```
 
 Module html is missing here, since it depends on the DOM API; i.e. it does not really work server side.
+
+## Sandbox
+
+For a quick start let's run the Hello World application. Just copy the contents of the `sandbox` folder into the root folder of your web app and open the `index.html` file in your web browser. The source code for the "Hello world" page is in the `sandbox/scripts/main.js` file.
 
 ## Documentation
 

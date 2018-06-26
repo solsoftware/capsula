@@ -1,14 +1,14 @@
 {
     "name": "@solsoftware/capsula",
     "version": "0.1.2",
-    "description": "Capsula is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated components called 'capsules'.",
+    "description": "Capsula is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated software components called 'capsules'. Executable both within the browser and node.js.",
     "keywords": [
         "capsula",
         "capsule",
-        "capsules",
-        "JavaScript library",
+        "user interfaces",
         "encapsulation",
-        "user interfaces"
+        "JavaScript",
+		"node.js"
     ],
     "homepage": "https://github.com/solsoftware/capsula",
     "license": "Apache-2.0",
