@@ -1,4 +1,7 @@
 # Capsula
+
+[![npm](https://img.shields.io/npm/v/@solsoftware/capsula.png)](https://www.npmjs.com/package/@solsoftware/capsula)
+
 **Capsula** is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated software components called *capsules*. Capsula is executable both within the browser and node.js.
 
 Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favour abstraction, encapsulation, flexibility, and reuse. It also provides for both declarative and imperative programming styles, letting the programmer decide when to use which of the two and when to combine them.
