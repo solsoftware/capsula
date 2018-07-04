@@ -95,7 +95,7 @@ The source code is formatted using JSTool for Notepad++ (default configuration),
 
 ## Dist
 
-The source code is minified using grunt-contrib-uglify plugin. The minified files are placed in the `dist` folder. To minify source files (and perform tests agains minified files) run:
+The source code is minified using grunt-contrib-uglify plugin. The minified files are placed in the `dist` folder. To minify source files (and perform tests against the minified files) run:
 
 ```
 grunt testdist
@@ -103,7 +103,7 @@ grunt testdist
 
 ## Release
 
-Once modifications to the project are sufficient enough to publish a new release, perform the following final steps to make that happen:
+Once modifications to the project are sufficient enough to publish new release, perform the following final steps to make that happen:
 
 ```
 grunt release --relver=X.Y.Z

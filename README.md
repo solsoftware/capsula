@@ -1,11 +1,11 @@
 # Capsula
 **Capsula** is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated software components called *capsules*. Capsula is executable both within the browser and node.js.
 
-Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favour abstraction, encapsulation, flexibility, and reuse. It also provides for both declarative and imperative programming styles, letting the programmer decide when to use which of the two and when to combine them.
+Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It also provides for both declarative and imperative programming styles which can be easily used in combination.
 
-Capsula exhibits concepts specifically dedicated to the domain of user interfaces. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
+Among other concepts, Capsula exhibits concepts specifically dedicated to the domain of user interfaces. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API.
 
-It is quite usual for applications to have components that perform a communication based on the client-server (request-response) paradigm. Capsula provides for decoupling clients from specifics of the server, communication channel, and implementation APIs, and enables clients to become more powerful and yet independent and reusable.
+It is quite usual for applications to communicate with third-party applications or systems based on the client-server (request-response) paradigm. Capsula helps here by setting the client code free of any physical details of communication, so that programmer's focus is only on what's essential.
 
 Check the [documentation](https://solsoftware.github.io/capsula/) to make yourself familiar with all the concepts of Capsula library.
 

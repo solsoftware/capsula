@@ -522,8 +522,12 @@ limitations under the License.
          * @static
          */
         function rejectAll(requests, err) {
-            for (var i = 0; i < requests.length; i++)
-                requests[i].reject(err);
+            for (var i = 0; i < requests.length; i++) {
+                if (err instanceof Error)
+                    requests[i].reject(err);
+                else
+                    requests[i].reject(new Error(err));
+            }
         }
 
         /**
@@ -544,9 +548,13 @@ limitations under the License.
                 response = responses[i];
                 if (response != null && response.success)
                     request.resolve(response);
-                else if (response != null)
-                    request.reject(response.error);
-                else
+                else if (response != null) {
+                    var err = response.error;
+                    if (err instanceof Error)
+                        requests[i].reject(err);
+                    else
+                        requests[i].reject(new Error(err));
+                } else
                     request.reject(new Error(Errors.ERRONEOUS_RESPONSE.toString()));
             }
         }

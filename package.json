@@ -1,6 +1,6 @@
 {
     "name": "@solsoftware/capsula",
-    "version": "0.1.2",
+    "version": "0.1.3",
     "description": "Capsula is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated software components called 'capsules'. Executable both within the browser and node.js.",
     "keywords": [
         "capsula",
