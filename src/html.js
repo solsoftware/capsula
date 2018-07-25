@@ -1129,7 +1129,7 @@ limitations under the License.
             AJAX_JQUERY: 'AJAX_JQUERY'
         };
 
-        services.registerType(ServiceType.AJAX, function (requests, config) {
+        services.registerType(ServiceType.AJAX, function (requests, config, serviceName) {
             var arr = [],
             packed,
             responses;
@@ -1140,7 +1140,7 @@ limitations under the License.
             var xhttp = createXMLHTTPRequest_();
             if (config.async !== false)
                 xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) { // Success
+                    if (this.readyState == 4 && isSuccess_(this.status)) {
                         responses = JSON.parse(this.responseText);
                         if (!isArray_(responses) || responses.length !== requests.length)
                             services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1148,6 +1148,12 @@ limitations under the License.
                             services.resolveAllSuccessful(requests, responses);
                     } else if (this.readyState == 4) { // Error
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
+                    }
+                    if (this.readyState == 4) {
+                        if (this.status == 408) // timeout
+                            services.setServiceStatus(serviceName, 'offline');
+                        else
+                            services.setServiceStatus(serviceName, 'online');
                     }
                 };
             xhttp.open(config.method,
@@ -1161,7 +1167,7 @@ limitations under the License.
                 config.beforeSend(xhttp);
             xhttp.send(packed);
             if (config.async === false) {
-                if (xhttp.status === 200) {
+                if (isSuccess_(xhttp.status)) {
                     responses = JSON.parse(xhttp.responseText);
                     if (!isArray_(responses) || responses.length !== requests.length)
                         services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1170,10 +1176,14 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
+                if (xhttp.status == 408) // timeout
+                    services.setServiceStatus(serviceName, 'offline');
+                else
+                    services.setServiceStatus(serviceName, 'online');
             }
         });
 
-        services.registerType(ServiceType.AJAX_URL_ENCODED, function (requests, config) {
+        services.registerType(ServiceType.AJAX_URL_ENCODED, function (requests, config, serviceName) {
             var arr = [],
             packed,
             responses;
@@ -1184,7 +1194,7 @@ limitations under the License.
             var xhttp = createXMLHTTPRequest_();
             if (config.async !== false)
                 xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) { // Success
+                    if (this.readyState == 4 && isSuccess_(this.status)) {
                         responses = JSON.parse(this.responseText);
                         if (!isArray_(responses) || responses.length !== requests.length)
                             services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1192,6 +1202,12 @@ limitations under the License.
                             services.resolveAllSuccessful(requests, responses);
                     } else if (this.readyState == 4) { // Error
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
+                    }
+                    if (this.readyState == 4) {
+                        if (this.status == 408) // timeout
+                            services.setServiceStatus(serviceName, 'offline');
+                        else
+                            services.setServiceStatus(serviceName, 'online');
                     }
                 };
             var index = config.url.indexOf('?'),
@@ -1214,7 +1230,7 @@ limitations under the License.
                 config.beforeSend(xhttp);
             xhttp.send(null);
             if (config.async === false) {
-                if (xhttp.status === 200) {
+                if (isSuccess_(xhttp.status)) {
                     responses = JSON.parse(xhttp.responseText);
                     if (!isArray_(responses) || responses.length !== requests.length)
                         services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1223,10 +1239,14 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
+                if (xhttp.status == 408) // timeout
+                    services.setServiceStatus(serviceName, 'offline');
+                else
+                    services.setServiceStatus(serviceName, 'online');
             }
         });
 
-        services.registerType(ServiceType.AJAX_JQUERY, function (requests, config) {
+        services.registerType(ServiceType.AJAX_JQUERY, function (requests, config, serviceName) {
             var arr = [],
             packed;
             for (var i = 0; i < requests.length; i++)
@@ -1242,11 +1262,23 @@ limitations under the License.
                     services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
                 else
                     services.resolveAllSuccessful(requests, responses);
+                services.setServiceStatus(serviceName, 'online');
             });
             jQueryRequest.fail(function (jqXHR, textStatus, errorThrown) {
                 services.rejectAll(requests, errorThrown);
+                if (jqXHR.status == 408) // timeout
+                    services.setServiceStatus(serviceName, 'offline');
+                else
+                    services.setServiceStatus(serviceName, 'online');
             });
         });
+
+        /**
+         * @private
+         */
+        function isSuccess_(statusCode) {
+            return (statusCode >= 200 && statusCode < 300) || statusCode === 304;
+        }
 
         /**
          * @private

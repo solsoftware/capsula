@@ -5398,7 +5398,7 @@ limitations under the License.
             OPERATION: 'OPERATION'
         };
 
-        services.registerType(ServiceType.OPERATION, function (requests, config) {
+        services.registerType(ServiceType.OPERATION, function (requests, config, serviceName) {
             var packed = [];
             for (var i = 0; i < requests.length; i++)
                 packed.push(requests[i].body);
@@ -5409,8 +5409,10 @@ limitations under the License.
                         services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
                     else
                         services.resolveAllSuccessful(requests, responses);
+                    services.setServiceStatus(serviceName, 'online');
                 }, function (err) {
                     services.rejectAll(requests, err);
+                    services.setServiceStatus(serviceName, 'offline');
                 });
             } else {
                 var responses;
@@ -5418,8 +5420,10 @@ limitations under the License.
                     responses = config.operation._.call(packed);
                     if (!isArray_(responses) || responses.length !== requests.length)
                         throw new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString());
+                    services.setServiceStatus(serviceName, 'online');
                 } catch (err) {
                     services.rejectAll(requests, err);
+                    services.setServiceStatus(serviceName, 'offline');
                     return;
 
                 }

@@ -66,10 +66,10 @@ limitations under the License.
          *
          * @param {string} serviceType - the name of the service type to create
          * @param {Funtion} serviceFunction - the function of the service type to be created:
-         * <p> - <b>function serviceFunction(requests, serviceConfig)</b> - The function should perform all necessary actions in order to send requests to their destination and receive and handle responses. More precisely, it needs to pack all client requests into a single physical request, send that physical request to its destination, wait for the physical response, unpack the physical response into individual responses, and handle each individual response. Handling responses means resolving or rejecting each request's promise by simply calling r.resolve(response) or r.reject(error). Here, r represents an individual request. The requests are given in the requests parameter which represents an array of [Request]{@link module:services.Request} objects each of which contains the client's request in its <i>body</i> property and resolve and reject functions in its <i>resolve</i> and <i>reject</i> properties. serviceConfig is the configuration object of the particular service (the second argument of the service registration [register]{@link module:services.register} function).
+         * <p> - <b>function serviceFunction(requests, serviceConfig, serviceName)</b> - The function should perform all necessary actions in order to send requests to their destination and receive and handle responses. More precisely, it needs to pack all client requests into a single physical request, send that physical request to its destination, wait for the physical response, unpack the physical response into individual responses, and handle each individual response. Handling responses means resolving or rejecting each request's promise by simply calling r.resolve(response) or r.reject(error). Here, r represents an individual request. The requests are given in the requests parameter which represents an array of [Request]{@link module:services.Request} objects each of which contains the client's request in its <i>body</i> property and resolve and reject functions in its <i>resolve</i> and <i>reject</i> properties. serviceConfig is the configuration object of the particular service (the second argument of the service registration [register]{@link module:services.register} function). serviceName is the name of the particular service (the first argument of the service registration register function).
          *
          * @example <caption>How to create a service type?</caption>
-         * services.registerType('newServiceType', function(requests, serviceConfig){
+         * services.registerType('newServiceType', function(requests, serviceConfig, serviceName){
          *     var packed = [];
          *     for (var i = 0; i < requests.length; i++)
          *         packed.push(requests[i].body); // Note that client's request is in the body property!
@@ -169,6 +169,7 @@ limitations under the License.
                 throw new Error(Errors.SERVICE_UNREGISTERED.toString(serviceName));
 
             delete serviceRegistry_[serviceName];
+            delete serviceStatusRegistry_[serviceName];
         }
 
         /**
@@ -251,7 +252,7 @@ limitations under the License.
 
             serviceBuffers_[serviceName] = []; // this must be before the following
 
-            serviceFunction(serviceBuffer, serviceConfig);
+            serviceFunction(serviceBuffer, serviceConfig, serviceName);
         }
 
         /**
@@ -322,6 +323,11 @@ limitations under the License.
          * @private
          */
         var serviceRegistry_ = {},
+
+        /**
+         * @private
+         */
+        serviceStatusRegistry_ = {},
 
         /**
          * @private
@@ -460,7 +466,7 @@ limitations under the License.
             return error.message.indexOf('#' + this.code) !== -1;
         };
 
-        registerType(ServiceType.FUNCTION, function (requests, config) {
+        registerType(ServiceType.FUNCTION, function (requests, config, serviceName) {
             var packed = [];
             for (var i = 0; i < requests.length; i++)
                 packed.push(requests[i].body);
@@ -472,12 +478,14 @@ limitations under the License.
                     throw new Error(Errors.ILLEGAL_RESPONSE_SIZE.toString());
             } catch (err) {
                 rejectAll(requests, err);
+                setServiceStatus(serviceName, 'offline');
                 return;
             }
             resolveAllSuccessful(requests, responses);
+            setServiceStatus(serviceName, 'online');
         });
 
-        registerType(ServiceType.WORKER, function (requests, config) {
+        registerType(ServiceType.WORKER, function (requests, config, serviceName) {
             var packed = [];
             for (var i = 0; i < requests.length; i++)
                 packed.push(requests[i].body);
@@ -490,9 +498,11 @@ limitations under the License.
                     rejectAll(requests, new Error(Errors.ILLEGAL_RESPONSE_SIZE.toString()));
                 else
                     resolveAllSuccessful(requests, responses);
+                setServiceStatus(serviceName, 'online');
             });
             config.worker.addEventListener('error', function (err) {
                 rejectAll(requests, err);
+                setServiceStatus(serviceName, 'offline');
             });
         });
 
@@ -531,7 +541,7 @@ limitations under the License.
         }
 
         /**
-         * Utility function that resolves promise of each successfully handled request (request.success = true) within the given collection of requests with its corresponding response.
+         * Utility function that resolves promise of each successfully handled request (response.success = true) within the given collection of requests with its corresponding response.
          * Rejects promise of each unsuccessfully handled request within the given collection of requests with the error from the corresponding response (response.error).
          *
          * @memberof module:services
@@ -557,6 +567,45 @@ limitations under the License.
                 } else
                     request.reject(new Error(Errors.ERRONEOUS_RESPONSE.toString()));
             }
+        }
+
+        /**
+         * Sets the status of the service with the given name.
+         *
+         * @memberof module:services
+         * @param {string} serviceName - the name of the service
+         * @param {string} currentStatus - the status of the service with the given name
+         * @public
+         * @since 0.1.0
+         * @static
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:services.Errors.ILLEGAL_ARGUMENT}
+         */
+        function setServiceStatus(serviceName, currentStatus) {
+            if (!isString_(serviceName))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure serviceName is a string.'));
+            if (!isString_(currentStatus))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure currentStatus is a string.'));
+
+            if (serviceRegistry_[serviceName] != null)
+                serviceStatusRegistry_[serviceName] = currentStatus;
+        }
+
+        /**
+         * Returns the last status of the service with the given name.
+         *
+         * @memberof module:services
+         * @param {string} serviceName - the name of the service
+         * @returns {string} - the last status of the given service
+         * @public
+         * @since 0.1.0
+         * @static
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:services.Errors.ILLEGAL_ARGUMENT}
+         */
+        function getServiceStatus(serviceName) {
+            if (!isString_(serviceName))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure serviceName is a string.'));
+
+            return serviceStatusRegistry_[serviceName];
         }
 
         /**
@@ -630,6 +679,8 @@ limitations under the License.
             resolveAll: resolveAll,
             rejectAll: rejectAll,
             resolveAllSuccessful: resolveAllSuccessful,
+            setServiceStatus: setServiceStatus,
+            getServiceStatus: getServiceStatus,
 
             // error codes
             Errors: Errors,
