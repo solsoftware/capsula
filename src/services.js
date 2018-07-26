@@ -57,7 +57,14 @@ limitations under the License.
              * <p> - (string) type - set to services.ServiceType.WORKER <br>
              * - (Worker) worker - target worker (in case of using dedicated worker) or target worker's port (in case of using shared worker) to which to deliver the package (of requests)
              */
-            WORKER: 'WORKER'
+            WORKER: 'WORKER',
+
+            /**
+             * Service type that enables delivery of asynchronous requests to the target JavaScript function. Each service of this type should have the following properties specified in its service config object (the second argument of the service registration [register]{@link module:services.register} function):
+             * <p> - (string) type - set to services.ServiceType.ASYNC_FUNCTION <br>
+             * - (Function) func - target function to which to deliver the package (of requests)
+             */
+            ASYNC_FUNCTION: 'ASYNC_FUNCTION'
         };
 
         /**
@@ -501,6 +508,27 @@ limitations under the License.
                 setServiceStatus(serviceName, 'online');
             });
             config.worker.addEventListener('error', function (err) {
+                rejectAll(requests, err);
+                setServiceStatus(serviceName, 'offline');
+            });
+        });
+
+        registerType(ServiceType.ASYNC_FUNCTION, function (requests, config, serviceName) {
+            var packed = [];
+            for (let i = 0; i < requests.length; i++)
+                packed.push(requests[i].body);
+
+            config.func(packed).then(function (responses) {
+                try {
+                    if (!isArray_(responses) || responses.length !== requests.length)
+                        throw new Error(Errors.ILLEGAL_RESPONSE_SIZE.toString());
+                } catch (err) {
+                    rejectAll(requests, err);
+                    return;
+                }
+                resolveAllSuccessful(requests, responses);
+                setServiceStatus(serviceName, 'online');
+            }, function (err) {
                 rejectAll(requests, err);
                 setServiceStatus(serviceName, 'offline');
             });

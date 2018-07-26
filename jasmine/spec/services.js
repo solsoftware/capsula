@@ -782,6 +782,44 @@ describe('Services', function () {
             });
         });
 
+        describe('ASYNC_FUNCTION service type', function () {
+            beforeAll(function () {
+                var targetFunction = function (requestsArr) {
+                    var promise = new Promise(function(resolve, reject) {
+                        result = {
+                            message: requestsArr[0].message + ' Hello main!',
+                            success: true
+                        };
+                        var response = [];
+                        response.push(result);
+                        resolve(response);
+                    });
+                    return promise;
+                }
+                
+                services.register('myFunction', {
+                    type: services.ServiceType.ASYNC_FUNCTION,
+                    func: targetFunction
+                });
+            });
+        
+            it('should verify service type is working', function (done) {
+                
+                services.send('myFunction', {message: 'Hello function!'}).then(function(response) {
+                    expect(response.message).toEqual('Hello function! Hello main!');
+                    done();
+                }, function (error) {
+                    fail('because onError is called');
+                    done();
+                });
+                services.flush('myFunction');
+            });
+        
+            afterAll(function () {
+                services.unregister('myFunction');
+            });
+        });
+
         describe('WORKER service type', function () {
             beforeAll(function () {});
 
