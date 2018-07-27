@@ -1,25 +1,3 @@
-# System Files
-.DS_Store
-Thumbs.db
-
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-
-# IDEs and editors
-.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# Logs
-logs
-*.log
-
-# Dependency directories
-node_modules/
-
-# Optional npm cache directory
-.npm
+_site
+.sass-cache
+.jekyll-metadata

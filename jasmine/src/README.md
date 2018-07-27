@@ -1,1 +1,0 @@
-Source files under test are located in the src subfolder of the project's root folder.
