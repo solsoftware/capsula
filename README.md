@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/capsula-js/Lobby](https://badges.gitter.im/capsula-js/Lobby.svg)](https://gitter.im/capsula-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**Capsula** is a JavaScript library for building user interfaces and other event-driven software using highly reusable, flexible, and encapsulated software components called *capsules*. Capsula is executable both within the browser and node.js.
+**Capsula** is a JavaScript library for building user interfaces using highly reusable, flexible, and encapsulated software components called *capsules*. Capsula is executable both within the browser and node.js.
 
 Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It also provides for both declarative and imperative programming styles which can be easily used in combination.
 

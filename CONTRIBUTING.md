@@ -10,6 +10,12 @@ Also, check the [projects page](https://github.com/solsoftware/capsula/projects)
 
 Additional information for contributors are given in the following lines of this document.
 
+## Chat
+
+To discuss anything related to contributions, try to reach us through our specialized contributions chat room:
+
+[![Join the chat at https://gitter.im/capsula-js/Contributions](https://badges.gitter.im/capsula-js/Contributions.svg)](https://gitter.im/capsula-js/Contributions?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Issues
 
 Use [Github issues](https://github.com/solsoftware/capsula/issues) to report problems, suggest improvements, etc.
@@ -85,7 +91,7 @@ grunt docs
 
 To change the layout of documentation files modify `config/jsdoc/layout.tmpl`
 
-To change styling (CSS) of documentation files modify `config/jsdoc/custom.tmpl`
+To change styling (CSS) of documentation files modify `static/css/custom.css`
 
 To change configuration of JSDoc modify `config/jsdoc/config.json`
 

@@ -515,7 +515,7 @@ limitations under the License.
 
         registerType(ServiceType.ASYNC_FUNCTION, function (requests, config, serviceName) {
             var packed = [];
-            for (let i = 0; i < requests.length; i++)
+            for (var i = 0; i < requests.length; i++)
                 packed.push(requests[i].body);
 
             config.func(packed).then(function (responses) {
