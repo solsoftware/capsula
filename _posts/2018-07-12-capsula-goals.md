@@ -6,19 +6,19 @@ categories: concepts
 permalink: /goals-of-capsula/
 ---
 
-From our own experience and developers' opinions we believe front-end developers are, in two words, "not happy". To change that we've set the following goals before building Capsula library.
-
-> Set Up a Balance Between Declarative and Imperative
-
-Duality of declarative and imperative programming styles is a reality when developing software nowadays. While imperative approach brings more flexibility, control, and easier debugging, declarative styles are more expressive, easier to use, and reduce number of bugs in the program. It would be great to have the best of both worlds. 
-
-However, simply having declarative and imperative APIs is not enough, unless artifacts developed using the two styles are semantically alike (same abstraction level). There must be an easy way to combine them and use them together; in other words, we need them to speak the same language. Once we have that, we can let developers decide (according to the nature of problems they solve) when to use which of the two.
-
-In user interfaces, this duality is reflected in templates (being a declarative approach) versus object-oriented widget manipulation (imperative). We certainly need both. However, whatever of the two we choose to use when building a UI component, there has to be the way to express UI component's interface in terms of the same concepts, so that we can use the component the same way regardless of how it was built.
+From our own experience and developers' opinions we believe developers are, in two words, "not happy". To change that we've set the following goals before building Capsula library.
 
 > Handle Complexity Better
 
 To address complexity we need a concept or mechanism for hierarchical organization of UI code. The concept that could be recursively re-applied starting from high architectural levels down to the lowest levels of simple UI components.
+
+> Set Up a Balance Between Declarative and Imperative
+
+Duality of declarative and imperative programming styles is reality when developing software nowadays. While imperative approach brings more flexibility, control, and easier debugging, declarative styles are more expressive, easier to use, and reduce number of bugs in the program. It would be great to have the best of both worlds. 
+
+However, simply having declarative and imperative APIs is not enough, unless artifacts developed using the two styles are semantically alike (same abstraction level). There must be an easy way to combine them and use them together; in other words, we need them to speak the same language. Once we have that, we can let developers decide (according to the nature of problems they solve) when to use which of the two.
+
+In user interfaces, this duality is reflected in templates (being a declarative approach) versus object-oriented widget manipulation (imperative). We certainly need both. However, whatever of the two we choose to use when building a UI component, there has to be the way to express UI component's interface in terms of the same concepts, so that we can use the component the same way regardless of how it was built.
 
 > Never Compromise on Flexibility
 

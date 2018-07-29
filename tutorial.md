@@ -8,9 +8,9 @@ nav: true
 
 - [What Is Capsula?](#what-is-capsula)
 - [Installation](#installation)
-	- [Plain Old Script Tag](#plain-old-script-tag)
-	- [RequireJS](#requirejs)
 	- [Node.js](#nodejs)
+	- [RequireJS](#requirejs)
+	- [Plain Old Script Tag](#plain-old-script-tag)
 	- [Hello World](#hello-world)
 - [Main Concepts](#main-concepts)
 	- [Introducing Capsules](#introducing-capsules)
@@ -26,7 +26,7 @@ nav: true
 	- [Operations](#operations)
 	- [Error Handling](#error-handling)
 - [Building User Interfaces](#building-user-interfaces)
-	- [Object-Oriented Way](#object-oriented-way)
+	- [Object-Oriented Approach](#object-oriented-approach)
 	- [Working with Templates](#working-with-templates)
 - [Asynchronous RPC Communication](#asynchronous-rpc-communication)
 	- [Performing AJAX Calls](#performing-ajax-calls)
@@ -36,18 +36,18 @@ nav: true
 
 ## What Is Capsula?
 
-**Capsula** is a JavaScript library for building user interfaces using highly reusable, flexible, and encapsulated software components called *capsules*. It executes both within the browser and node.js. With Capsula you can:
+**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". With Capsula you can:
 
 - create your application out of **encapsulated components** - capsules.
-- **add complexity while preserving flexibility** of your components, by managing layout and behavior in quite a unique way.
-- be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
-- **handle asynchronous communication** focusing only on what's essential.
 - have **multi-level architectural views** of your application.
+- be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
+- **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
+- **handle asynchronous communication** focusing only on what's essential.
 - exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
 
 In other words, Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. 
 
-It is especially suitable for building user interfaces. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side. It provides both for templates and object-oriented way of widget manipulation.
+Capsula is quite suitable for building user interfaces. It provides both for templates and object-oriented way of widget manipulation. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
 
 Capsula also addresses asynchronous communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with substantial matters only, as well as to easily mock server-side part of communication.
 
@@ -65,15 +65,23 @@ Capsula library is executable both within the browser and Node.js. At this point
 
 In the following lines we explain how to install Capsula in both of the two environments.
 
-### Plain old script tag
+### Node.js
 
-To start in a rather trivial way just take the following lines and put them into your web page:
+Install Capsula using npm:
 
-```html
-<script src="yourPathToCapsula/services.js"></script>
-<script src="yourPathToCapsula/capsula.js"></script>
-<script src="yourPathToCapsula/html.js"></script>
 ```
+npm i @solsoftware/capsula
+```
+
+Require capsula modules:
+
+```js
+var capsula = require('@solsoftware/capsula');
+var services = require('@solsoftware/capsula/dist/services');
+var html = require('@solsoftware/capsula/dist/html');
+```
+
+Have in mind that html module depends on the DOM API.
 
 ### RequireJS
 
@@ -99,23 +107,15 @@ requirejs(['services', 'capsula', 'html'], function (services, capsula, html) {
 });
 ```
 
-### Node.js
+### Plain old script tag
 
-Install Capsula using npm:
+To start in a rather trivial way just take the following lines and put them into your web page:
 
+```html
+<script src="yourPathToCapsula/services.js"></script>
+<script src="yourPathToCapsula/capsula.js"></script>
+<script src="yourPathToCapsula/html.js"></script>
 ```
-npm i @solsoftware/capsula
-```
-
-Require capsula modules:
-
-```js
-var capsula = require('@solsoftware/capsula');
-var services = require('@solsoftware/capsula/dist/services');
-var html = require('@solsoftware/capsula/dist/html');
-```
-
-Have in mind that html module depends on the DOM API.
 
 ### Hello World
 
@@ -137,6 +137,8 @@ In all the code used throughout this tutorial, we use references ```capsula```, 
 ---
 
 ## Main Concepts
+
+This section explains the main concepts and ideas behind Capsula library.
 
 ### Introducing Capsules
 
@@ -541,9 +543,9 @@ Hook is a public property of a capsule. It is a representation of parent widget 
 
 A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent widget and more than one child widget, all at the same time. 
 
-### Object-Oriented Way
+### Object-Oriented Approach
 
-To work with DOM elements in an object-oriented way, we've provided Element capsule in html module. Basically, it's a wrapper capsule for DOM elements and can be used either to wrap an existing DOM element or to create a new one (and wrap it).
+To work with DOM elements in an object-oriented way, we've provided Element capsule in the html module. Basically, it's a wrapper capsule for DOM elements and can be used either to wrap an existing DOM element or to create a new one (and wrap it).
 
 Element capsule has one loop named *loop*. This loop enables wrapped DOM element to be included on the page (as a child of another DOM element); in other words, this loop represents wrapped DOM element as a child widget. 
 
@@ -697,117 +699,127 @@ The mechanism of hooks and loops enables us to decide which layout decisions we 
 
 ### Working with Templates
 
-Template capsule provides means to easily reuse portions of HTML code enriched with a bit of behavior. It introduces HTML-based templates to the capsules code. By doing so, it provides a coupling between capsules and HTML code and allows for programmers to achieve a perfect mix of template-based and object-oriented code, i.e. to the exploit the benefits of both worlds.
+To build portions of user interface using templates, we've provided Templae capsule in the html module. 
 
-Template capsule helps in situations when creating a portion of user interface is easier using template-based approach over the object-oriented approach. Still, the template capsule preserves semantics of capsules and acts as any other capsule with input and output operations, hooks, and loops which makes it easy to combine with other capsules. In other words, the world of templates and the world of capsules are perfectly compatible and semantically coupled.
+Template capsule provides means to easily reuse portions of HTML code enriched with a bit of behavior. It introduces HTML-based templates to the capsules code. By doing so, it provides a coupling between capsules and HTML code and allows for making a perfect mix of template-based and object-oriented code, i.e. for having the benefits of both worlds.
+
+Template capsule helps in situations when creating a portion of user interface is easier using templates over object-orientation. Still, the template capsule preserves semantics of capsules and acts as any other capsule with input and output operations, hooks, and loops which makes it easy to combine with other capsules. In other words, the world of templates and the world of capsules are perfectly compatible and semantically coupled.
 
 Template capsule is easily instantiated from the portion of HTML code: 
 
 ```js
-new html.Template(`<div>HTML code here</div>`)
+var template = new html.Template(`<div>HTML code here</div>`);
 ```
 
-The HTML code may have more root elements (tags), i.e. there is no requirement for it to be rooted in a single HTML element.
+The HTML code of your template may have more root elements (tags), i.e. there is no requirement for it to be rooted in a single HTML element.
 
-The HTML code (tags) used for instantiating Template capsule may have special attributes, i.e. attribute-based extensions for hooks, loops, and operations. This is a) to enable template sections (root tags) to be included somewhere on the HTML page, b) to enable template to include other HTML content under its tags, and c) to enrich the template with a bit of behavior. The following attributes of HTML elements (tags) inside the template are supported:
-
-- attribute loop - HTML element (tag) having loop="myLoop" attribute would be represented by a loop named "myLoop" of the Template capsule. For example, HTML code <div loop="myLoop">...</div> would make template capsule have loop named myLoop that represents the div element. Element having loop attribute must be one of the root elements in the templete code. Moreover, root elements have to have loop attribute in order to be displayed on the page. Since HTML code of template capsule may have more than one root element, consequently the template capsule may have more than one loop.
-- attribute hook - HTML element (tag) having hook="myHook" attribute would be represented by a hook named "myHook" of the Template capsule. Any element (tag) of the HTML template code may have the hook attribute. Usually however, the leaf elements of the template code have it, as they expect to be filled with new HTML content when their hooks get tied to the hierarchy of hooks and loops.
-- attribute prop - HTML element (tag) having prop="setProp" attribute would act as a target for "setProp" input operation of the Template capsule. The operation sets new property value for the given property of the target element. The operation has two string arguments: the property name and the property value to be set.
-- attribute getprop - HTML element (tag) having getprop="getProp" attribute would act as a target for "getProp" input operation of the Template capsule. The operation returns the property value of the target element. The operation has one string argument: the property name whose value is to be returned.
-- attribute attr - HTML element (tag) having attr="setAttr" attribute would act as a target for "setAttr" input operation of the Template capsule. The operation sets new attribute value for the given attribute of the target element. The operation has two string arguments: the attribute name and the attribute value to be set.
-- attribute getattr - HTML element (tag) having getattr="getAttr" attribute would act as a target for "getAttr" input operation of the Template capsule. The operation returns the attribute value of the target element. The operation has one string argument: the attribute name whose value is to be read.
-- attribute remattr - HTML element having remattr="removeAttr" attribute would act as a target for "removeAttr" input operation of the Template capsule. The operation removes the attribute from the target element. The operation has one string argument: the attribute name to be removed.
-- attributes on and output - HTML element having on="click" and output="clicked" attributes would have 'click' event listener bound to the "clicked" output operation of the Template capsule. The event object itself would be provided as a parameter to the output operation.
-- attribute get - HTML element having get="getMe" attribute would act as a target for "getMe" input operation of the Template capsule. The operation returns the target (DOM) element itself.
+The HTML code used for instantiating Template capsule may have special attributes, i.e. attribute-based extensions for hooks, loops, and operations. This is a) to enable template sections (root tags) to be included somewhere on the HTML page, b) to enable template to include other HTML content under its tags, and c) to enrich the template with a bit of behavior.
 
 Initially, the Template capsule has no methods, operations, hooks, or loops. However it dynamically creates them during instantiation, depending on how the abovementioned attribures are being used within the template.
 
-See examples for more details.
+The following attributes of HTML elements (tags) inside the template are supported:
 
-#### Examples
-
-Template with one loop
+- attribute *loop* - HTML element (tag) having loop="myLoop" attribute would be represented by a loop named "myLoop" of the Template capsule. For example, HTML code ```<div loop="myLoop">...</div>``` would make template capsule have loop named myLoop that represents the div element as a child. Element having loop attribute must be one of the root elements in the templete code. Moreover, root elements have to have loop attribute in order to be displayed on the page. Since HTML code of template capsule may have more than one root element, consequently the template capsule may have more than one loop.
 
 ```js
 let caps = ...; // this is an arbitrary capsule having hook named myHook
+
+// creates template capsule with a loop named loopX
 let template = new html.Template(`
     <div id="abc" loop='loopX'>
         <h1>Hello world!</h1>
     </div>
-`); // creates HTML template capsule with a loop named loopX
+`);
+
 caps.myHook.tie(template.loopX); // places the div with id="abc" into its new parent
 ```
 
-Template with a hook and a loop
+- attribute *hook* - HTML element (tag) having hook="myHook" attribute would be represented as a parent by a hook named "myHook" of the Template capsule. Any element (tag) of the HTML template code may have the hook attribute. Usually however, the leaf elements of the template code have it, as they expect to be filled with new HTML content when their hooks get tied.
 
 ```js
 let caps1 = ...; // this is an arbitrary capsule having hook named myHook
 let caps2 = ...; // this is an arbitrary capsule having loop named myLoop
+
+// creates template capsule with a loop named loopX and a hook named hookX
 let template = new html.Template(`
     <div loop='loopX'>
         <h1>Hello world!</h1>
         <div id="abc" hook="hookX"></div>
     </div>
-`); // creates HTML template capsule with a loop named loopX and a hook named hookX
+`);
+
 caps1.myHook.tie(template.loopX); // places the whole template into its new parent
-template.hookX.tie(caps2.myLoop); // places an arbitrary content (represented by caps2.myLoop) into the template's hook (i.e. into the div with id="abc")
+
+// places an arbitrary content (represented by caps2.myLoop) 
+// into the template's hook (i.e. into the div with id="abc")
+template.hookX.tie(caps2.myLoop);
 ```
 
-Template and properties
+- attribute *prop* - HTML element (tag) having prop="setProp" attribute would act as a target for "setProp" input operation of the Template capsule. The operation sets new property value for the given property of the target element. The operation has two string arguments: the property name and the property value to be set.
+- attribute *getprop* - HTML element (tag) having getprop="getProp" attribute would act as a target for "getProp" input operation of the Template capsule. The operation returns the property value of the target element. The operation has one string argument: the property name whose value is to be returned.
 
 ```js
+// creates template capsule with input operations to get and set h1's properties
 let template = new html.Template(`
     <div loop='loopX'>
         <h1 prop='setH1Prop' getprop='getH1Prop'>Hello world!</h1>
     </div>
-`); // creates HTML template capsule with input operations to get and set h1's properties
+`);
 if (template.getH1Prop('dir') === 'rtl') // checks the property value
     template.setH1Prop('dir', 'ltr'); // sets the property value
 ```
 
-Template and attributes
+- attribute *attr* - HTML element (tag) having attr="setAttr" attribute would act as a target for "setAttr" input operation of the Template capsule. The operation sets new attribute value for the given attribute of the target element. The operation has two string arguments: the attribute name and the attribute value to be set.
+- attribute *getattr* - HTML element (tag) having getattr="getAttr" attribute would act as a target for "getAttr" input operation of the Template capsule. The operation returns the attribute value of the target element. The operation has one string argument: the attribute name whose value is to be read.
+- attribute *remattr* - HTML element having remattr="removeAttr" attribute would act as a target for "removeAttr" input operation of the Template capsule. The operation removes the attribute from the target element. The operation has one string argument: the attribute name to be removed.
 
 ```js
+// creates template capsule with input operations to handle attributes
 let template = new html.Template(`
     <div loop='loopX'>
         <input type='text' attr='setInputAttr' getattr='getInputAttr' remattr='removeInputAttr'>
     </div>
-`); // creates HTML template capsule with input operations to get, set, and remove input's attributes
+`);
 if (template.getInputAttr('disabled')) // checks the attribute value
-    template.removeH1Attr('disabled'); // removes the attribute
+    template.removeInputAttr('disabled'); // removes the attribute
 else
-    template.setH1Attr('disabled', false); // sets the attribute value
+    template.setInputAttr('disabled', false); // sets the attribute value
 ```
 
-Template and events
+- attributes *on* and *output* - HTML element having on="click" and output="clicked" attributes would have 'click' event listener bound to the "clicked" output operation of the Template capsule. The event object itself would be provided as a parameter to the output operation.
 
 ```js
+// creates template capsule with output operation to signal the 'click' event
 let template = new html.Template(`
     <div loop='loopX'>
         <button on="click" output="clicked"></button>
     </div>
-`); // creates HTML template capsule with output operation to signal the 'click' event
+`);
+
 template.clicked.wire(function(e){
     alert('Button ' + e.type + 'ed!'); // alerts 'Button clicked!'
 });
 ```
 
-Template and get attribute
+- attribute *get* - HTML element having get="getMe" attribute would act as a target for "getMe" input operation of the Template capsule. The operation returns the target (DOM) element itself.
 
 ```js
+// creates template capsule with input operation that returns the label element
 let template = new html.Template(`
     <div loop='loopX'>
         <label get="getLabel">First name:</label>
     </div>
-`); // creates HTML template capsule with input operation getLabel that returns the label DOM element
+`);
 alert(template.getLabel().innerText); // alerts 'First name:'
 ```
 
-Template with two loops
+As a final example, we demonstrate how to create template capsule that has more than one root element.
 
 ```js
-let caps1 = ..., caps2 = ...; // an arbitrary capsules having hooks named myHook and hk, respectively
+// an arbitrary capsules having hooks named myHook and hk, respectively
+let caps1 = ..., caps2 = ...;
+
+// creates template capsule with loops named loopX and loopY
 let template = new html.Template(`
     <div id="abc" loop='loopX'>
         <h1>Hello world!</h1>
@@ -815,9 +827,13 @@ let template = new html.Template(`
     <div id="cba" loop='loopY'>
         <h1>Hello world again!</h1>
     </div>
-`); // creates HTML template capsule with loops named loopX and loopY
-caps1.myHook.tie(template.loopX); // places the template's div with id="abc" into its new parent
-caps2.hk.tie(template.loopY); // places the template's div with id="cba" into its new parent
+`);
+
+// places the template's div with id="abc" into its new parent
+caps1.myHook.tie(template.loopX);
+
+// places the template's div with id="cba" into its new parent
+caps2.hk.tie(template.loopY);
 ```
 
 ## Asynchronous RPC Communication

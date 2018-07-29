@@ -1,7 +1,4 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
 layout: default
 title: Home
 order: 0
@@ -12,7 +9,7 @@ nav: false
 	<h1 id="title">Capsula</h1>
 </div>
 <div class="centered">
-	<p id="subtitle">A JavaScript library for building user interfaces. And more.</p>
+	<p id="subtitle">The right way to build JavaScript apps</p>
 </div>
 <div class="centered">
 	<a href="tutorial"><button id="get-started">Get Started</button></a>
