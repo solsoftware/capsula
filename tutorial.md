@@ -6,7 +6,7 @@ order: 1
 nav: true
 ---
 
-- [What is Capsula?](#what-is-capsula)
+- [What Is Capsula?](#what-is-capsula)
 - [Installation](#installation)
 	- [Plain Old Script Tag](#plain-old-script-tag)
 	- [RequireJS](#requirejs)
@@ -15,7 +15,7 @@ nav: true
 - [Main Concepts](#main-concepts)
 	- [Introducing Capsules](#introducing-capsules)
 	- [Encapsulation Model](#encapsulation-model)
-- [Working with Capsules](#working-with-capsules)
+- [Working With Capsules](#working-with-capsules)
 	- [Creating Capsule Class](#creating-capsule-class)
 	- [Instantiating Capsules](#instantiating-capsules)
 	- [Constructor](#constructor)
@@ -26,16 +26,15 @@ nav: true
 	- [Operations](#operations)
 	- [Error Handling](#error-handling)
 - [Building User Interfaces](#building-user-interfaces)
-	- [Managing Layout](#managing-layout)
-	- [Working with DOM Elements and Event Handling](#working-with-dom-elements-and-event-handling)
+	- [Object-Oriented Way](#object-oriented-way)
 	- [Working with Templates](#working-with-templates)
 - [Asynchronous RPC Communication](#asynchronous-rpc-communication)
 	- [Performing AJAX Calls](#performing-ajax-calls)
-	- [Other Types of RPC](#other-types-of-rpc)
+	- [Other Types Of RPC](#other-types-of-rpc)
 	- [Custom RPC Types](#custom-rpc-types)
 - [Protected State](#protected-state)
 
-## What is Capsula?
+## What Is Capsula?
 
 **Capsula** is a JavaScript library for building user interfaces using highly reusable, flexible, and encapsulated software components called *capsules*. It executes both within the browser and node.js. With Capsula you can:
 
@@ -206,7 +205,7 @@ In other words, the policy boils down to this:
 
 "Out of context" error is thrown when trying to use properties against these rules.
 
-## Working with Capsules
+## Working With Capsules
 
 ### Creating Capsule Class
 
@@ -532,148 +531,169 @@ Make sure you don't have errors popping out of handle method, since that would p
 
 Apart from the novel encapsulation model which is useful in any application domain, Capsula exhibits concepts specifically dedicated to the domain of user interfaces. These concepts are developed to decouple managing hierarchy of widgets from managing any other behavior.
 
-Capsula allows engineers to combine interacting widgets into a larger components (capsules) without necessarily gluing them together in terms of layout. This enables engineers to create extremely rich and complex components that have very high reuse potential. This is because their parts, while interacting, are not bound to one another in terms of layout.
+Capsula allows engineers to combine mutually interacting widgets into a larger components (capsules) without necessarily gluing them together in terms of layout. This enables creating extremely rich and complex components that have very high reuse potential.
 
-The concepts that allow for this are hooks and loops. Hook is a public property of a capsule. It is a representation of parent widget in the parent-child relationship. Similarly to hook, loop is also a public property of a capsule. Unlike hook which represents parent widget, loop is a representation of child widget in the parent-child relationship. A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent widget and more than one child widget, all at the same time.
+Capsula provides both object-oriented and template-based way of building user interfaces. Anyhow, the same concepts are used in both ways. Let's say a few words on these concepts first and then proceed to explaining both of the supported ways of building user interfaces.
 
-In the Capsula library, widget hierarchy is built by managing hierarchies of hooks and loops instead of dealing with widgets directly. This makes your code less dependent on external widget APIs (like for example the DOM API). By default, Capsula relies on the DOM API, however, it provides a way to be adjusted to handle any other JavaScript widget API.
+In the Capsula library, widget hierarchy is built by managing hierarchies of hooks and loops instead of dealing with widgets directly.
 
-Capsula provides both object-oriented and template-based way of building user interfaces.
+Hook is a public property of a capsule. It is a representation of parent widget in the parent-child relationship. Loop is also a public property of a capsule. Unlike hook which represents parent widget, loop is a representation of child widget in the parent-child relationship. 
 
-### Managing Layout
+A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent widget and more than one child widget, all at the same time. 
 
-#### Creating Hooks
-
-To create a hook use one of the two ways: 
-
-a) instantiate declaratively using the capsule definition object:
-
-```js
-let MyCapsuleClass = capsula.defCapsule({
-    hooks: ['myHook'] // or just 'myHook'
-});
-```
-
-In this case, we declare that every instance of the MyCapsuleClass would have a hook named 'myHook'.
-
-b) instantiate imperatively using the new operator and a Hook constructor:
-
-```js
-let myHook = new capsula.Hook('myHook');
-```
-
-In this case, myHook implicitly becomes a hook of the capsule which represents the current context of execution.
-
-#### Creating Loops
-
-To create a connecting loop use one of the two possible ways: 
-
-a) instantiate declaratively using the capsule definition object:
-
-```js
-var MyCapsuleClass = capsula.defCapsule({
-    loops: ['myLoop'] // or just 'myLoop'
-});
-```
-
-In this case, we declare that every instance of the MyCapsuleClass would have a loop named 'myLoop'.
-
-b) instantiate imperatively using the new operator and a Loop constructor:
-
-```js
-let myLoop = new capsula.Loop('myLoop');
-```
-
-In this case, myLoop implicitly becomes a loop of the capsule which represents the current context of execution.
-
-#### Tying Hooks and Loops
-
-To tie hook and loop declaratively:
-
-```js
-var MyCapsuleClass = capsula.defCapsule({
-    'part1.hook': ['part2.loop'] // or just 'part2.loop'
-});
-```
-
-or imperatively:
-
-```js
-hook.tie(loop);
-```
-
-Ties could also be destroyed using untie (or one of the many other hook's and loop's methods that destroy ties):
-
-```js
-hook.untie(loop);
-```
-
-### Working with DOM Elements and Event Handling
+### Object-Oriented Way
 
 To work with DOM elements in an object-oriented way, we've provided Element capsule in html module. Basically, it's a wrapper capsule for DOM elements and can be used either to wrap an existing DOM element or to create a new one (and wrap it).
 
-Element capsule has one loop named loop which is inherited from the HasRootHTML capsule. This loop is there to enable this capsule's wrapped DOM element to be included on the page (as a child of another DOM element). Also, this capsule has a hook named hook that enables this capsule's wrapped DOM element include other DOM elements inside itself (as its children).
+Element capsule has one loop named *loop*. This loop enables wrapped DOM element to be included on the page (as a child of another DOM element); in other words, this loop represents wrapped DOM element as a child widget. 
 
-Creating new HTML (DOM) element and new Element capsule as its wrapper:
+Element capsule has one hook named *hook*. This hook enables wrapped DOM element to include other DOM elements inside itself (as its children); in other words, this hook represents wrapped DOM element as a parent widget.
+
+Element capsule also has many public methods that enable us to work with wrapped element's attributes, properties, CSS classes, inner HTML, etc.
+
+To create new HTML (DOM) element and new Element capsule as its wrapper:
 
 ```js
 // using tag name
-let htmlElement = new html.Element('div');
+var div = new html.Element('div');
 ```
 
-Creating new SVG (DOM) element (needs namespace) and new Element capsule as its wrapper:
+To create new Element capsule to wrap an existing DOM element:
 
 ```js
-// using namespace and tag name
-let svgElement = new html.Element('http://www.w3.org/2000/svg', 'rect');
+var div = new html.Element(document.getElementById('myDiv'));
 ```
 
-Creating new Element capsule to wrap an existing DOM element
+Now let's create one button and put it inside the div:
 
 ```js
-let existingElement = document.createElement('div'); // or document.getElementById...
-let htmlElement = new html.Element(existingElement);
+var button = new html.Element('button');
+button.setInnerHTML('Open');
+div.hook.tie(button.loop);
 ```
 
-Specifying output operations (optional in all three ways of instantiation):
+Note that instead of adding one capsule to another, here we've added a loop of one capsule to a hook of another. This is because in general a capsule may represent more that one widget and we have to specify exactly what goes whare. Hooks and loops are being added using the tie method. We call this tying while connections we call ties.
+
+Now, let's add a bit of interaction to this example.
 
 ```js
-// reacts on click and double click
-let htmlElement = new html.Element('div', ['click', 'dblclick']);
-htmlElement.click.wire(function(e){
-    alert('Clicked!');
+button.addEventOutput('click'); // let's listen for click event
+
+var dialog = new html.Element('dialog'); // create a dialog element
+dialog.setInnerHTML('This is a dialog!');
+div.hook.tie(dialog.loop); // add dialog to the div
+
+button.click.wire(function(){ // open the dialog handler
+    dialog.setAttribute('open');
 });
 ```
 
-#### ElementRef Capsule
-
-ElementRef capsule wraps (and references) an external element (widget) to prepare it to participate in a hierarchy of similar elements. In other words, the ElementRef capsule provides an API around the wrapped element; an API that serves the purpose of managing hierarchical structures of widgets.
-
-ElementRef capsule wraps a single element and creates one hook and one loop, i.e. the hook and the loop that directly represent the wrapped element. The hook represents it as a parent while the loop represents it as a child in its future parent-child relationships.
+So now we have a div with two interacting widgets inside. Let's try to encapsulate all this into a *ShowInfo* capsule that accepts info message as a constructor parameter that should appear inside the dialog.
 
 ```js
-var divElement = document.getElementById(...); // or document.createElement('div')
-var labelElement = document.getElementById(...); // or document.createElement('label')
-var divCapsule = new capsula.ElementRef(divElement);
-var labelCapsule = new capsula.ElementRef(labelElement);
+var ShowInfo = capsula.defCapsule({
+    loops: 'root', // this is the loop that would represent inner div as a child
+    init: function(message){
+        var div = new html.Element('div'); // creates a part
+        var button = new html.Element('button'); // creates a part
+        button.setInnerHTML('Open');
+        button.addEventOutput('click');
+        div.hook.tie(button.loop);
+        var dialog = new html.Element('dialog'); // creates a part
+        dialog.setInnerHTML(message);
+        div.hook.tie(dialog.loop);
+        button.click.wire(this.);
+        div.loop.tie(this.root); // this is how div gets represented by the root loop
+    },
+    clickHandler: function(){
+        dialog.setAttribute('open');
+    }
+});
 
-// and this is where the divElement becomes the parent of the labelElement
-divCapsule.hook.tie(labelCapsule.loop);
+var info = new ShowInfo('Have a nice day.');
+info.root.render(document.body); // let's put our capsule into the page body
 ```
 
-To obtain a hook use the ElementRef capsule:
+Here, the click handler is created as a protected method of ShowInfo capsule, representing a sort of its internal behavior.
+
+Now, the same thing could be achieved in a much more declarative way:
 
 ```js
-let pRef = new capsula.ElementRef(parentElement), // pRef wraps parentElement
-connectorHook = pRef.hook; // connectorHook represents the wrapped parentElement
+var ShowInfo = capsula.defCapsule({
+    loops: 'root',
+    div: {
+        capsule: html.Element,
+        args: 'div'
+    },
+    button: {
+        capsule: html.Element,
+        args: ['button', ['click']] // reacts on click event
+    },
+    dialog: {
+        capsule: html.Element,
+        args: 'dialog'
+    },
+    init: function(message){
+        this.button.setInnerHTML('Open');
+        this.dialog.setInnerHTML(message);
+    },
+    'div.hook': ['button.loop', 'dialog.loop'],
+    'this.root': 'div.loop',
+    'button.click': 'this.clickHandler',
+    clickHandler: function(){
+        dialog.setAttribute('open');
+    }
+});
+
+var info = new ShowInfo('Have a nice day.');
+info.root.render(document.body);
 ```
 
-To obtain a loop use the ElementRef capsule:
+As show above, creating parts, tying hooks and loops, and wiring operations (and methods in this case) can all be done in a declarative way.
+
+Also note that making the button listen to click events could be done during construction either as shown above where args property contains additional array of events, or in case of imperative construction like this:
 
 ```js
-let cRef = new capsula.ElementRef(childElement), // cRef wraps childElement
-connectorLoop = cRef.loop; // connectorLoop represents the wrapped childElement
+let button = new html.Element('button', ['click']); // more events could be added
 ```
+
+Whether being a fan of imperative or declarative style, at this point you have the ShowInfo capsule encapsulating two interacting widgets. However, the ShowInfo capsule specifies not only how the two widgtes interact, but also how they are positioned in terms of layout. That's not really flexible.
+
+Let's try to keep interaction encapsulated while leaving the layout of interacting widgets unspecified. We no longer need the div part, since we are not going to render button and dialog inside it. We are going to leave the layout decisions outside of the ShowInfo capsule.
+
+```js
+var ShowInfo = capsula.defCapsule({
+    loops: ['buttonLoop', 'dialogLoop'], // two loops: one for button, one for dialog
+    button: {
+        capsule: html.Element,
+        args: ['button', ['click']]
+    },
+    dialog: {
+        capsule: html.Element,
+        args: 'dialog'
+    },
+    init: function(message){
+        this.button.setInnerHTML('Open');
+        this.dialog.setInnerHTML(message);
+    },
+    'this.buttonLoop': 'button.loop', // tying the button to the buttonLoop
+    'this.dialogLoop': 'dialog.loop', // tying the dialog to the dialogLoop
+    'button.click': 'this.clickHandler',
+    clickHandler: function(){
+        dialog.setAttribute('open');
+    }
+});
+
+var info = new ShowInfo('Have a nice day.');
+
+// now, let's decide where to put button and dialog
+info.dialogLoop.render(document.getElementById('div1'));
+info.buttonLoop.render(document.getElementById('div2'));
+```
+
+Now we have our ShowInfo capsule much more flexible, since it only encapsulates interaction, while the layout of its parts is left for someone else (who is using ShowInfo capsule) to decide. This is the core idea behind the mechanism of hooks and loops.
+
+The mechanism of hooks and loops enables us to decide which layout decisions we want to make inside a capsule and which to leave out of it. This enables us to increase complexity of capsules while preserving the capsule's potential to be reused, because in user interface development most of inflexibility comes from fixing the layout of your components inside.
 
 ### Working with Templates
 
@@ -859,7 +879,7 @@ Again, the clients need to know neither the service type used in communication n
 
 This has one very important consequence. Clients or client components (capsules) are now able to take over their part of communication from a communication agent that would otherwise exist in order to orchestrate all client components' communication with the server. This makes client components more powerful and yet independent and reusable while the agent existence is no longer necessary.
 
-### Other Types of RPC
+### Other Types Of RPC
 
 Apart from AJAX service type, Capsula provides a few more. And yes, you can create your own easily (check the next chapter). The following service types are provided in html module:
 
