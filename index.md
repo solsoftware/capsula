@@ -12,7 +12,7 @@ nav: false
 	<p id="subtitle">The right way to build JavaScript apps</p>
 </div>
 <div class="centered">
-	<a href="tutorial"><button id="get-started">Get Started</button></a>
+	<a href="{{ "/tutorial" | relative_url }}"><button id="get-started">Get Started</button></a>
 </div>
 
 <div class="floated">

@@ -44,4 +44,4 @@ We want Capsula to be as independent as possible. That means independent of exte
 
 As a conclusion, we want Capsula to be easy to learn, expressive and powerful, flexible and native, and free from accidental complexity. Capsula should be completely transparent to developers and should enable them to focus only on what's essential.
 
-Ready to try? Let's [get started](/tutorial).
+Ready to try? Let's [get started]({{ "/tutorial" | relative_url }}).

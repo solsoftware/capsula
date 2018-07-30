@@ -641,7 +641,7 @@ var ShowInfo = capsula.defCapsule({
     },
     'div.hook': ['button.loop', 'dialog.loop'],
     'this.root': 'div.loop',
-    'button.!click': 'this.clickHandler',
+    'button.!click': 'this.clickHandler', // pay attention to ! sign (see bellow)
     clickHandler: function(){
         this.dialog.setAttribute('open');
     }
@@ -653,13 +653,15 @@ info.root.render(document.body);
 
 As show above, creating parts, tying hooks and loops, and wiring operations (and methods in this case) can all be done in a declarative way.
 
+One thing should be noted here. Declarative wires and ties are being checked during execution of defCapsule so that errors in capsule definition object get discovered as early as possible. In cases when part creates its operation dynamically, for example in constructor, that operation cannot be checked at the time of defCapsule execution of its owner capsule. This is the case with our button. It creates its output click operation dynamically, so we have to designate that this operation should not be checked. We do that by saying ```button.!click``` instead of just ```button.click``` in the wire declaration.
+
 Also note that making the button listen to click events could be done during construction either as shown above where args property contains additional array of events, or in case of imperative construction like this:
 
 ```js
 let button = new html.Element('button', ['click']); // more events could be added
 ```
 
-Whether being a fan of imperative or declarative style, at this point you have the ShowInfo capsule encapsulating two interacting widgets. However, the ShowInfo capsule specifies not only how the two widgtes interact, but also how they are positioned in terms of layout. That's not really flexible.
+Whether being a fan of imperative or declarative style, at this point you have the ShowInfo capsule encapsulating two interacting widgets. However, the ShowInfo capsule specifies not only how the two widgets interact, but also how they are positioned in terms of layout. That's not really flexible.
 
 Let's try to keep interaction encapsulated while leaving the layout of interacting widgets unspecified. We no longer need the div part, since we are not going to render button and dialog inside it. We are going to leave the layout decisions outside of the ShowInfo capsule.
 
