@@ -608,7 +608,7 @@ var ShowInfo = capsula.defCapsule({
         div.loop.tie(this.root); // this is how div gets represented by the root loop
     },
     clickHandler: function(){
-        dialog.setAttribute('open');
+        this.dialog.setAttribute('open');
     }
 });
 
@@ -680,9 +680,9 @@ var ShowInfo = capsula.defCapsule({
     },
     'this.buttonLoop': 'button.loop', // tying the button to the buttonLoop
     'this.dialogLoop': 'dialog.loop', // tying the dialog to the dialogLoop
-    'button.click': 'this.clickHandler',
+    'button.!click': 'this.clickHandler',
     clickHandler: function(){
-        dialog.setAttribute('open');
+        this.dialog.setAttribute('open');
     }
 });
 
