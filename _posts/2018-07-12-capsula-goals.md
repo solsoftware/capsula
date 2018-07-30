@@ -3,7 +3,7 @@ layout: post
 title:  "The Goals of Capsula Library"
 date:   2018-07-12 16:37:15 +0200
 categories: concepts
-permalink: goals-of-capsula
+permalink: /goals-of-capsula/
 ---
 
 From our own experience and developers' opinions we believe developers are, in two words, "not happy". To change that we've set the following goals before building Capsula library.
