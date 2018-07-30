@@ -604,7 +604,7 @@ var ShowInfo = capsula.defCapsule({
         var dialog = new html.Element('dialog'); // creates a part
         dialog.setInnerHTML(message);
         div.hook.tie(dialog.loop);
-        button.click.wire(this.);
+        button.click.wire(this.clickHandler);
         div.loop.tie(this.root); // this is how div gets represented by the root loop
     },
     clickHandler: function(){
@@ -641,9 +641,9 @@ var ShowInfo = capsula.defCapsule({
     },
     'div.hook': ['button.loop', 'dialog.loop'],
     'this.root': 'div.loop',
-    'button.click': 'this.clickHandler',
+    'button.!click': 'this.clickHandler',
     clickHandler: function(){
-        dialog.setAttribute('open');
+        this.dialog.setAttribute('open');
     }
 });
 
