@@ -1,7 +1,7 @@
 ---
 layout: home
 title: Blog
-permalink: /blog/
+permalink: blog
 order: 2
 nav: true
 ---

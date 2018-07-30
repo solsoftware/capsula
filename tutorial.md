@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Tutorial
-permalink: /tutorial/
+permalink: tutorial
 order: 1
 nav: true
 ---
