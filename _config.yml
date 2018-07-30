@@ -19,7 +19,7 @@ copyright: Copyright (c) 2018 SOL Software
 description: >- # this means to ignore newlines until "baseurl:"
   Capsula library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules".
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://solsoftware.github.io/capsula" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: capsulajs
 github_username: capsula
 github_url: https://github.com/solsoftware/capsula
