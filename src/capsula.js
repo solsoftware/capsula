@@ -305,64 +305,7 @@ limitations under the License.
         LoopData_.prototype = Object.create(HookLoopData_.prototype);
 
         /**
-         * @classdesc
-        <p> Capsule class is an abstract base class in the hierarchy of (built-in and user-defined) capsule classes. In many ways capsule classes are similar to the typical OO classes. They support single inheritance model and polymorphism the way OO classes do. However, capsules differ from OO classes in many ways as well. They are dynamic the way JavaScript language is. Also, they enforce a special encapsulation model and accommodate several new concepts which are explained in the lines that follow.
-         * <h3>Capsule Properties</h3>
-         * <p> There are five types of capsule properties: parts, operations, methods, hooks, and loops.
-         * <p> Part is a property of capsule instance that represents another capsule instance that "belongs" to it, i.e. part capsule is basically a child capsule. Child capsule is always created in the context of its parent and accessible only from within that context. Next section explains the term capsule context more precisely.
-         * <p> An operation is a capsule's property that acts like a very powerful method. It can be used as a regular method, however operation adds support for asynchronous calls, argumetns filtering, declarative wiring to other operations to specify propagation of calls, etc. There are input and output operations. Read more on what can be achieved using [operations]{@link module:capsula.Operation}.
-         * <p> Method is a capsule property that behaves as anyone would imagine, that is, as a simple JavaScript method. Methods can be either public or protected.
-         * <p> [Hooks]{@link module:capsula.Hook} and [loops]{@link module:capsula.Loop} provide capsule with a special support for managing hierarchy of external elements (widgets for example) in a flexible way.
-         * <p>When creating a capsule class, one must define which and how many of these properties should be present in it (see [defCapsule]{@link module:capsula.defCapsule}). Once created, capsule class cannot be modified afterwards. All instances of that class would then have the properties as defined in the class. However, once an instance of capsule class is created, it can be dynamically modified (by adding new properties for example, or removing existing ones); just as anyone would expect from a JavaScript object.
-         * <p> Table bellow specifies characteristics of capsule properties (like: are they visible?, do they get inherited?, and are they dynamically addable / removable in runtime?):
-         * <table>
-         * <thead><tr><td>property type</td><td>visibility</td><td>inheritable</td><td>addable</td><td>removable</td></tr></thead>
-         * <tbody><tr><th>part</th><td>protected</td><td>true</td><td>true</td><td>true</td></tr>
-         * <tr><th>operation</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-         * <tr><th>method</th><td>protected or public</td><td>true</td><td>false</td><td>false</td></tr>
-         * <tr><th>hook</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-         * <tr><th>loop</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-         * </tbody></table>
-         * <p> Behind its interface made up of operations, public methods, hooks, and loops, capsules hide:
-         * <ul>
-         * <li> parts <br>
-         * <li> the way parts' and capsule's operations are connected (wired) between one another, <br>
-         * <li> the way parts' and capsule's hooks and loops are connected (tied) between one another, <br>
-         * <li> protected methods (i.e. protected behavior), and <br>
-         * <li> protected data.
-         * </ul>
-         * <p> Private properties are not supported.
-         * <p>
-         * <h3>Encapsulation Model and the "Current Context of Execution"</h3>
-         * <p> As a reminder, in a typical OO encapsulation model, all public properties and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we have to carefully manage references. Effectively managing references can be a bit too difficult and that is why capsules introduce quite a novel encapsulation model which is a restriction to the <i>"everything public is accessible"</i> policy.
-         * <p> To understand the policy of our encapsulation model, it is fundamentally important to understand the notion of <i>"current context of execution"</i>. Current context of execution is specified with respect to the given point in time and it always represents a capsule instance:
-         * <p> <i> For the given point in time t and the given capsule instance x, x is the current context of execution at t, if and only if the call stack at t lists a method of x and no method of capsule instance other than x deeper in the call stack.</i>
-         * <p> If x is the current context of execution, we informally say that <i>"we are in the context of x"</i>.
-         * <p> Now we can define "is part of" relation between capsules instances:
-         * <p> <i> Two capsule instances x and y are in "is part of" relation (x is part of y) if and only if y was the current context of execution at the moment of instantiation of x.</i>
-         * <p> Note that "is part of" relation is neither symmetric, nor transitive, nor reflexive.
-         * <p> For these two capsule instances we informally say that x is part of y. If x is part of y, we also informally say that "y is the owner of x". At any point in time a capsule instance can have zero or more parts (part properties) and zero or one owner.
-         * <p> Now, our policy could easily be expressed: when we are in the context of y, it is allowed to use (access, call) a) public properties of capsule instance x if and only if x is a part of y and b) protected properties of capsule instance y.
-         * <p> When trying to use a properties against these rules, an [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT} error is going to be thrown.
-         * <h3>How to create a capsule class?</h3>
-         * <p> To create a capsule class call the [defCapsule]{@link module:capsula.defCapsule} method:
-         * <pre class="prettyprint"><code>var MyCapsuleClass = capsula.defCapsule(capsule_definition_object);</code></pre>
-         * <h3>How to create a capsule instance?</h3>
-         * <p> To instantiate capsule class (i.e. to obtain a capsule instance or capsule) use one of the two possible ways: <br>
-         * <p> a) instantiate imperatively using the <i>new</i> operator and a function returned from the call to defCapsule:
-         * <pre class="prettyprint"><code>var myCapsuleInstance = new MyCapsuleClass(optional_arguments);</code></pre>
-         * In this case, myCapsuleInstance capsule implicitly becomes a part property of the capsule which represents the current context of execution.
-         * <p> b) instantiate declaratively using the capsule definition object in defCapsule:
-         * <pre class="prettyprint"><code>var OwnerClass = capsula.defCapsule({
-         *     ...
-         *     myCapsuleInstance: {
-         *         capsule: MyCapsuleClass,
-         *         args: [optional_arguments]
-         *     }
-         *     ...
-         * });
-         * </code></pre>
-         * In this case, we declare that every instance of the OwnerClass would have an instance of MyCapsuleClass (myCapsuleInstance) as its part property.
+         * @classdesc Capsule class is an abstract base class in the hierarchy of capsule classes.
          *
          * @abstract
          * @class
@@ -419,36 +362,6 @@ limitations under the License.
          * @class
          * @classdesc Operation is [capsule's]{@link module:capsula.Capsule} public property. It is like a method (or function) and much more. It can be used either by calling it (just like a method) or by calling methods on it (to exploit its additional features). For example, if o is an operation it is meant to be called like this: <code>o(optional_arguments)</code>. But it can also be used as an object to call methods on it, for example <code>o.getName()</code>. By default, calling an operation does nothing, but this can be changed by "wiring" (connecting) operation to other operations or methods that do something. Wiring operation to other operations or methods actually specifies propagation of operation (method) calls. The result of calling an operation is a combined result of all operations and methods downstream.
          * <p> Operation can either be [input]{@link module:capsula.Input} or [output]{@link module:capsula.Output}. Input operation serves as a propagator of calls from the outside towards the inside of the capsule the operation is property of. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its capsule.
-         * <p> To call operation, wire two operations, or wire operation to a capsule's method one must take into consideration the following: a) type(s) of each operation (input or output) or method (always input) involved, b) relationship of their owning capsules (in terms of are they sibling capsules or one capsule is part of another), and c) the current context of execution.
-         * <p> For example, let capsule c be the capsule of the current context of execution. Let c1 and c2 be its part capsules, o1, o2, ..., o5 their operations, and m1 and m2 methods (see figure bellow).
-         * <p> <img src="img/operations.png">
-         * <p> Operations eligible to be called in the current context of execution (c) are c2.o3 and c.o5 (the same as this.o5). It is illegal to call c1.o1, c2.o4, c.o2 (the same as this.o2).
-         * <p> The following operations are wired to one another and to methods: <br>
-         * 1) input operation o2 of capsule c to input operation o3 of capsule c2, <br>
-         * 2) output operation o4 of capsule c2 to output operation o5 of capsule c, <br>
-         * 3) output operation o1 of capsule c1 to input operation o3 of capsule c2, <br>
-         * 4) input operation o2 of capsule c to output operation o5 of capsule c, <br>
-         * 5) input operation o2 of capsule c to method m2 of capsule c, and <br>
-         * 6) output operation o1 of capsule c1 to method m1 of capsule c.
-         * <p> It is said that operations o2, o4, and o1 act as "source" operations while operations o3 and o5 and methods m1 and m2 act as "targets" in these wires. Note that each source operation (for example o2) could be wired to many targets (o3, o5, and m2). Similarly, each target operation or method (for example operation o5) could be wired to many source operations (o4 and o2). A method can only act as a target when being wired. Wiring of operations is either done declaratively (in [defCapsule]{@link module:capsula.defCapsule}) or by calling methods on operations (see [wire]{@link module:capsula.Operation#wire}, [source]{@link module:capsula.Operation#source}, [target]{@link module:capsula.Operation#target}, and all related methods from there).
-         * <p> Input operation can be used (depending on the context) either:
-         * <p> 1) as a target if used from the outside of its capsule or <br>
-         * 2) as a source if used from the inside.
-         * <p> Output operation can be used (depending on the context) either:
-         * <p> 1) as a source if used from the outside of its capsule or <br>
-         * 2) as a target if used from the inside.
-         * <p> As stated above, operations' wiring defines propagation of operation calls. For example, calling:
-         * <pre class="prettyprint"><code>c.o2('something');</code></pre>
-         * <p> would effectively mean calling:
-         * <pre class="prettyprint"><code>
-         * c.m2('something');
-         * c2.o3('something');
-         * c.o5('something');
-         * </code></pre>
-         * In other words, operation calls are being propagated according to the wiring. Wiring network ends where operations are wired to methods. The methods make the final combined effect of an operation call. When calling an operation, if there is more than one downstream method an array of method results is returned. If however there is only one downstream method its result is returned (this is by default, but can be changed, see [setUnpackResult]{@link module:capsula.Operation#setUnpackResult}). If there is no downstream methods for it, undefined is returned.
-         * <p> Operations are by default enabled but could be disabled in which case the propagation of calls does not work and undefined is returned when disabled operation is called. See [setEnabled]{@link module:capsula.Operation#setEnabled}.
-         * <p> As mentioned above, calling an operation o is done by <code>o(optional_arguments)</code>. This is a synchronous operation call. It means control is returned to the caller once all of the downstream operations and methods are executed. There is however an asynchronous way of calling an operation. For operation o this is done by <code>o.send(optional_arguments)</code>. This returns Promise object which allows for handling the results in both successful and erroneous use cases. In case of an async operation call, the control is returned to the caller immediately and propagation of calls is done in asynchronous manner at some point in future. See [send]{@link module:capsula.Operation#send}.
-         * <p> Operations could have a filter set to modify operation arguments before further propagation of operation call or even to completely filter out (disable) individual operation calls. Since each operation is in a way on a boundary between two contexts (context of a capsule that owns the operation and its outer context), filters can be set to operation in both contexts. See [setFilter]{@link module:capsula.Operation#setFilter} for more details.
          *
          * @memberof module:capsula
          * @public
@@ -471,7 +384,7 @@ limitations under the License.
          * <li> Input
          * </ul>
          * </ul>
-         * <p> Input operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Input operations go along with output operations; they are complementary concepts that cannot be explained in separation. This is why input and output operations' essentials are given in one place and that is the [operations' page]{@link module:capsula.Operation}.
+         * <p> Input operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Input operations go along with output operations; they are complementary concepts.
          *
          * @memberof module:capsula
          * @see {@link module:capsula.Operation}
@@ -495,7 +408,7 @@ limitations under the License.
          * <li> Output
          * </ul>
          * </ul>
-         * <p> Output operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Output operations go along with input operations; they are complementary concepts that cannot be explained in separation. This is why input and output operations' essentials are given in one place and that is the [operations' page]{@link module:capsula.Operation}.
+         * <p> Output operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Output operations go along with input operations; they are complementary concepts.
          *
          * @memberof module:capsula
          * @see {@link module:capsula.Operation}
@@ -512,123 +425,7 @@ limitations under the License.
          *
          * @class
          * @classdesc Hook is a specific public property of a [capsule]{@link module:capsula.Capsule}. It is a representation of a parent element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a parent in a parent-child relationship.
-         * <p> Hooks always go along with loops; they are complementary concepts that cannot be explained in separation. This is why loops' essentials are also given here, on the hooks' page. For all the details about loops there is a dedicated [loops' page]{@link module:capsula.Loop}.
-         * <p> Similarly to hook, a loop is a specific public property of a capsule. Unlike hook which represents a parent element, loop is a representation of a child element in a hierarchical structure of elements (e.x. widgets).
-         * <p> A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent element and more than one child element (at the same time).
-         * <p> In the <i>Capsula</i> library, element hierarchy is built by managing hierarchies of hooks and loops instead of dealing with elements directly. As will be shown, this brings lots of flexibility and at the same time makes the code less dependent on the external API (like for example the DOM API).
-         * <p> The following short example shows what can be done with hooks and loops and how it is better than today's common practice. Then, it is explained exactly how to create and modify hierarchy of elements by managing hierarchies of hooks and loops more formally.
-         * <h3>The Example</h3>
-         * <p> Capsula framework does not impose what elements mentined above must be; in this example elements are UI widgets. This example shows how to design really flexible and highly reusable tab UI component.
-         * <p> Imagine a typical tab UI component (see the figure just bellow). Tab has a menu that reacts on user clicks and makes sure the corresponding page is displayed bellow. Tab capsule (also shown bellow) implements this behavior internally.
-         * <p> Tab has two roles. It acts as a parent widget for its contents. This role is represented by the <i>pages</i> hook of the tab capsule, i.e. the pages hook represents the tab as a parent in tab's parent-child relationships with its children.
-         * <p> On the other hand, tab acts as a child widget for its container. This role is represented by the loop named <i>loop</i> of the tab capsule, i.e. the loop represents the tab as a child in the tab's parent-child relationship with its parent.
-         * <p> At this point, the tab capsule is not too good in terms of reusability because although we can reuse the tab as it is, in terms of layout the tab menu and its contents are bound to one another which is quite inflexible. How can that be improved then?
-         * <p> <img src="img/tab-2.png" style="margin-right:5em"><img src="img/tab-1.png">
-         * <p> It is not difficult to imagine a requirement to have an ads section between the tab menu and the tab contents (see bellow). In that case, our tab capsule won't do the job. However, we improve it by introducing additional hook named <i>ads</i> in the tab capsule. Now, if we use the ads hook (i.e. put somthing in it) we are able to meet the given requirement, otherwise the tab looks the same as before. This improves flexibility of the tab because the ads hook allows us to put anything we want between the tab menu and the tab contents and that is done outside of the tab capsule. So, instead of ads, we can have the breaking news section in between, or anything else. This is better, but still one could ask for more flexibility.
-         * <p> <img src="img/tab-4.png" style="margin-right:5em"><img src="img/tab-3.png">
-         * <p> Let's forget the ads hook, reset to the original tab capsule, and redesign it from scratch. Instead of a single loop, let's create two loops: <i>tabMenu</i> and <i>tabContents</i>. The tabMenu loop represents the tabMenu widget as a child in its parent-child relationship with its parent. The tabContents loop represents the container of tab pages as a child in its parent-child relationship with its parent. Now, the programmer can decide where in the page to put the tab menu and where to put the tab contents (see the figure bellow). In this example, the tab contents is displayed first on the page, then there is some arbitrary contents (designated with three dots), and finally there is the tab menu. Still, wherever the tab menu and the tab contents are placed on the page, they continue to work together so when the tab menu item is clicked, the corresponding page is displayed.
-         * <p> Decisions on where to put the menu and the contents are left to the programmer that uses the tab capsule, i.e. they are extracted from the tab capsule and now belong to the outside of the tab capsule. This is why the tab capsule as it is now is much more flexible (and because of that much more reusable) than before. The interaction between the tab menu and the tab contents is however left inside the capsule, which makes sense because the two are logically related. This is the most flexible solution one could ask for.
-         * <p> <img src="img/tab-6.png" style="margin-right:5em"><img src="img/tab-5.png">
-         * <p> As shown in this example, a capsule is a logical unit of work; what the logic of a capsule is, is left to programmers to decide. The logic may or may not include layout decisions, again according to the requirements. Hooks and loops allow for decoupling the layout from other concers in an effective way. This brings lots of flexibility and improves capsules' potential for reuse.
-         * <h3>Hooks&Loops Hierarchies and Paths</h3>
-         * <p> This section explains how to create and modify hierarchy of elements by managing hierarchies of hooks and loops. How to create a valid hierarchy of hooks and loops is explained first. Then, we explain how it maps to an element structure.
-         * <p> Hierarchy of hooks and loops is a tree made up of hooks and loops according to the rules that follow. Hooks and loops are connected (tied) to one another using so called "ties" (ties are actually the branches in the tree).
-         * <p> There are two types of hooks and loops: a) connector hooks and loops and b) connecting hooks and loops.
-         * <p> <i> A connector hook directly represents parent element in a parent-child relationship of elements. A connector loop directly represents child element in a parent-child relationship of elements.</i>
-         * <p> (To obtain a connector hook (or loop) check [ElementRef capsule]{@link module:capsula.ElementRef}.)
-         * <p> <i> A connecting hook represents parent element indirectly, through a connector hook it is (directly or indirectly) tied to. A connecting loop represents child element indirectly, through a connector loop it is (directly or indirectly) tied to. A connecting hook (loop) may or may not be directly or indirectly tied to a connector hook (loop). </i>
-         * <p> So, a tree of hooks and loops is made up of connector hooks and loops and connecting hooks and loops. Hooks and loops form the tree according to the following rules:
-         * <ul>
-         * <li> Hook may have many children (or none). Each child must either be a hook or a loop. The ordering of hook's children is significant since it represents the ordering of elements in the corresponding section of the element structure.
-         * <li> Hook can either be unparented or have exactly one parent. The parent can only be another hook.
-         * <li> A connector hook must not have a parent. If it exists in the tree, it must be the root node.
-         * <li> Loop can either be unparented or have exactly one parent. The parent can be another loop or a hook.
-         * <li> Loop may have zero or one child. A child, if it exists, must be another loop.
-         * <li> A connector loop must not have a child. If it exists in the tree, it must be a leaf node in the tree.
-         * </ul>
-         * <p> The same rules could be expressed more formally. Let's consider a tree of hooks and loops to be a collection of paths from the root node of the tree to each of the leaf nodes.
-         * <p> <i> A valid hierarchy (tree) of hooks and loops is a collection of valid paths only. </i>
-         * <p> <i>A valid path is a chain of hooks and loops that a) spans from the root node towards the leaf node over the nodes and ties that exist between them and b) is formed according to the following rules:
-         * <ul>
-         * <li> Connector hook, if it exists in the chain, can only be the first (root) node in the chain.
-         * <li> Connector loop, if it exists in the chain, can only be the last (leaf) node in the chain.
-         * <li> A pair of hook h and loop l where d(h) > d(l) does not exist. Here, d(n) is the distance of node n from the first (root) node of the chain.
-         * </ul></i>
-         * <p> <i>A path is complete if the following holds:
-         * <ul>
-         * <li> It is a valid path.
-         * <li> The root node is a connector hook.
-         * <li> The leaf node is a connector loop.
-         * </ul></i>
-         * <p> The following paths are complete (the root node is the leftmost node) (J represents a connecting hook, J' represents a connector hook, O - represents a connecting loop, O' - represents a connector loop):
-         * <ul>
-         * <li> J' - O'
-         * <li> J' - J - O'
-         * <li> J' - O - O'
-         * <li> J' - J - ... - J - O - ... - O'
-         * </ul>
-         * <p> A complete path represents an existing completed relationship between the parent element (represented by the connector hook) and the child element (represented by a connector loop).
-         * <p> The following paths are valid, but not complete:
-         * <ul>
-         * <li> J
-         * <li> J - ... - J
-         * <li> J' - J - ... - J
-         * <li> O
-         * <li> O - ... - O
-         * <li> O - ... - O'
-         * <li> J - O
-         * <li> J - ... - J - O - ... - O
-         * <li> J' - J - ... - J - O - ... - O
-         * <li> J - ... - J - O - ... - O'
-         * </ul>
-         * <p> A valid yet incomplete path represents an incomplete relationship between the parent and the child element (when either one or both of them are missing). Incomplete path would become completed as soon as it obtains both a connector hook and a connector loop. At that point the element represented by a connector hook and the element represented by the connector loop would establish a parent-child relationship.
-         * <p> The following paths are not valid (* represents hook, loop, or nothing at all):
-         * <ul>
-         * <li> * - O - * - J - *
-         * <li> * - O' - * - J - *
-         * <li> * - O - * - J' - *
-         * <li> * - O' - * - J' - *
-         * </ul>
-         * <p> Modifications in the structure of a path may or may not affect the structure of actual elements:
-         * <p> <i> If a modification results in a new complete path (or paths) being formed, the elements' structure gets extended with corresponding new child element(s). If a modification results in an existing complete path (or paths) becoming incomplete, the element structure gets corresponding child element(s) removed. </i>
-         * <h3>Creating Hooks</h3>
-         * <p> To create a connecting hook use one of the two ways: <br>
-         * a) instantiate imperatively using the <i>new</i> operator and a Hook constructor:
-         * <pre class="prettyprint"><code>let myHook = new capsula.Hook('myHook');</code></pre>
-         * In this case, myHook implicitly becomes a hook of the capsule which represents the current context of execution.
-         * <p> b) instantiate declaratively using the capsule definition object in defCapsule:
-         * <pre class="prettyprint"><code>let MyCapsuleClass = capsula.defCapsule({
-         *     ...
-         *     hooks: ['myHook', ...]
-         *     ...
-         * });
-         * </code></pre>
-         * In this case, we declare that every instance of the MyCapsuleClass would have a hook named 'myHook'.
-         * <p> To obtain a connector hook use the ElementRef capsule:
-         * <pre class="prettyprint"><code>let pRef = new capsula.ElementRef(parentElement), // pRef wraps parentElement
-         * connectorHook = pRef.hook; // connectorHook represents the wrapped parentElement</code></pre>
-         * <h3>Creating Loops</h3>
-         * <p> To create a connecting loop use one of the two possible ways: <br>
-         * a) instantiate imperatively using the <i>new</i> operator and a Loop constructor:
-         * <pre class="prettyprint"><code>let myLoop = new capsula.Loop('myLoop');</code></pre>
-         * In this case, myLoop implicitly becomes a loop of the capsule which represents the current context of execution.
-         * <p> b) instantiate declaratively using the capsule definition object in defCapsule:
-         * <pre class="prettyprint"><code>var MyCapsuleClass = capsula.defCapsule({
-         *     ...
-         *     loops: ['myLoop', ...]
-         *     ...
-         * });
-         * </code></pre>
-         * In this case, we declare that every instance of the MyCapsuleClass would have a loop named 'myLoop'.
-         * <p> To obtain a connector loop use the ElementRef capsule:
-         * <pre class="prettyprint"><code>let cRef = new capsula.ElementRef(childElement), // cRef wraps childElement
-         * connectorLoop = cRef.loop; // connectorLoop represents the wrapped childElement</code></pre>
-         * <h3>Tying Hooks and Loops</h3>
-         * Hooks and loops are connected to one another according to the rules explained above. This can be done in two ways, imperatively using [tie]{@link module:capsula.Hook#tie} (or one of the many other hook's and loop's methods that create ties):
-         * <pre class="prettyprint"><code>hook.tie(loop);</code></pre>
-         * <p> or declaratively (see [defCapsule]{@link module:capsula.defCapsule}).
-         * <p> Ties could also be destroyed using [untie]{@link module:capsula.Hook#untie} (or one of the many other hook's and loop's methods that destroy ties):
-         * <pre class="prettyprint"><code>hook.untie(loop);</code></pre>
+         * <p> Hooks always go along with loops; they are complementary concepts.
          *
          * @param {string} [opt_name] - the name of the hook to create
          * @memberof module:capsula
@@ -656,7 +453,7 @@ limitations under the License.
          *
          * @class
          * @classdesc Loop is a specific public property of a [capsule]{@link module:capsula.Capsule}. It is a representation of a child element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a child in a parent-child relationship.
-         * <p> Loops always go along with hooks; they are complementary concepts that cannot be explained in separation. This is why hooks' and loops' essentials are given in one place and that is the [hooks' page]{@link module:capsula.Hook}. The loops' API however is presented here.
+         * <p> Loops always go along with hooks; they are complementary concepts.
          *
          * @param {string} [opt_name] - the name of the loop to create
          * @memberof module:capsula
@@ -5446,9 +5243,8 @@ limitations under the License.
         // *****************************
 
         /**
-         * <p> Capsula.js is the core module of Capsula library. The base concept of Capsula library is the <i>Capsule</i>, a class similar to an OO class with different encapsulation model and many new and powerful concepts. Start learning by reading the documentation for [the Capsule class]{@link module:capsula.Capsule}. Then carefully cover the concepts of [Operations]{@link module:capsula.Operation}, [Hooks]{@link module:capsula.Hook}, and [Loops]{@link module:capsula.Loop}.
+         * <p> Capsula.js is the core module of Capsula library. The base concept of Capsula library is the [Capsule class]{@link module:capsula.Capsule}, a class similar to an OO class with different encapsulation model and many new and powerful concepts like [operations]{@link module:capsula.Operation}, [hooks]{@link module:capsula.Hook}, [loops]{@link module:capsula.Loop}, and many more.
          * <p> To create new Capsule class, use [defCapsule]{@link module:capsula.defCapsule} method.
-         * <p> To wrap any external element and use it as a capsule instance, check out [ElementRef]{@link module:capsula.ElementRef} capsule.
          * @exports capsula
          * @requires module:services
          * @version 0.1.0

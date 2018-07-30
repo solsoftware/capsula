@@ -48,7 +48,7 @@
         <h2><span class="attribs"><span class="type-signature"></span></span>
             <span class="ancestors"><a href="module-capsula.html">capsula</a>.</span>Hook<span class="signature">(opt_name<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Hook is a specific public property of a <a href="module-capsula.Capsule.html">capsule</a>. It is a representation of a parent element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a parent in a parent-child relationship.<p> Hooks always go along with loops; they are complementary concepts that cannot be explained in separation. This is why loops' essentials are also given here, on the hooks' page. For all the details about loops there is a dedicated <a href="module-capsula.Loop.html">loops' page</a>.<p> Similarly to hook, a loop is a specific public property of a capsule. Unlike hook which represents a parent element, loop is a representation of a child element in a hierarchical structure of elements (e.x. widgets).<p> A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent element and more than one child element (at the same time).<p> In the <i>Capsula</i> library, element hierarchy is built by managing hierarchies of hooks and loops instead of dealing with elements directly. As will be shown, this brings lots of flexibility and at the same time makes the code less dependent on the external API (like for example the DOM API).<p> The following short example shows what can be done with hooks and loops and how it is better than today's common practice. Then, it is explained exactly how to create and modify hierarchy of elements by managing hierarchies of hooks and loops more formally.<h3>The Example</h3><p> Capsula framework does not impose what elements mentined above must be; in this example elements are UI widgets. This example shows how to design really flexible and highly reusable tab UI component.<p> Imagine a typical tab UI component (see the figure just bellow). Tab has a menu that reacts on user clicks and makes sure the corresponding page is displayed bellow. Tab capsule (also shown bellow) implements this behavior internally.<p> Tab has two roles. It acts as a parent widget for its contents. This role is represented by the <i>pages</i> hook of the tab capsule, i.e. the pages hook represents the tab as a parent in tab's parent-child relationships with its children.<p> On the other hand, tab acts as a child widget for its container. This role is represented by the loop named <i>loop</i> of the tab capsule, i.e. the loop represents the tab as a child in the tab's parent-child relationship with its parent.<p> At this point, the tab capsule is not too good in terms of reusability because although we can reuse the tab as it is, in terms of layout the tab menu and its contents are bound to one another which is quite inflexible. How can that be improved then?<p> <img src="img/tab-2.png" style="margin-right:5em"><img src="img/tab-1.png"><p> It is not difficult to imagine a requirement to have an ads section between the tab menu and the tab contents (see bellow). In that case, our tab capsule won't do the job. However, we improve it by introducing additional hook named <i>ads</i> in the tab capsule. Now, if we use the ads hook (i.e. put somthing in it) we are able to meet the given requirement, otherwise the tab looks the same as before. This improves flexibility of the tab because the ads hook allows us to put anything we want between the tab menu and the tab contents and that is done outside of the tab capsule. So, instead of ads, we can have the breaking news section in between, or anything else. This is better, but still one could ask for more flexibility.<p> <img src="img/tab-4.png" style="margin-right:5em"><img src="img/tab-3.png"><p> Let's forget the ads hook, reset to the original tab capsule, and redesign it from scratch. Instead of a single loop, let's create two loops: <i>tabMenu</i> and <i>tabContents</i>. The tabMenu loop represents the tabMenu widget as a child in its parent-child relationship with its parent. The tabContents loop represents the container of tab pages as a child in its parent-child relationship with its parent. Now, the programmer can decide where in the page to put the tab menu and where to put the tab contents (see the figure bellow). In this example, the tab contents is displayed first on the page, then there is some arbitrary contents (designated with three dots), and finally there is the tab menu. Still, wherever the tab menu and the tab contents are placed on the page, they continue to work together so when the tab menu item is clicked, the corresponding page is displayed.<p> Decisions on where to put the menu and the contents are left to the programmer that uses the tab capsule, i.e. they are extracted from the tab capsule and now belong to the outside of the tab capsule. This is why the tab capsule as it is now is much more flexible (and because of that much more reusable) than before. The interaction between the tab menu and the tab contents is however left inside the capsule, which makes sense because the two are logically related. This is the most flexible solution one could ask for.<p> <img src="img/tab-6.png" style="margin-right:5em"><img src="img/tab-5.png"><p> As shown in this example, a capsule is a logical unit of work; what the logic of a capsule is, is left to programmers to decide. The logic may or may not include layout decisions, again according to the requirements. Hooks and loops allow for decoupling the layout from other concers in an effective way. This brings lots of flexibility and improves capsules' potential for reuse.<h3>Hooks&Loops Hierarchies and Paths</h3><p> This section explains how to create and modify hierarchy of elements by managing hierarchies of hooks and loops. How to create a valid hierarchy of hooks and loops is explained first. Then, we explain how it maps to an element structure.<p> Hierarchy of hooks and loops is a tree made up of hooks and loops according to the rules that follow. Hooks and loops are connected (tied) to one another using so called "ties" (ties are actually the branches in the tree).<p> There are two types of hooks and loops: a) connector hooks and loops and b) connecting hooks and loops.<p> <i> A connector hook directly represents parent element in a parent-child relationship of elements. A connector loop directly represents child element in a parent-child relationship of elements.</i><p> (To obtain a connector hook (or loop) check <a href="module-capsula.ElementRef.html">ElementRef capsule</a>.)<p> <i> A connecting hook represents parent element indirectly, through a connector hook it is (directly or indirectly) tied to. A connecting loop represents child element indirectly, through a connector loop it is (directly or indirectly) tied to. A connecting hook (loop) may or may not be directly or indirectly tied to a connector hook (loop). </i><p> So, a tree of hooks and loops is made up of connector hooks and loops and connecting hooks and loops. Hooks and loops form the tree according to the following rules:<ul><li> Hook may have many children (or none). Each child must either be a hook or a loop. The ordering of hook's children is significant since it represents the ordering of elements in the corresponding section of the element structure.<li> Hook can either be unparented or have exactly one parent. The parent can only be another hook.<li> A connector hook must not have a parent. If it exists in the tree, it must be the root node.<li> Loop can either be unparented or have exactly one parent. The parent can be another loop or a hook.<li> Loop may have zero or one child. A child, if it exists, must be another loop.<li> A connector loop must not have a child. If it exists in the tree, it must be a leaf node in the tree.</ul><p> The same rules could be expressed more formally. Let's consider a tree of hooks and loops to be a collection of paths from the root node of the tree to each of the leaf nodes.<p> <i> A valid hierarchy (tree) of hooks and loops is a collection of valid paths only. </i><p> <i>A valid path is a chain of hooks and loops that a) spans from the root node towards the leaf node over the nodes and ties that exist between them and b) is formed according to the following rules:<ul><li> Connector hook, if it exists in the chain, can only be the first (root) node in the chain.<li> Connector loop, if it exists in the chain, can only be the last (leaf) node in the chain.<li> A pair of hook h and loop l where d(h) > d(l) does not exist. Here, d(n) is the distance of node n from the first (root) node of the chain.</ul></i><p> <i>A path is complete if the following holds:<ul><li> It is a valid path.<li> The root node is a connector hook.<li> The leaf node is a connector loop.</ul></i><p> The following paths are complete (the root node is the leftmost node) (J represents a connecting hook, J' represents a connector hook, O - represents a connecting loop, O' - represents a connector loop):<ul><li> J' - O'<li> J' - J - O'<li> J' - O - O'<li> J' - J - ... - J - O - ... - O'</ul><p> A complete path represents an existing completed relationship between the parent element (represented by the connector hook) and the child element (represented by a connector loop).<p> The following paths are valid, but not complete:<ul><li> J<li> J - ... - J<li> J' - J - ... - J<li> O<li> O - ... - O<li> O - ... - O'<li> J - O<li> J - ... - J - O - ... - O<li> J' - J - ... - J - O - ... - O<li> J - ... - J - O - ... - O'</ul><p> A valid yet incomplete path represents an incomplete relationship between the parent and the child element (when either one or both of them are missing). Incomplete path would become completed as soon as it obtains both a connector hook and a connector loop. At that point the element represented by a connector hook and the element represented by the connector loop would establish a parent-child relationship.<p> The following paths are not valid (* represents hook, loop, or nothing at all):<ul><li> * - O - * - J - *<li> * - O' - * - J - *<li> * - O - * - J' - *<li> * - O' - * - J' - *</ul><p> Modifications in the structure of a path may or may not affect the structure of actual elements:<p> <i> If a modification results in a new complete path (or paths) being formed, the elements' structure gets extended with corresponding new child element(s). If a modification results in an existing complete path (or paths) becoming incomplete, the element structure gets corresponding child element(s) removed. </i><h3>Creating Hooks</h3><p> To create a connecting hook use one of the two ways: <br>a) instantiate imperatively using the <i>new</i> operator and a Hook constructor:<pre class="prettyprint"><code>let myHook = new capsula.Hook('myHook');</code></pre>In this case, myHook implicitly becomes a hook of the capsule which represents the current context of execution.<p> b) instantiate declaratively using the capsule definition object in defCapsule:<pre class="prettyprint"><code>let MyCapsuleClass = capsula.defCapsule({    ...    hooks: ['myHook', ...]    ...});</code></pre>In this case, we declare that every instance of the MyCapsuleClass would have a hook named 'myHook'.<p> To obtain a connector hook use the ElementRef capsule:<pre class="prettyprint"><code>let pRef = new capsula.ElementRef(parentElement), // pRef wraps parentElementconnectorHook = pRef.hook; // connectorHook represents the wrapped parentElement</code></pre><h3>Creating Loops</h3><p> To create a connecting loop use one of the two possible ways: <br>a) instantiate imperatively using the <i>new</i> operator and a Loop constructor:<pre class="prettyprint"><code>let myLoop = new capsula.Loop('myLoop');</code></pre>In this case, myLoop implicitly becomes a loop of the capsule which represents the current context of execution.<p> b) instantiate declaratively using the capsule definition object in defCapsule:<pre class="prettyprint"><code>var MyCapsuleClass = capsula.defCapsule({    ...    loops: ['myLoop', ...]    ...});</code></pre>In this case, we declare that every instance of the MyCapsuleClass would have a loop named 'myLoop'.<p> To obtain a connector loop use the ElementRef capsule:<pre class="prettyprint"><code>let cRef = new capsula.ElementRef(childElement), // cRef wraps childElementconnectorLoop = cRef.loop; // connectorLoop represents the wrapped childElement</code></pre><h3>Tying Hooks and Loops</h3>Hooks and loops are connected to one another according to the rules explained above. This can be done in two ways, imperatively using <a href="module-capsula.Hook.html#tie">tie</a> (or one of the many other hook's and loop's methods that create ties):<pre class="prettyprint"><code>hook.tie(loop);</code></pre><p> or declaratively (see <a href="module-capsula.html#.defCapsule">defCapsule</a>).<p> Ties could also be destroyed using <a href="module-capsula.Hook.html#untie">untie</a> (or one of the many other hook's and loop's methods that destroy ties):<pre class="prettyprint"><code>hook.untie(loop);</code></pre></div>
+            <div class="class-description">Hook is a specific public property of a <a href="module-capsula.Capsule.html">capsule</a>. It is a representation of a parent element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a parent in a parent-child relationship.<p> Hooks always go along with loops; they are complementary concepts.</div>
         
     
 </header>
@@ -179,7 +179,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line639">line 639</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line436">line 436</a>
     </li></ul></dd>
     
 
@@ -378,7 +378,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3826">line 3826</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3623">line 3623</a>
     </li></ul></dd>
     
 
@@ -579,7 +579,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3469">line 3469</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3266">line 3266</a>
     </li></ul></dd>
     
 
@@ -719,7 +719,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3641">line 3641</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3438">line 3438</a>
     </li></ul></dd>
     
 
@@ -859,7 +859,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3519">line 3519</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3316">line 3316</a>
     </li></ul></dd>
     
 
@@ -999,7 +999,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3369">line 3369</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3166">line 3166</a>
     </li></ul></dd>
     
 
@@ -1139,7 +1139,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3440">line 3440</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3237">line 3237</a>
     </li></ul></dd>
     
 
@@ -1279,7 +1279,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3427">line 3427</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3224">line 3224</a>
     </li></ul></dd>
     
 
@@ -1419,7 +1419,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3676">line 3676</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3473">line 3473</a>
     </li></ul></dd>
     
 
@@ -1623,7 +1623,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3532">line 3532</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3329">line 3329</a>
     </li></ul></dd>
     
 
@@ -1836,7 +1836,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3546">line 3546</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3343">line 3343</a>
     </li></ul></dd>
     
 
@@ -2018,7 +2018,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3572">line 3572</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3369">line 3369</a>
     </li></ul></dd>
     
 
@@ -2158,7 +2158,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3483">line 3483</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3280">line 3280</a>
     </li></ul></dd>
     
 
@@ -2362,7 +2362,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3736">line 3736</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3533">line 3533</a>
     </li></ul></dd>
     
 
@@ -2566,7 +2566,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3625">line 3625</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3422">line 3422</a>
     </li></ul></dd>
     
 
@@ -2748,7 +2748,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3801">line 3801</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3598">line 3598</a>
     </li></ul></dd>
     
 
@@ -2912,7 +2912,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3403">line 3403</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3200">line 3200</a>
     </li></ul></dd>
     
 
@@ -3109,7 +3109,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3385">line 3385</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3182">line 3182</a>
     </li></ul></dd>
     
 
@@ -3276,7 +3276,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3655">line 3655</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3452">line 3452</a>
     </li></ul></dd>
     
 
@@ -3443,7 +3443,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3453">line 3453</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3250">line 3250</a>
     </li></ul></dd>
     
 
@@ -3625,7 +3625,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3692">line 3692</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3489">line 3489</a>
     </li></ul></dd>
     
 
@@ -3838,7 +3838,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3715">line 3715</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3512">line 3512</a>
     </li></ul></dd>
     
 
@@ -4020,7 +4020,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3607">line 3607</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3404">line 3404</a>
     </li></ul></dd>
     
 
@@ -4138,7 +4138,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3592">line 3592</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3389">line 3389</a>
     </li></ul></dd>
     
 
@@ -4320,7 +4320,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3777">line 3777</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3574">line 3574</a>
     </li></ul></dd>
     
 
@@ -4438,7 +4438,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3764">line 3764</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3561">line 3561</a>
     </li></ul></dd>
     
 
@@ -4517,7 +4517,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jul 27 2018 16:21:30 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jul 30 2018 09:32:47 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

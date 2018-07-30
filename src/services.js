@@ -75,38 +75,6 @@ limitations under the License.
          * @param {Funtion} serviceFunction - the function of the service type to be created:
          * <p> - <b>function serviceFunction(requests, serviceConfig, serviceName)</b> - The function should perform all necessary actions in order to send requests to their destination and receive and handle responses. More precisely, it needs to pack all client requests into a single physical request, send that physical request to its destination, wait for the physical response, unpack the physical response into individual responses, and handle each individual response. Handling responses means resolving or rejecting each request's promise by simply calling r.resolve(response) or r.reject(error). Here, r represents an individual request. The requests are given in the requests parameter which represents an array of [Request]{@link module:services.Request} objects each of which contains the client's request in its <i>body</i> property and resolve and reject functions in its <i>resolve</i> and <i>reject</i> properties. serviceConfig is the configuration object of the particular service (the second argument of the service registration [register]{@link module:services.register} function). serviceName is the name of the particular service (the first argument of the service registration register function).
          *
-         * @example <caption>How to create a service type?</caption>
-         * services.registerType('newServiceType', function(requests, serviceConfig, serviceName){
-         *     var packed = [];
-         *     for (var i = 0; i < requests.length; i++)
-         *         packed.push(requests[i].body); // Note that client's request is in the body property!
-         *
-         *     var responses = sendRequests...(packed, serviceConfig); // send packed requests according to the service configuration - serviceConfig object; and get responses
-         *     for (var i = 0; i < responses.length; i++){
-         *         var request = requests[i],
-         *         response = responses[i];
-         *         if (response != null && response.success)
-         *             request.resolve(response); // call the Promise's resolve function (the Request's resolve property)
-         *         else
-         *             request.reject(response.error); // call the Promise's reject function (the Request's reject property)
-         *     }
-         * });
-         *
-         * @example <caption>How to use newly created service type?</caption>
-         * // let's first register service of the newly created type
-         * services.register('myService', {
-         *    type: 'newServiceType',
-         *    ... // maybe some additional properties
-         * });
-         *
-         * // and then let's use the service to send requests
-         * services.send('myService', {...your request here...})
-         * .then(function(response){
-         *     alert('success');
-         * }, function(error){
-         *     alert('error');
-         * });
-         *
          * @memberof module:services
          * @public
          * @since 0.1.0
@@ -128,18 +96,6 @@ limitations under the License.
          * @param {string} serviceName - the name under which to register new service
          * @param {string} serviceConfig - the service configuration object. This object must have the 'type' property which is a string that matches the name of either a built-in service type (one of the [services.js]{@link module:services.ServiceType}, [capsula.js]{@link module:capsula.ServiceType}, or [html.js]{@link module:html.ServiceType} service types) or the service type created using [registerType]{@link module:services.registerType} function (custom service type). In addition to the 'type' property, the serviceConfig object may have additional service-type-specific properties. To learn service-type-specific properties of built-in service types, consult the documentation.
          * @param {Boolean} opt_overwrite - a flag used to specify whether to overwrite the (existing) service with the given name. If opt_overwrite is not provided or set to false, the [SERVICE_ALREADY_REGISTERED error]{@link module:services.Errors.SERVICE_ALREADY_REGISTERED} would be thrown in case when the given service name matches the service name of an existing service.
-         *
-         * @example <caption>Example of ServiceType.FUNCTION service </caption>
-         * services.register('myService1', {
-         *     type: services.ServiceType.FUNCTION,
-         *     func: someFunction // or simply function(){...}
-         * });
-         *
-         * @example <caption>Example of ServiceType.WORKER service </caption>
-         * services.register('myService4', {
-         *     type: services.ServiceType.WORKER,
-         *     worker: someWorker // or someWorker.port in case of a shared worker
-         * });
          *
          * @memberof module:services
          * @public
@@ -204,14 +160,6 @@ limitations under the License.
          * @param {string} serviceName - the name of the service to send request to
          * @param {Object} request - the client's request object to send to a service (can be any object whatsoever)
          * @returns {Promise} - the promise object
-         *
-         * @example <caption>Example of sending a request to a service </caption>
-         * services.send('myService', request)
-         * .then(function(response){
-         *     alert('success');
-         * }, function(error){
-         *     alert('error');
-         * });
          *
          * @memberof module:services
          * @public
@@ -675,16 +623,8 @@ limitations under the License.
         };
 
         /**
-         * <p> Services API optimizes communication based on request-response paradigm between clients and server. Plus, it decouples clients from the server and enables them to be more powerful and yet independent and reusable.
-         * <p> The key concept is a "service": a named facade that simplifies server's interface and handles communication. Each service is of certain type. A service type depends on the type of the server or the type of the channel used in communication, or both. Server can be an HTTP server, a Worker, a Capsule, or anything else able to handle clients' requests either synchronously or asynchronously.
-         * <p> The workflow is the following. A named service is created with a service type appropriate for the desired communication. (If an appropriate service type does not exist, it could easily be created.) Clients send their requests to the service instead of to the target server. The service collects requests until it is asked to be flushed. When that happens, service packs requests into a single physical request, sends the physical request to the server, waits for the physical response, unpacks the physical response into individual responses, and finally delivers each individual response to the corresponding client.
-         * <p> The primary goal of the services API is to optimize the use of communication channel, however, it indirectly provides more than that, namely:
-         * <ul>
-         * <li> The clients become unaware of physicalities of the server or the communication channel (or APIs that handle communication) since they only see the service.
-         * <li> The server could easily be replaced with different implementation without affecting the clients' code.
-         * <li> The stage is set for more powerful and yet independent and reusable clients i.e. clients tend to become more powerful because they take over their part of communication while keeping the potential to be reused.
-         * </ul>
-         * <p> Using Services API is useful when you have independent clients (unaware of each other's existence) sending requests to the same server and there is a requirement to have the requests sent through the communication channel as a whole (as a single physical request) or have them handled as a whole on the server side (or both). Also, it is useful when there is a need to decouple the clients from the specifics of communication channel or the server.
+         * <p> Services API optimizes communication based on request-response paradigm between clients and server.
+         * <p> The key concept is a "service": a named facade that simplifies server's interface and handles communication. Each service is of certain type. A service type depends on the type of the server or the type of the channel used in communication, or both. Server can be an HTTP server, a Worker, a Capsule, or anything else able to handle clients' requests.
          * <p> To create (register) service use the [register]{@link module:services.register} function.
          * <p> To send request to a service use the [send]{@link module:services.send} function.
          * <p> To flush the service use the [flush]{@link module:services.flush} function.

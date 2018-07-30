@@ -2,101 +2,30 @@
 
 [![Join the chat at https://gitter.im/capsula-js/Lobby](https://badges.gitter.im/capsula-js/Lobby.svg)](https://gitter.im/capsula-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**Capsula** is a JavaScript library for building user interfaces using highly reusable, flexible, and encapsulated software components called *capsules*. Capsula is executable both within the browser and node.js.
+**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". With Capsula you can:
 
-Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It also provides for both declarative and imperative programming styles which can be easily used in combination.
-
-Among other concepts, Capsula exhibits concepts specifically dedicated to the domain of user interfaces. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API.
-
-It is quite usual for applications to communicate with third-party applications or systems based on the client-server (request-response) paradigm. Capsula helps here by setting the client code free of any physical details of communication, so that programmer's focus is only on what's essential.
-
-Check the [documentation](https://solsoftware.github.io/capsula/) to make yourself familiar with all the concepts of Capsula library.
+- create your application out of **encapsulated components** - capsules.
+- have **multi-level architectural views** of your application.
+- be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
+- **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
+- **handle asynchronous communication** focusing only on what's essential.
+- exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
 
 ## Getting started
 
-Install **Capsula** using npm.
+Check out our [web site's home page](https://solsoftware.github.io/capsula) to start exploring Capsula.
 
-```
-npm i @solsoftware/capsula
-```
+Or immediately get started with the [tutorial](https://solsoftware.github.io/capsula/tutorial).
 
-At this point, Capsula comprises three modules: capsula (the core module), services, and html. More modules are coming soon.
+### Browser Sandbox
 
-### Using Capsula within your web browser
+For a quick start within your browser copy the contents of the `sandbox` folder into the root folder of your web app and open the `index.html` file in your web browser. The source code for the "Hello world" page is in the `sandbox/scripts/main.js` file.
 
-To start in a rather trivial way just take the following lines and put them into your web page:
-
-```html
-<script src="yourPathToCapsula/services.js"></script>
-<script src="yourPathToCapsula/capsula.js"></script>
-<script src="yourPathToCapsula/html.js"></script>
-```
-
-Otherwise, to require modules using RequireJS try:
-
-```js
-require(['capsula'], function (capsula) {
-    ...
-});
-require(['html'], function (html) {
-    ...
-});
-require(['services'], function (services) {
-    ...
-});
-```
-
-or all in one:
-
-```js
-requirejs(['services', 'capsula', 'html'], function (services, capsula, html) {
-    ...
-});
-```
-
-Now that you are ready, try the following "Hello world" examples:
-
-```js
-var C = capsula.defCapsule({ // new capsule class
-        '> x': function () { // new input operation
-            return 'Hello world!';
-        }
-    });
-var c = new C(); // new capsule instance
-console.log(c.x()); // Hello world!
-```
-
-To play with an existing DOM element:
-
-```js
-var bodyWrapper = new html.Element(document.body, ['click']);
-bodyWrapper.click.target(function (e) {
-    alert('Body clicked!');
-});
-```
-
-### Using Capsula with Node.js
-
-To require core capsula module and services module try:
-
-```js
-var capsula = require('@solsoftware/capsula');
-var services = require('@solsoftware/capsula/dist/services');
-```
-
-Module html is missing here, since it depends on the DOM API; i.e. it does not really work server side.
-
-## Sandbox
-
-For a quick start let's run the Hello World application. Just copy the contents of the `sandbox` folder into the root folder of your web app and open the `index.html` file in your web browser. The source code for the "Hello world" page is in the `sandbox/scripts/main.js` file.
-
-## Documentation
-
-Documentation is available [here](https://solsoftware.github.io/capsula/).
-
-## Contributing
+## Bugs
 
 Use [Github issues](https://github.com/solsoftware/capsula/issues) to report problems, suggest improvements, etc.
+
+## Contributing
 
 If you are willing to help further develop this project, please read the [our contribution guidelines](https://github.com/solsoftware/capsula/blob/master/CONTRIBUTING.md) file for all the details.
 

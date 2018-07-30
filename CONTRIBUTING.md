@@ -4,7 +4,7 @@ Thank you very much for your time and willingness to participate in this project
 
 The project is at very early stage of development, as you may guess. Still, we feel this is the moment to show it to the world.
 
-At this stage, the most valuable contribution would be to provide us with both positive and negative feedback on this project. We know instruction materials are scarce at this point, so we do not expect too much. However, any sort of feedback or usage experience is highly appreciated. We will do our best to document as many things as possible and to create tutorials and help pages. Until then, users and contributors would have to rely on [API reference](https://solsoftware.github.io/capsula/) and also on our direct help. Do not hesitate to contact us.
+At this stage, the most valuable contribution would be to provide us with both positive and negative feedback on this project. Any sort of feedback or usage experience is highly appreciated. Do not hesitate to contact us.
 
 Also, check the [projects page](https://github.com/solsoftware/capsula/projects) to get informed on the status of development, plans, etc.
 
