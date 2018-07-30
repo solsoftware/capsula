@@ -59,3 +59,36 @@ limitations under the License.
         console.log(`Server running at http://${hostname}:${port}/`);
     });
 })();
+
+(function () {
+    const HTTP = require('http');
+    const SOAP = require('soap');
+
+    const hostname = '127.0.0.1';
+    const port = 4000;
+
+    var testService = {
+        'SoapTestService': {
+            'SoapTest': {
+                'echo': function (args) {
+                    args.message += ' Hello main!';
+                    args.success = true;
+                    return args;
+                }
+            }
+        }
+    };
+
+    var wsdl = require('fs').readFileSync('SoapTest.wsdl', 'utf8');
+
+    var server = HTTP.createServer(function (request, response) {
+            response.end('404: Not Found: ' + request.url);
+        });
+
+    server.listen(port, hostname, function () {
+        console.log('Server running at http://' + hostname + ':' + port + '/');
+    });
+
+    SOAP.listen(server, '/SoapTest', testService, wsdl);
+
+})();
