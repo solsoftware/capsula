@@ -48,7 +48,7 @@
         <h2><span class="attribs"><span class="type-signature">(abstract) </span></span>
             <span class="ancestors"><a href="module-capsula.html">capsula</a>.</span>Operation<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Operation is <a href="module-capsula.Capsule.html">capsule's</a> public property. It is like a method (or function) and much more. It can be used either by calling it (just like a method) or by calling methods on it (to exploit its additional features). For example, if o is an operation it is meant to be called like this: <code>o(optional_arguments)</code>. But it can also be used as an object to call methods on it, for example <code>o.getName()</code>. By default, calling an operation does nothing, but this can be changed by "wiring" (connecting) operation to other operations or methods that do something. Wiring operation to other operations or methods actually specifies propagation of operation (method) calls. The result of calling an operation is a combined result of all operations and methods downstream.<p> Operation can either be <a href="module-capsula.Input.html">input</a> or <a href="module-capsula.Output.html">output</a>. Input operation serves as a propagator of calls from the outside towards the inside of the capsule the operation is property of. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its capsule.<p> To call operation, wire two operations, or wire operation to a capsule's method one must take into consideration the following: a) type(s) of each operation (input or output) or method (always input) involved, b) relationship of their owning capsules (in terms of are they sibling capsules or one capsule is part of another), and c) the current context of execution.<p> For example, let capsule c be the capsule of the current context of execution. Let c1 and c2 be its part capsules, o1, o2, ..., o5 their operations, and m1 and m2 methods (see figure bellow).<p> <img src="img/operations.png"><p> Operations eligible to be called in the current context of execution (c) are c2.o3 and c.o5 (the same as this.o5). It is illegal to call c1.o1, c2.o4, c.o2 (the same as this.o2).<p> The following operations are wired to one another and to methods: <br>1) input operation o2 of capsule c to input operation o3 of capsule c2, <br>2) output operation o4 of capsule c2 to output operation o5 of capsule c, <br>3) output operation o1 of capsule c1 to input operation o3 of capsule c2, <br>4) input operation o2 of capsule c to output operation o5 of capsule c, <br>5) input operation o2 of capsule c to method m2 of capsule c, and <br>6) output operation o1 of capsule c1 to method m1 of capsule c.<p> It is said that operations o2, o4, and o1 act as "source" operations while operations o3 and o5 and methods m1 and m2 act as "targets" in these wires. Note that each source operation (for example o2) could be wired to many targets (o3, o5, and m2). Similarly, each target operation or method (for example operation o5) could be wired to many source operations (o4 and o2). A method can only act as a target when being wired. Wiring of operations is either done declaratively (in <a href="module-capsula.html#.defCapsule">defCapsule</a>) or by calling methods on operations (see <a href="module-capsula.Operation.html#wire">wire</a>, <a href="module-capsula.Operation.html#source">source</a>, <a href="module-capsula.Operation.html#target">target</a>, and all related methods from there).<p> Input operation can be used (depending on the context) either:<p> 1) as a target if used from the outside of its capsule or <br>2) as a source if used from the inside.<p> Output operation can be used (depending on the context) either:<p> 1) as a source if used from the outside of its capsule or <br>2) as a target if used from the inside.<p> As stated above, operations' wiring defines propagation of operation calls. For example, calling:<pre class="prettyprint"><code>c.o2('something');</code></pre><p> would effectively mean calling:<pre class="prettyprint"><code>c.m2('something');c2.o3('something');c.o5('something');</code></pre>In other words, operation calls are being propagated according to the wiring. Wiring network ends where operations are wired to methods. The methods make the final combined effect of an operation call. When calling an operation, if there is more than one downstream method an array of method results is returned. If however there is only one downstream method its result is returned (this is by default, but can be changed, see <a href="module-capsula.Operation.html#setUnpackResult">setUnpackResult</a>). If there is no downstream methods for it, undefined is returned.<p> Operations are by default enabled but could be disabled in which case the propagation of calls does not work and undefined is returned when disabled operation is called. See <a href="module-capsula.Operation.html#setEnabled">setEnabled</a>.<p> As mentioned above, calling an operation o is done by <code>o(optional_arguments)</code>. This is a synchronous operation call. It means control is returned to the caller once all of the downstream operations and methods are executed. There is however an asynchronous way of calling an operation. For operation o this is done by <code>o.send(optional_arguments)</code>. This returns Promise object which allows for handling the results in both successful and erroneous use cases. In case of an async operation call, the control is returned to the caller immediately and propagation of calls is done in asynchronous manner at some point in future. See <a href="module-capsula.Operation.html#send">send</a>.<p> Operations could have a filter set to modify operation arguments before further propagation of operation call or even to completely filter out (disable) individual operation calls. Since each operation is in a way on a boundary between two contexts (context of a capsule that owns the operation and its outer context), filters can be set to operation in both contexts. See <a href="module-capsula.Operation.html#setFilter">setFilter</a> for more details.</div>
+            <div class="class-description">Operation is <a href="module-capsula.Capsule.html">capsule's</a> public property. It is like a method (or function) and much more. It can be used either by calling it (just like a method) or by calling methods on it (to exploit its additional features). For example, if o is an operation it is meant to be called like this: <code>o(optional_arguments)</code>. But it can also be used as an object to call methods on it, for example <code>o.getName()</code>. By default, calling an operation does nothing, but this can be changed by "wiring" (connecting) operation to other operations or methods that do something. Wiring operation to other operations or methods actually specifies propagation of operation (method) calls. The result of calling an operation is a combined result of all operations and methods downstream.<p> Operation can either be <a href="module-capsula.Input.html">input</a> or <a href="module-capsula.Output.html">output</a>. Input operation serves as a propagator of calls from the outside towards the inside of the capsule the operation is property of. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its capsule.</div>
         
     
 </header>
@@ -114,7 +114,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line457">line 457</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line370">line 370</a>
     </li></ul></dd>
     
 
@@ -284,7 +284,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2676">line 2676</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2473">line 2473</a>
     </li></ul></dd>
     
 
@@ -427,7 +427,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2585">line 2585</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2382">line 2382</a>
     </li></ul></dd>
     
 
@@ -612,7 +612,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2486">line 2486</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2283">line 2283</a>
     </li></ul></dd>
     
 
@@ -752,7 +752,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2433">line 2433</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2230">line 2230</a>
     </li></ul></dd>
     
 
@@ -863,7 +863,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2535">line 2535</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2332">line 2332</a>
     </li></ul></dd>
     
 
@@ -974,7 +974,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2457">line 2457</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2254">line 2254</a>
     </li></ul></dd>
     
 
@@ -1085,7 +1085,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2445">line 2445</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2242">line 2242</a>
     </li></ul></dd>
     
 
@@ -1196,7 +1196,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2815">line 2815</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2612">line 2612</a>
     </li></ul></dd>
     
 
@@ -1336,7 +1336,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2933">line 2933</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2730">line 2730</a>
     </li></ul></dd>
     
 
@@ -1476,7 +1476,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2739">line 2739</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2536">line 2536</a>
     </li></ul></dd>
     
 
@@ -1616,7 +1616,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2640">line 2640</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2437">line 2437</a>
     </li></ul></dd>
     
 
@@ -1727,7 +1727,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2498">line 2498</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2295">line 2295</a>
     </li></ul></dd>
     
 
@@ -1838,7 +1838,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2510">line 2510</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2307">line 2307</a>
     </li></ul></dd>
     
 
@@ -1949,7 +1949,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2523">line 2523</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2320">line 2320</a>
     </li></ul></dd>
     
 
@@ -2124,7 +2124,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2947">line 2947</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2744">line 2744</a>
     </li></ul></dd>
     
 
@@ -2325,7 +2325,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2829">line 2829</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2626">line 2626</a>
     </li></ul></dd>
     
 
@@ -2465,7 +2465,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2572">line 2572</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2369">line 2369</a>
     </li></ul></dd>
     
 
@@ -2640,7 +2640,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2726">line 2726</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2523">line 2523</a>
     </li></ul></dd>
     
 
@@ -2841,7 +2841,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2896">line 2896</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2693">line 2693</a>
     </li></ul></dd>
     
 
@@ -3023,7 +3023,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3019">line 3019</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2816">line 2816</a>
     </li></ul></dd>
     
 
@@ -3205,7 +3205,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2777">line 2777</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2574">line 2574</a>
     </li></ul></dd>
     
 
@@ -3384,7 +3384,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3035">line 3035</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2832">line 2832</a>
     </li></ul></dd>
     
 
@@ -3544,7 +3544,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2656">line 2656</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2453">line 2453</a>
     </li></ul></dd>
     
 
@@ -3694,7 +3694,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2613">line 2613</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2410">line 2410</a>
     </li></ul></dd>
     
 
@@ -3846,7 +3846,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2469">line 2469</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2266">line 2266</a>
     </li></ul></dd>
     
 
@@ -3984,7 +3984,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2559">line 2559</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2356">line 2356</a>
     </li></ul></dd>
     
 
@@ -4141,7 +4141,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2846">line 2846</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2643">line 2643</a>
     </li></ul></dd>
     
 
@@ -4323,7 +4323,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2964">line 2964</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2761">line 2761</a>
     </li></ul></dd>
     
 
@@ -4536,7 +4536,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2979">line 2979</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2776">line 2776</a>
     </li></ul></dd>
     
 
@@ -4715,7 +4715,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2878">line 2878</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2675">line 2675</a>
     </li></ul></dd>
     
 
@@ -4833,7 +4833,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2863">line 2863</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2660">line 2660</a>
     </li></ul></dd>
     
 
@@ -5015,7 +5015,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3005">line 3005</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2802">line 2802</a>
     </li></ul></dd>
     
 
@@ -5133,7 +5133,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2992">line 2992</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2789">line 2789</a>
     </li></ul></dd>
     
 
@@ -5315,7 +5315,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2764">line 2764</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2561">line 2561</a>
     </li></ul></dd>
     
 
@@ -5433,7 +5433,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2751">line 2751</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2548">line 2548</a>
     </li></ul></dd>
     
 
@@ -5615,7 +5615,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2698">line 2698</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2495">line 2495</a>
     </li></ul></dd>
     
 
@@ -5828,7 +5828,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2712">line 2712</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2509">line 2509</a>
     </li></ul></dd>
     
 
@@ -5907,7 +5907,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jul 27 2018 16:21:31 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jul 30 2018 09:32:47 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

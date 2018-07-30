@@ -48,7 +48,7 @@
         <h2><span class="attribs"><span class="type-signature">(abstract) </span></span>
             <span class="ancestors"><a href="module-capsula.html">capsula</a>.</span>Capsule<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p> Capsule class is an abstract base class in the hierarchy of (built-in and user-defined) capsule classes. In many ways capsule classes are similar to the typical OO classes. They support single inheritance model and polymorphism the way OO classes do. However, capsules differ from OO classes in many ways as well. They are dynamic the way JavaScript language is. Also, they enforce a special encapsulation model and accommodate several new concepts which are explained in the lines that follow.<h3>Capsule Properties</h3><p> There are five types of capsule properties: parts, operations, methods, hooks, and loops.<p> Part is a property of capsule instance that represents another capsule instance that "belongs" to it, i.e. part capsule is basically a child capsule. Child capsule is always created in the context of its parent and accessible only from within that context. Next section explains the term capsule context more precisely.<p> An operation is a capsule's property that acts like a very powerful method. It can be used as a regular method, however operation adds support for asynchronous calls, argumetns filtering, declarative wiring to other operations to specify propagation of calls, etc. There are input and output operations. Read more on what can be achieved using <a href="module-capsula.Operation.html">operations</a>.<p> Method is a capsule property that behaves as anyone would imagine, that is, as a simple JavaScript method. Methods can be either public or protected.<p> <a href="module-capsula.Hook.html">Hooks</a> and <a href="module-capsula.Loop.html">loops</a> provide capsule with a special support for managing hierarchy of external elements (widgets for example) in a flexible way.<p>When creating a capsule class, one must define which and how many of these properties should be present in it (see <a href="module-capsula.html#.defCapsule">defCapsule</a>). Once created, capsule class cannot be modified afterwards. All instances of that class would then have the properties as defined in the class. However, once an instance of capsule class is created, it can be dynamically modified (by adding new properties for example, or removing existing ones); just as anyone would expect from a JavaScript object.<p> Table bellow specifies characteristics of capsule properties (like: are they visible?, do they get inherited?, and are they dynamically addable / removable in runtime?):<table><thead><tr><td>property type</td><td>visibility</td><td>inheritable</td><td>addable</td><td>removable</td></tr></thead><tbody><tr><th>part</th><td>protected</td><td>true</td><td>true</td><td>true</td></tr><tr><th>operation</th><td>public</td><td>true</td><td>true</td><td>false</td></tr><tr><th>method</th><td>protected or public</td><td>true</td><td>false</td><td>false</td></tr><tr><th>hook</th><td>public</td><td>true</td><td>true</td><td>false</td></tr><tr><th>loop</th><td>public</td><td>true</td><td>true</td><td>false</td></tr></tbody></table><p> Behind its interface made up of operations, public methods, hooks, and loops, capsules hide:<ul><li> parts <br><li> the way parts' and capsule's operations are connected (wired) between one another, <br><li> the way parts' and capsule's hooks and loops are connected (tied) between one another, <br><li> protected methods (i.e. protected behavior), and <br><li> protected data.</ul><p> Private properties are not supported.<p><h3>Encapsulation Model and the "Current Context of Execution"</h3><p> As a reminder, in a typical OO encapsulation model, all public properties and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we have to carefully manage references. Effectively managing references can be a bit too difficult and that is why capsules introduce quite a novel encapsulation model which is a restriction to the <i>"everything public is accessible"</i> policy.<p> To understand the policy of our encapsulation model, it is fundamentally important to understand the notion of <i>"current context of execution"</i>. Current context of execution is specified with respect to the given point in time and it always represents a capsule instance:<p> <i> For the given point in time t and the given capsule instance x, x is the current context of execution at t, if and only if the call stack at t lists a method of x and no method of capsule instance other than x deeper in the call stack.</i><p> If x is the current context of execution, we informally say that <i>"we are in the context of x"</i>.<p> Now we can define "is part of" relation between capsules instances:<p> <i> Two capsule instances x and y are in "is part of" relation (x is part of y) if and only if y was the current context of execution at the moment of instantiation of x.</i><p> Note that "is part of" relation is neither symmetric, nor transitive, nor reflexive.<p> For these two capsule instances we informally say that x is part of y. If x is part of y, we also informally say that "y is the owner of x". At any point in time a capsule instance can have zero or more parts (part properties) and zero or one owner.<p> Now, our policy could easily be expressed: when we are in the context of y, it is allowed to use (access, call) a) public properties of capsule instance x if and only if x is a part of y and b) protected properties of capsule instance y.<p> When trying to use a properties against these rules, an <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a> error is going to be thrown.<h3>How to create a capsule class?</h3><p> To create a capsule class call the <a href="module-capsula.html#.defCapsule">defCapsule</a> method:<pre class="prettyprint"><code>var MyCapsuleClass = capsula.defCapsule(capsule_definition_object);</code></pre><h3>How to create a capsule instance?</h3><p> To instantiate capsule class (i.e. to obtain a capsule instance or capsule) use one of the two possible ways: <br><p> a) instantiate imperatively using the <i>new</i> operator and a function returned from the call to defCapsule:<pre class="prettyprint"><code>var myCapsuleInstance = new MyCapsuleClass(optional_arguments);</code></pre>In this case, myCapsuleInstance capsule implicitly becomes a part property of the capsule which represents the current context of execution.<p> b) instantiate declaratively using the capsule definition object in defCapsule:<pre class="prettyprint"><code>var OwnerClass = capsula.defCapsule({    ...    myCapsuleInstance: {        capsule: MyCapsuleClass,        args: [optional_arguments]    }    ...});</code></pre>In this case, we declare that every instance of the OwnerClass would have an instance of MyCapsuleClass (myCapsuleInstance) as its part property.</div>
+            <div class="class-description">Capsule class is an abstract base class in the hierarchy of capsule classes.</div>
         
     
 </header>
@@ -114,7 +114,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line373">line 373</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line316">line 316</a>
     </li></ul></dd>
     
 
@@ -295,7 +295,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1537">line 1537</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1334">line 1334</a>
     </li></ul></dd>
     
 
@@ -413,7 +413,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1683">line 1683</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1480">line 1480</a>
     </li></ul></dd>
     
 
@@ -531,7 +531,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1736">line 1736</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1533">line 1533</a>
     </li></ul></dd>
     
 
@@ -649,7 +649,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2018">line 2018</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1815">line 1815</a>
     </li></ul></dd>
     
 
@@ -767,7 +767,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2061">line 2061</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1858">line 1858</a>
     </li></ul></dd>
     
 
@@ -927,7 +927,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1988">line 1988</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1785">line 1785</a>
     </li></ul></dd>
     
 
@@ -1128,7 +1128,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1900">line 1900</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1697">line 1697</a>
     </li></ul></dd>
     
 
@@ -1317,7 +1317,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1956">line 1956</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1753">line 1753</a>
     </li></ul></dd>
     
 
@@ -1457,7 +1457,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1657">line 1657</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1454">line 1454</a>
     </li></ul></dd>
     
 
@@ -1597,7 +1597,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1566">line 1566</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1363">line 1363</a>
     </li></ul></dd>
     
 
@@ -1786,7 +1786,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1928">line 1928</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1725">line 1725</a>
     </li></ul></dd>
     
 
@@ -1926,7 +1926,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1619">line 1619</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1416">line 1416</a>
     </li></ul></dd>
     
 
@@ -2115,7 +2115,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1970">line 1970</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1767">line 1767</a>
     </li></ul></dd>
     
 
@@ -2255,7 +2255,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1670">line 1670</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1467">line 1467</a>
     </li></ul></dd>
     
 
@@ -2395,7 +2395,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1579">line 1579</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1376">line 1376</a>
     </li></ul></dd>
     
 
@@ -2584,7 +2584,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1914">line 1914</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1711">line 1711</a>
     </li></ul></dd>
     
 
@@ -2724,7 +2724,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1606">line 1606</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1403">line 1403</a>
     </li></ul></dd>
     
 
@@ -2913,7 +2913,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1942">line 1942</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1739">line 1739</a>
     </li></ul></dd>
     
 
@@ -3053,7 +3053,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1638">line 1638</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1435">line 1435</a>
     </li></ul></dd>
     
 
@@ -3242,7 +3242,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2036">line 2036</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1833">line 1833</a>
     </li></ul></dd>
     
 
@@ -3382,7 +3382,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2049">line 2049</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1846">line 1846</a>
     </li></ul></dd>
     
 
@@ -3522,7 +3522,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1716">line 1716</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1513">line 1513</a>
     </li></ul></dd>
     
 
@@ -3722,7 +3722,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2004">line 2004</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1801">line 1801</a>
     </li></ul></dd>
     
 
@@ -3889,7 +3889,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1592">line 1592</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1389">line 1389</a>
     </li></ul></dd>
     
 
@@ -4007,7 +4007,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1523">line 1523</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1320">line 1320</a>
     </li></ul></dd>
     
 
@@ -4215,7 +4215,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1864">line 1864</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1661">line 1661</a>
     </li></ul></dd>
     
 
@@ -4333,7 +4333,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1848">line 1848</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1645">line 1645</a>
     </li></ul></dd>
     
 
@@ -4512,7 +4512,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1807">line 1807</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1604">line 1604</a>
     </li></ul></dd>
     
 
@@ -4630,7 +4630,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1788">line 1788</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line1585">line 1585</a>
     </li></ul></dd>
     
 
@@ -4709,7 +4709,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Jul 27 2018 16:21:30 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jul 30 2018 09:32:47 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
