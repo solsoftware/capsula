@@ -295,11 +295,18 @@ limitations under the License.
             this.down = null;
 
             /**
+             * ElementRef capsule created in loop.renderInto.
+             *
+             * @type {ElementRef}
+             */
+            this.parentRef = null;
+
+            /**
              * ElementRef capsule created in loop.render.
              *
              * @type {ElementRef}
              */
-            this.ref = null;
+            this.childRef = null;
         }
 
         LoopData_.prototype = Object.create(HookLoopData_.prototype);
@@ -3100,10 +3107,16 @@ limitations under the License.
             }
 
             if (isLoop(bot)) {
-                var ref = bot._.ref;
-                if (ref)
-                    ref.detach(); // detaches ElementRef created in render
-                bot._.ref = null;
+                var parentRef = bot._.parentRef;
+                if (parentRef)
+                    parentRef.detach(); // detaches ElementRef created in renderInto
+                bot._.parentRef = null;
+            }
+            if (isLoop(top)) {
+                var childRef = top._.childRef;
+                if (childRef)
+                    childRef.detach(); // detaches ElementRef created in render
+                top._.childRef = null;
             }
         }
 
@@ -3729,21 +3742,39 @@ limitations under the License.
         };
 
         /**
-         * <p> Renders this loop (i.e. the DOM element this loop represents) as a child of the given DOM element.
+         * <p> Renders this loop (i.e. the DOM element this loop represents) into the given DOM element.
          *
          * @public
          * @since 0.1.0
-         * @param {Element} to - the DOM element into which to render this loop
+         * @param {Element} el - the DOM element into which to render this loop
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Loop.prototype.render = function (to) {
+        Loop.prototype.renderInto = function (el) {
             checkLoopAsChild_(this);
-            var ref = this._.ref;
-            if (ref)
-                ref.detach();
-            var newRef = new ElementRef(to);
-            this._.ref = newRef;
+            var parentRef = this._.parentRef;
+            if (parentRef)
+                parentRef.detach();
+            var newRef = new ElementRef(el);
+            this._.parentRef = newRef;
             newRef.hook.hook(this);
+        };
+
+        /**
+         * <p> Renders the given DOM element into this loop (i.e. into the DOM element this loop represents).
+         *
+         * @public
+         * @since 0.1.0
+         * @param {Element} el - the DOM element to render into this loop
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Loop.prototype.render = function (el) {
+            checkLoopAsParent_(this);
+            var childRef = this._.childRef;
+            if (childRef)
+                childRef.detach();
+            var newRef = new ElementRef(el);
+            this._.childRef = newRef;
+            this.setPrivateLoop(newRef.loop);
         };
 
         /*
