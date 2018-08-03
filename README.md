@@ -5,7 +5,7 @@
 **Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". With Capsula you can:
 
 - create your application out of **encapsulated components** - capsules.
-- have **multi-level architectural views** of your application.
+- have **multi-level architectural views** of your application and **handle complexity better**.
 - be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
 - **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
 - **handle asynchronous communication** focusing only on what's essential.
@@ -46,6 +46,7 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 
 ## Attributions
 
+- Inspiration for this project comes from [ROOM](https://en.wikipedia.org/wiki/Real-Time_Object-Oriented_Modeling)
 - Tests have been developed using Jasmine: [https://jasmine.github.io/index.html](https://jasmine.github.io/index.html)
 - Documentation has been developed using JSDoc: [http://usejsdoc.org/](http://usejsdoc.org/)
 - Drawings have been developed using draw.io: [https://www.draw.io/](https://www.draw.io/)

@@ -5,14 +5,15 @@
     "keywords": [
         "capsula",
         "capsule",
-		"framework",
+        "framework",
         "encapsulation",
+        "composition",
         "JavaScript",
-		"node.js",
-		"web",
-		"ui",
+        "node.js",
+        "web",
+        "ui",
         "user interfaces",
-		"front-end"
+        "front-end"
     ],
     "homepage": "https://github.com/solsoftware/capsula",
     "license": "Apache-2.0",

@@ -117,7 +117,7 @@ grunt release --relver=X.Y.Z
 
 where X.Y.Z is a version number for the new release that you are making (should be according to the rules of [semantic versioning](https://semver.org/)).
 
-Then, commit and push all changes.
+Then, commit and push all changes. Make sure your commit is [frequent, descriptive, atomic, decentralized, and immutable](https://dev.to/sublimegeek/do-your-commits-pass-this-simple-test-4ak2).
 
 Create git tag: 
 
