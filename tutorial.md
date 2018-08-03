@@ -6,20 +6,21 @@ order: 1
 nav: true
 ---
 
+- [About This Tutorial](#about-this-tutorial)
 - [What Is Capsula?](#what-is-capsula)
+- [Main Concepts](#main-concepts)
+	- [Introducing Capsules](#introducing-capsules)
+	- [Encapsulation Model](#encapsulation-model)
 - [Installation](#installation)
 	- [Node.js](#nodejs)
 	- [RequireJS](#requirejs)
 	- [Plain Old Script Tag](#plain-old-script-tag)
 	- [Hello World](#hello-world)
-- [Main Concepts](#main-concepts)
-	- [Introducing Capsules](#introducing-capsules)
-	- [Encapsulation Model](#encapsulation-model)
 - [Working With Capsules](#working-with-capsules)
 	- [Creating Capsule Class](#creating-capsule-class)
 	- [Instantiating Capsules](#instantiating-capsules)
-	- [Constructor](#constructor)
 	- [Parts](#parts)
+	- [Constructor And Arguments](#constructor-and-arguments)
 	- [Inheritance](#inheritance)
 - [Implementing Behavior](#implementing-behavior)
 	- [Methods](#methods)
@@ -34,26 +35,115 @@ nav: true
 	- [Custom RPC Types](#custom-rpc-types)
 - [Protected State](#protected-state)
 
+## About This Tutorial
+
+The purpose of this tutorial is to smoothly tune you in on the Capsula development.
+
+You can simply read the tutorial from the beginning till the end and you will get yourself familiar with Capsula library. There is no need to immediately follow links to external resources, however the links are there to help you extend your knowledge and to direct you to the most important points in the API reference.
+
+Important sentences of this tutorial are presented like this:
+
+> This is very important to note.
+
+When a module is introduced, you will see the table that directs you to the API reference and looks like this:
+
+<table class="module">
+<thead><tr><th colspan="2">[module] <a style="cursor:pointer">MyModule</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Module description goes here.</td></tr>
+</tbody></table>
+
+The same is when a class is introduced:
+
+<table class="class">
+<thead><tr><th colspan="2">[class] <a style="cursor:pointer">MyClass</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Class description goes here.</td></tr>
+<tr><td>Module</td><td> <a style="cursor:pointer">MyModule</a></td></tr>
+</tbody></table>
+
+For methods we follow a similar style:
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a style="cursor:pointer">myMethod</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Method description goes here.</td></tr>
+<tr><td>Class or Module</td><td> <a style="cursor:pointer">MyClass</a></td></tr>
+</tbody></table>
+
+Instructions related to tutorial usage are presented for example like this:
+
+---
+Now it's good time to take a 5-minute break.
+
+---
+
+Please let us know of any issue you run into while reading the tutorial. We would be more than happy to improve the tutorial according to that and help you overcome the problems.
+
 ## What Is Capsula?
 
 **Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". With Capsula you can:
 
 - create your application out of **encapsulated components** - capsules.
-- have **multi-level architectural views** of your application.
+- have **multi-level architectural views** of your application and **handle complexity better**.
 - be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
 - **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
 - **handle asynchronous communication** focusing only on what's essential.
 - exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
+- expect even more, according to our [goals]({{ "/the-goals-of-capsula" | relative_url }}).
 
-In other words, Capsula is a sort of dynamic, general-purpose, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. 
+Capsula is a sort of dynamic, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It is especially suitable for applications that exploit composite design pattern, i.e. for applications that could be built by recursively composing encapsulated modules into larger modules all the way up to the whole application.
 
-Capsula is quite suitable for building user interfaces. It provides both for templates and object-oriented way of widget manipulation. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
+Capsula addresses communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with essential matters only, as well as to easily mock server-side part of communication.
 
-Capsula also addresses asynchronous communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with substantial matters only, as well as to easily mock server-side part of communication.
+Capsula is quite suitable for building user interfaces since they are usually built by using composition. Capsula provides both for templates and object-oriented way of widget manipulation. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
 
 Applications built with Capsula are neatly structured, ease to manage, and with clearly visible multi-level architecture.
 
-Capsula is still under construction, so many more interesting things are yet to come. Keep following.
+## Main Concepts
+
+This section explains the main concepts behind Capsula library as well as specifics of Capsula's encapsulation model.
+
+### Introducing Capsules
+
+The base concept of Capsula library is the concept of *Capsule*. Capsules encapsulate pieces of application logic. Capsules are usually built out of other (child) capsules. Hence, capsules form a hierarchy which serves as a backbone of your application.
+
+Capsule class is a simple OO class with special features / properties. Capsules support single inheritance model and polymorphism the way OO classes do. At the same time they are dynamic the way JavaScript language is. They employ rather novel encapsulation model that relies on the above-mentioned hierarchy of capsules.
+
+<table class="class">
+<thead><tr><th colspan="2">[class] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Root class in the hierarchy of capsule classes. Every capsule class implicitly extends Capsule.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
+</tbody></table>
+
+There are multiple types of capsule's properties: methods, operations, parts, hooks, loops, and data.
+
+*Method* is (as anyone would imagine) a simple JavaScript method. *Operation* acts like a method, however it is more powerful. Operations add support for asynchronous calls, declarative wiring to other operations and methods (to specify propagation of calls), etc. *Part* of a capsule represents its child capsule, that is, a capsule instantiated in its context (i.e. constructor, method, or operation). *Hooks* and *loops* provide capsules with a special support for managing widgets and layout in a flexible way. In accordance with the principle of information hiding, capsules also store *protected data*; the data they work with or operate on.
+
+In the following section we define access rules to the above-mentioned properties i.e. how our encapsulation model works.
+
+### Encapsulation Model
+
+In a typical OO encapsulation model accessing fields and methods depends solely on their visibility. Hence, all public fields and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we still have to carefully manage references to avoid our code becoming "spaghetti". In many cases this encapsulation policy seems not efficient enough.
+
+Capsula proposes stricter policy. The policy relies on both visibility of properties and on the runtime relationship of capsule instances (the relationship between instance whose property is being accessed and the instance from whose context the property is being accessed).
+
+> The code executing a method of a capsule is only allowed to use, access, or call a) public properties of all its child (part) capsules and b) public and protected properties of the capsule itself. "Out of context" error is thrown when trying to access properties against the rules.
+
+Let's elaborate on that using a figure given bellow. Figure shows three nested capsule instances: the ```outer```, the ```middle``` (being part of the ```outer``` capsule), and the ```inner``` (being part of the ```middle``` capsule). Each of them has two properties (one public (+) and one protected (#)) that can be anything from operations, methods, hooks, loops, or data. Now let's see what's accessible from where.
+
+<img src="{{ "/assets/img/encapsulation-capsula.png" | relative_url }}" style="">
+
+From the context (method) of the ```outer``` capsule we are allowed to access property ```p3``` of the ```middle``` capsule (green arrow) since it's public and belongs to its part (i.e. belongs to a capsule instantiated in its context). However, we are disallowed to access the ```middle```'s ```p4``` property (red arrow) since it's protected. From the same context of the ```outer``` capsule, we freely access properties ```p1``` and ```p2``` since they belong to the ```outer``` capsule itself (so it doesn't really matter whether they are public or protected). Then, from the same context, we are disallowed to access any property of the ```inner``` capsule (either ```p5``` or ```p6```), since by doing that we are actually breaking encapsulation of the ```middle``` capsule. Finally, if in the context of the ```middle``` capsule we can access neither property ```p1``` nor ```p2``` since we are not allowed to "look" outside.
+
+On the other hand, the typical encapsulation policy wouldn't mind about context and runtime relationship of the three capsules (i.e. the hierarchy they form). The policy would allow access to ```p1```, ```p3```, and ```p5``` from anywhere in the code since they are public. The access to protected properties (```p2```, ```p4```, and ```p6```) would depend on relationship of packages to which classes of the three capsule instances belong. This is why the arrows are orange, meaning "it depends" (see figure bellow).
+
+<img src="{{ "/assets/img/encapsulation-others.png" | relative_url }}" style="">
+
+To sum up, the Capsula's policy depends on visibility of properties and runtime hierarchy of capsules. On the other hand, the typical encapsulation policy depends of visibility of properties and design-time relationship of packages. We argue that Capsula's policy is much more efficient in enforcing order in your code.
+
+It's essential to understand the encapsulation model since it interweaves with everything you do in Capsula. Now that we've covered it, we can go straight to the coding and explain all other concepts along the way.
 
 ## Installation
 
@@ -62,6 +152,24 @@ Capsula library is executable both within the browser and Node.js. At this point
 - capsula,
 - services, and
 - html.
+
+<table class="module">
+<thead><tr><th colspan="2">[module] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">capsula</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>The core module of Capsula library.</td></tr>
+</tbody></table>
+
+<table class="module">
+<thead><tr><th colspan="2">[module] <a href="{{ "/api-reference/module-services.html" | relative_url }}" target="_blank">services</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Optimizes communication based on request-response paradigm between clients and server.</td></tr>
+</tbody></table>
+
+<table class="module">
+<thead><tr><th colspan="2">[module] <a href="{{ "/api-reference/module-html.html" | relative_url }}" target="_blank">html</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Enables and eases building web pages using capsules.</td></tr>
+</tbody></table>
 
 In the following lines we explain how to install Capsula in both of the two environments.
 
@@ -73,7 +181,7 @@ Install Capsula using npm:
 npm i @solsoftware/capsula
 ```
 
-Require capsula modules:
+Require Capsula modules:
 
 ```js
 var capsula = require('@solsoftware/capsula');
@@ -132,360 +240,398 @@ var example = new HelloWorld(); // new capsule instance, console: Hello world!
 
 ---
 
-In all the code used throughout this tutorial, we use references ```capsula```, ```services```, and ```html``` to refer to root (exported) objects of capsula, services, and html modules, respectively.
+In all the code used throughout this tutorial, we use references ```capsula```, ```services```, and ```html``` to refer to root (exported) objects of *capsula*, *services*, and *html* modules, respectively.
 
 ---
 
-## Main Concepts
-
-This section explains the main concepts and ideas behind Capsula library.
-
-### Introducing Capsules
-
-The base concept of Capsula library is *Capsule* class. Capsule class encapsulates a piece of application logic. Encapsulated logic can be anything at all: UI-related or not. Capsule's logic is composed out of other capsules and/or a bit of it's own logic. This way, the hierarchy of capsules forms multiple architectural layers of application.
-
-Capsule class is a simple OO class with special features / properties.
-
-A capsule is not a widget per se. However, a capsule may represent a widget, what's more, it may represent a group of (usually related) widgets, with their layout fixed inside the capsule or left unspecified (this brings lot's of flexibility!).
-
-In many ways capsules are similar to the typical OO classes. They support single inheritance model and polymorphism the way OO classes do. However, capsules differ from OO classes in many ways as well. They are dynamic the way JavaScript language is. They employ rather novel encapsulation model and provide many new and powerful concepts.
-
-Capsule may have multiple properties. There are five types of capsule properties: parts, operations, methods, hooks, and loops. Properties can either be public or protected. Private properties are not supported.
-
-The *part* is a property of a capsule. It represents child capsule. Child capsule is always created in the context of its parent and accessible only from within that context. That is essential premise of Capsula's encapsulation model. Parts are protected properties.
-
-The *operation* is capsule's property that acts like a method, only more powerful. It can be used as a regular method, however operation adds support for asynchronous calls, declarative wiring to other operations to specify propagation of calls, arguments filtering, etc. Operations are public properties.
-
-The method is capsule's property that behaves as anyone would imagine, that is, as a simple JavaScript method. Methods can be either public or protected.
-
-Hooks and loops provide capsules with a special support for managing widgets and layout in a flexible way. Hooks and loops are always public.
-
-In accordance with the principle of information hiding, capsules can store protected data; the data they work with or operate on.
-
-When creating a capsule class, one must define which and how many of these properties should be present in it. Once created, capsule class cannot be modified afterwards. All instances of that class would then have the properties as defined in the class. However, once an instance of capsule class is created, it can be dynamically modified (by adding new properties for example, or removing existing ones); just as anyone would expect from a JavaScript object.
-
-Table bellow specifies characteristics of capsule properties (like: are they visible?, do they get inherited?, and are they dynamically addable / removable in runtime?):
-
-<table>
-<thead><tr><td></td><th>visibility</th><th>inheritable</th><th>addable</th><th>removable</th></tr></thead>
-<tbody><tr><th>part</th><td>protected</td><td>true</td><td>true</td><td>true</td></tr>
-<tr><th>operation</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-<tr><th>method</th><td>protected or public</td><td>true</td><td>false</td><td>false</td></tr>
-<tr><th>hook</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-<tr><th>loop</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-</tbody></table>
-
-Behind its interface made up of operations, public methods, hooks, and loops, capsules hide:
-
-- parts 
-- the way parts' and capsule's operations are connected (wired) between one another, 
-- the way parts' and capsule's hooks and loops are connected (tied) between one another, 
-- protected methods (i.e. protected behavior), and 
-- protected data.
-
-### Encapsulation Model
-
-As already stated, Capsule is a class similar to an OO class with different encapsulation model. In a typical OO encapsulation model, all public properties and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we have to carefully manage references to avoid our code becoming "spaghetti". And this may be a bit too difficult.
-
-To understand the policy of our encapsulation model, it is fundamentally important to understand the notion of *the current context of execution*. The current context of execution is specified with respect to the given point in time and it always represents a capsule (instance):
-
-> For the given point in time t and the given capsule instance x, x is the current context of execution at t, if and only if the call stack at t lists a method of x and no method of capsule instance other than x deeper in the call stack.
-
-In other words, "this" reference of the deepest method (that belongs to a capsule) in the call stack determines the current context of execution. If there is no such a method, there is a default "main" capsule that acts as a top-level context.
-
-If x is the current context of execution, we informally say that "we are in the context of x".
-
-Now with respect to that, Capsula proposes a restriction to the typical OO policy of access rights. The restriction is simple to understand and use while being rather effective. It is defined by the following two: 
-
-a) the code executing in the context of capsule instance x (e.x. executing a method of x) is allowed to access public properties of capsule instance y if and only if y is created (instantiated) in the context of x, that is, if and only if y is part (child) of x.
-
-b) the code executing in the context of capsule instance x is allowed to access protected properties of capsule instance y if and only if y is actually x.
-
-In other words, the policy boils down to this:
-
-> At any point in time, the code executing in the context of capsule x is only allowed to use (access, call) public properties of part capsules of capsule x and protected properties of capsule x itself.
-
-"Out of context" error is thrown when trying to use properties against these rules.
-
 ## Working With Capsules
+
+Once we have Capsula set up, we can start coding things. Let's try to cut into building a messaging application engine that delivers messages and persists successfully delivered ones.
 
 ### Creating Capsule Class
 
-To create an empty capsule class:
+To create an empty capsule class try:
 
 ```js
-var Section = capsula.defCapsule({}); // {} is the capsule definition object
+var MessageArchive = capsula.defCapsule({}); // {} is the capsule definition object
 ```
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}#.defCapsule" target="_blank">defCapsule</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Creates and returns a capsule constructor function based on the given capsule (class) definition object.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
+</tbody></table>
 
 ### Instantiating Capsules
 
-To instantiate capsule use the new operator and function returned from the call to defCapsule:
+To instantiate capsule use the ```new``` operator and function returned from the call to ```defCapsule```:
 
 ```js
-var section = new Section();
-```
-
-In this case, section capsule implicitly becomes a part of the capsule which represents the current context of execution.
-
-### Constructor
-
-Let's add constructor function to the Section capsule (class).
-
-```js
-var Section = capsula.defCapsule({
-    init: function(title){ // init is the keyword
-        this.title = title;
-    }
-});
-```
-
-Instantiating Section would now look like this:
-
-```js
-var section = new Section('Hello World!');
+var archive = new MessageArchive();
 ```
 
 ### Parts
 
-Now, let's create Page capsule with a single main section inside:
+Now, let's create *Application* capsule with a message archive inside (that is, with message archive being part of it):
 
 ```js
-var Page = capsula.defCapsule({
-    main: Section
+var Application = capsula.defCapsule({
+    archive: MessageArchive
 });
 
-var page = new Page(); // creates both page and inner section capsule
+var app = new Application(); // creates both the application and the archive
 ```
 
-Here, the section capsule is *part* of the page capsule. Page capsule is therefore the *owner* of the section capsule.
+Here, the ```archive``` capsule is *part* of the ```app``` capsule which is therefore the *owner* of the ```archive``` capsule.
 
-Now, assuming every Section requires title to be set immediately, let's create Page capsule with respect to that:
+From the inside of the application capsule we can access the archive capsule simply using reference ```this.archive```.
+
+### Constructor And Arguments
+
+Now, let's rewrite the *MessageArchive* capsule (class) to add constructor that sets flag for using encryption in the archiving process.
 
 ```js
-var Page = capsula.defCapsule({
-    main: {
-        capsule: Section,
-        args: 'Hello World!' // or return array for multiple arguments
+var MessageArchive = capsula.defCapsule({
+    init: function(useEncryption){ // init is the keyword for constructor
+        this.useEncryption = useEncryption;
     }
 });
 ```
 
-The same result would be achieved this way as well:
+> Use ```init``` keyword in the capsule definition object to specify constructor function.
+
+Now, since *MessageArchive* requires an argument during construction, the *Application* capsule should follow with:
 
 ```js
-var Page = capsula.defCapsule({
+var Application = capsula.defCapsule({
+    archive: {
+        capsule: MessageArchive, // capsule: the keyword to use to specify type
+        args: true
+    }
+});
+```
+
+> To specify part's type (i.e. constructor function) use the ```capsule``` keyword.
+
+Here, instead of just specifying archive's type, we also specify the arguments using the 'args' keyword.
+
+> To specify arguments use ```args``` and ```arguments``` keywords interchangeably. The arguments can either be a single value or an array of values in cases when part's constructor requires multiple arguments.
+
+The same could be achieved this way as well:
+
+```js
+var Application = capsula.defCapsule({
     init: function(){
-        this.main = new Section('Hello World!');
+        this.archive = new MessageArchive(true);
     }
 });
 ```
 
-It is very important to note that the main section object becomes part of the page capsule not because of placing it into *this.main*, but because of the fact that it has been instantiated in the context of the page capsule (in this case, in the page capsule's constructor). So, references to parts are not relevant when access rules are enforced. What is relevant is to whom the capsule belongs as a part and that is defined by the current context of execution in the moment of instantiation.
+Here we underline that the ```archive``` becomes part of the ```app``` capsule not because of placing it into ```this.archive```, but because of the fact that it has been instantiated in the context (i.e. constructor) of the ```app``` capsule.
 
-Have in mind that parts are instantiated first (if they exist) and the constructor is called afterwards.
-
-At this point, every page would have a main section with 'Hello World!' title. Let's make that configurable:
+At this point, every application would have an archive module using encryption. Let's make that configurable:
 
 ```js
-var Page = capsula.defCapsule({
-    init: function(title){
-        // deliberately empty
+var Application = capsula.defCapsule({
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args' // 'this.args' refers to Application arguments
+    }
+});
+```
+
+> Use ```this.args``` keyword to tell that arguments of the owner capsule should be used to instantiate part capsule.
+
+Now the *Application* capsule could be instantiated like this:
+
+```js
+var app = new Application(true); // the true value gets forwarded to the archive part
+```
+
+Finally, part's arguments can be computed at the instantiation point in time by executing function:
+
+```js
+var Application = capsula.defCapsule({
+    init: function(name, useEncryption){
+        this.name = name;
     },
-    main: {
-        capsule: Section,
-        args: 'this.args' // 'this.args' tells that page arguments should be used here
-    }
-});
-```
-
-Now we can instantiate Page like this, and the inner section would get its constructor argument properly:
-
-```js
-var page = new Page('Tutorial');
-```
-
-Finally, part arguments can be calculated at the instantiation point in time using function:
-
-```js
-var Page = capsula.defCapsule({
-    main: {
-        capsule: Section,
-        deferredArgs: function(pageNumber, title){ // page arguments are provided here
-            return title; // or return array for multiple arguments
+    archive: {
+        capsule: MessageArchive,
+        deferredArgs: function(name, useEncryption){ // keyword: deferredArgs
+            return useEncryption; // or return array for more arguments
         }
     }
 });
 ```
 
+> Use ```deferredArgs``` keyword to specify function that gets called just before part's instantiation to return arguments for part's instantiation. The function would be called with the same arguments as arguments used to instantiate the owner capsule. The function should return either a single value or an array of values in cases when part's constructor requires multiple arguments.
+
 Now, this:
 
 ```js
-var page = new Page(3, 'Tutorial');
+var app = new Application('My application', true);
 ```
 
-would create inner main section with 'Tutorial' title.
+would create inner archive that uses encryption.
+
+> When it comes to ordering of execution, it should be noted that parts are instantiated first and afterwards the owner's constructor (```init```) is called.
 
 ### Inheritance
 
 As expected, Capsule class may extend another capsule class. Single-inheritance model is supported.
 
 ```js
-var Article = capsula.defCapsule({
-    base: Section
+var MongoDbMessageArchive = capsula.defCapsule({
+    base: MessageArchive
 });
 ```
 
-The Article capsule inherits all the properties and methods of the Section capsule. Also, it may decide to call the super-type's constructor from within its own constructor:
+> The sub-capsule inherits all the properties and methods of the super capsule.
+
+Sub-capsule may decide to call the super-type's constructor from within its own constructor:
 
 ```js
-var Article = capsula.defCapsule({
-    base: Section,
-    init: function(title, date){
-        this.superior().init.call(this, title);
-        this.date = date;
+var MongoDbMessageArchive = capsula.defCapsule({
+    base: MessageArchive,
+    init: function(useEncryption, port){
+        this.superior().init.call(this, useEncryption); // calls the super constructor
+        this.port = port;
     }
 });
 ```
 
-Super-type's constructor would not be called implicitly, so if you need it, make sure to call it as shown above.
+> Super-type's constructor doesn't get called implicitly, so if you need it, make sure you call it explicitly (as shown above).
 
-It is also possible to create abstract capsule (class):
+It is also possible to create an abstract capsule:
 
 ```js
-var Container = capsula.defCapsule({
-    isAbstract: true
+var Archive = capsula.defCapsule({
+    isAbstract: true // isAbstract is the keyword for designating abstract capsules
 });
 
-var c = new Container(); // Error: Oops! Abstract capsules cannot be instantiated...
+var archive = new Archive(); // Error: Abstract capsules cannot be instantiated
 ```
+
+> Abstract capsules that cannot be instantiated.
+
+---
+
+So far we have covered the very basic stuff plus parts. Let's continue and add a bit of dynamic with methods and operations.
+
+---
 
 ## Implementing Behavior
 
-There are many ways to implement dynamic parts of your application. Let's go one step at a time.
+Dynamic parts of your application are implemented using methods and operations. Let's start with methods, being the concept you already know of.
 
 ### Methods
 
-Let's create a capsule (class) with two methods, one public and one protected:
+Let's create a MessageArchive capsule with a couple of methods:
 
 ```js
-var Article = capsula.defCapsule({
-    base: Section,
-    init: function(title, date){
-        this.superior().init.call(this, title);
-        this.date = date;
+var MessageArchive = capsula.defCapsule({
+    init: function(useEncryption){ // init is the keyword for constructor
+        this.useEncryption = useEncryption;
     },
-    calcAge: function(){ // protected method
-        return Math.round((new Date() - this.date) / (1000 * 60 * 60 * 24));
+    persist: function(message){
+        // TODO persist the message
+        console.log('persisted ' + JSON.stringify(message));
     },
-    '+ getAge': function(){ // + means public method
-        return this.calcAge();
+    encrypt: function(message){
+        // TODO encrypt the message
+        return message;
+    },
+    '+ process': function(message){
+        message.archivingTime = new Date();
+        if (this.useEncryption)
+            message = this.encrypt(message);
+        this.persist(message);
     }
 });
 ```
 
-The protected method is calcAge, the public one is getAge. Now, let's try the following:
+Protected are the ```persist``` and the ```encrypt``` methods, while the ```process``` is public. 
+
+> Public methods should have a + sign prefix to distinguish them from protected ones.
+
+Now, to archive a message try the following:
 
 ```js
-var article = new Article('Tutorial', new Date('May 7, 2018'));
-console.log(article.getAge() + ' days');
+var archive = new MessageArchive(true);
+archive.process({body: 'Hello World!'}); // console: persisted {"body":"Hello World!"}
 ```
 
-Great. The console logs article's age in days, which is fine. If however we try:
+Great, it works. If however we try:
 
 ```js
-article.calcAge(); // Error: Oops! Make sure you do this in the right context.
+archive.encrypt({body: 'Hello World!'}); // Error: Out of context...
 ```
 
-the error is raised since we are calling protected method from the outside of the article capsule context.
+the error is raised since we are calling protected method from the outer context.
 
 ### Operations
 
-Now let's go further and explain operations. Operation is capsule's public property. It is like a method but more powerful. 
+Now let's go one step further and explain operations. They are like methods but more powerful. Operations are always public.
 
-Firstly, unlike regular methods, operations can be called (invoked) both in synchronous and in asynchronous way. 
+Firstly, operations can be bound (both declaratively and imperatively) to one another and to methods, to specify propagation of calls. Binding operations is called wiring; bindings are called wires.
 
-Secondly, operations can be bound (both declaratively and imperatively) to one another and to methods, to specify propagation of calls. Binding operations is called wiring; bindings are called wires.
+Secondly, operation can either be input or output. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its owner capsule.
 
-Thirdly, operation can either be input or output. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its owner capsule.
+Thirdly, operations can be called both in synchronous and in asynchronous way.
 
-Finally, there are other features that are specific to operations: enabling / disabling them, setting filters, etc.
+Also, there are other features that are specific to operations like enabling / disabling them, filtering operations' arguments, etc.
 
-Let's reach out for examples starting with input operations:
+Let's go back to our example. Let's imagine our application receives messages from the outside world:
 
 ```js
-var Page = capsula.defCapsule({
-    '> addComment': function(comment, user){ // > means input operation
-        // ...
+var Application = capsula.defCapsule({
+    '> newMessage': 'archive.process', // > means input operation
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
     }
 });
 
-var page = new Page();
-page.addComment('This looks good.', 'userX'); // calling an input operation
+var app = new Application(true);
+app.newMessage({body: 'Hi!'}); // console: persisted {"body":"Hi!"}
 ```
 
-Now let's introduce output operation to signal changes inside the page to the outside world.
+Looking from the outside, the ```newMessage``` operation looks the same and is being called the same way as regular methods. From the inside however, we see that our operation has been declaratively bound (wired) to a method ```process``` of the capsule's ```archive``` part.
+
+> Input operations are declared with > sign.
+
+Now the same thing could be done imperatively using the ```wire``` method:
 
 ```js
-var Page = capsula.defCapsule({
-    '< onChange': function(changeDescription){}, // < means output operation
-    '> addComment': function(comment, user){
-        // ...
-        this.onChange('comment added'); // calling an output operation
-    }
-});
-```
-
-The following should be noted here. *onChange* operation has empty body since it is unknown inside the page capsule what should happen on change. Basically, it is just a signal for the page's exterior. The body would simply be ignored even if wasn't empty. The function is used there just to specify output operation's signature (however, if you wish not to specify it, simply use null instead of a function). So, all output operations have empty body.
-
-But, if the body is empty, what happens when we call output operation? Well, that depends on what operations, methods, or functions the output operation is wired to. For example:
-
-```js
-var page = new Page();
-page.onChange.wire(function(changeDescription){ // wiring to a function
-    console.log(changeDescription);
-});
-
-page.addComment('This looks good.', 'userX'); // console: 'comment added'
-```
-
-In the example above, *onChange* is wired to a simple function. However, it could be wired to an input operation or method of another sibling capsule, or even to an output operation of the owner capsule. The wiring here is done imperatively, by calling the wire method of output operation. However, the wiring of operations could be done declaratively as well:
-
-```js
-var Article = capsula.defCapsule({
-    '> addComment': function(comment, user){
-        // ...
-        console.log('Adding comment...');
-    }
-});
-
-var Page = capsula.defCapsule({
-    main: Article,
-    '> addComment': 'main.addComment' // or use array when wiring multiple targets
-});
-
-var page = new Page();
-page.addComment('New comment', 'me'); // console: Adding comment...
-```
-
-If however, we need in addition to do something with the comment inside the page capsule itself, we can simply do the following:
-
-```js
-var Page = capsula.defCapsule({
-    main: Article,
-    '> addComment': function(comment, user){
-        // ...
-        console.log('Additional...');
+var Application = capsula.defCapsule({
+    '> newMessage': null,
+    init: function(){
+        this.newMessage.wire(this.archive.process); // imperative wiring using wire
     },
-    'this.addComment': 'main.addComment'
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
+    }
 });
-
-var page = new Page();
-page.addComment('New comment', 'me'); // console: Additional... Adding comment...
 ```
 
-In this case, the *addComment* input operation of page capsule is wired to both method of page capsule and to input operation *addComment* of the article capsule. Hence, it could be said that *addComment* operation of page capsule is source, while *addComment* operation of article capsule and the method of page capsule are both targets in the wiring of page capsule.
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#wire" target="_blank">wire</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Wires this operation to the given operations and methods in the current context of execution.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
+</tbody></table>
 
-Obviously, each source operation could be wired to many targets. Similarly, each target operation (or method, or function) could be wired to many source operations. A method or function can only act as a target when being wired. Wiring of operations is either done declaratively or by calling methods on operations themselves (see wire, source, target, and all related methods from there).
+Now that we have archiving, let's add a delivery module to our application. Let's start by creating new *MessageDelivery* capsule:
+
+```js
+var MessageDelivery = capsula.defCapsule({
+    '< onDelivered': null, // < means output operation
+    '> process': function(message){ // wiring of input operation to a method
+        // TODO delivery
+		message.delivered = true;
+        if (message.delivered)
+            this.onDelivered(message);
+    }
+});
+```
+
+> Output operations are declared with < sign.
+
+Delivery module works this way: accepts the message through the ```process``` input operation, tries to deliver it, and signals that to the outside world by calling the output operation ```onDelivered``` in case of successful delivery. We follow the convention of naming output operations using the pattern ```on...```.
+
+Note that the ```process``` input operation has been wired on-spot to a method that would handle all calls to the operation.
+
+Finally, have in mind that output operations never really do anything themselves. They only serve to propagate calls and events to the outside world. Hence, the ```onDelivered``` output operation has been declared with null value. It could have been declared with an empty-body function only to be able to specify operation's signature, but the effect of doing that is the same as simply putting null value. Calling an output operation that hasn't been wired to any other operation or method outside is a *no-op*.
+
+Had we wanted to short-circuit each received message immediately to the ```onDelivered``` output operation we would have done it by simply doing this:
+
+```js
+var MessageDelivery = capsula.defCapsule({
+    '< onDelivered': function(message){}, // operation's signature provided
+    '> process': 'this.onDelivered'
+});
+```
+
+Now, our application could look like this:
+
+```js
+var Application = capsula.defCapsule({
+    '> newMessage': 'delivery.process',
+	delivery: MessageDelivery,
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
+    },
+	'delivery.onDelivered': 'archive.process'
+});
+
+var app = new Application(true);
+app.newMessage({body: 'Hello!'}); // persisted {"body":"Hello!","delivered":true}
+```
+
+Implemented like this, the application tries to deliver each message, archiving only successfully delivered ones. According to the console output, the message has been both delivered and persisted.
+
+Operations could be wired to more than one operation (and method). To demonstrate that, let's add the ```onDelivered``` output operation to the *Application* capsule:
+
+```js
+var Application = capsula.defCapsule({
+    '< onDelivered': function(message){},
+    '> newMessage': 'delivery.process',
+    delivery: MessageDelivery,
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
+    },
+    'delivery.onDelivered': ['archive.process', 'this.onDelivered'] // array
+});
+```
+
+As shown in the last line of the *Application* capsule's body, an output operation of the delivery module has been wired to an input operation of archive module and an output operation of the application capsule itself. The same could be done imperatively:
+
+```js
+var Application = capsula.defCapsule({
+    '< onDelivered': function(message){},
+    '> newMessage': 'delivery.process',
+    delivery: MessageDelivery,
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
+    },
+    init: function(){
+        this.delivery.onDelivered.wire(this.archive.process, this.onDelivered);
+        // or using an array:
+        // this.delivery.onDelivered.wire([this.archive.process, this.onDelivered]);
+    }
+});
+```
+
+In this case, we could say that the ```this.delivery.onDelivered``` output operation acts as source, while the ```this.archive.process``` and the ```this.onDelivered``` act as targets.
+
+> Each source operation could be wired to many targets. Similarly, each target operation could be wired to many source operations. A method can only act as a target when being wired.
+
+Method ```wire``` is sort of "reflexive", meaning that ```a.wire(b)``` is the same as ```b.wire(a)```. ```wire``` is therefore easy to use - no need to think about direction of flow, however it has a small drawback. When looking at the ```a.wire(b)``` you cannot immediately tell which one is the source and which one is the target. That's why there are two additional methods that can be used when you want your code to tell the story about who is who. These two methods are ```source``` and ```target```.
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#target" target="_blank">target</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Wires this operation acting as a source in the current context of execution to the given operations and functions (targets).</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
+</tbody></table>
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#source" target="_blank">source</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Wires this operation acting as a target in the current context of execution to the given operations (sources).</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
+</tbody></table>
+
+Obviously where there is collection there is ordering as well. So, where there are multiple targets for a single source operation in some cases it could be significant to specify ordering of targets. In those cases ```wireAt``` and ```targetAt``` methods should be used.
+
+Finally, operations get unwired or rewired as easily as they get wired. Have in mind the following methods: ```unwire```, ```untarget```, ```unsource```, ```rewire```, ```retarget```, ```resource```, ```unwireAll```, ```untargetAll```, and ```unsourceAll```.
+
+Also, you can check whether wiring exist between operations (and methods) with: ```isWiredTo```, ```isSourceOf```, and ```isTargetOf```.
 
 #### Operation Result
 
@@ -493,7 +639,7 @@ As shown above, operation calls are propagated according to the wiring. Wiring n
 
 a) an array of method results, if there is more than one downstream method,
 
-b) a method result, if there is only one downstream method (this is by default, but can be changed to return array, see setUnpackResult), 
+b) a method result, if there is only one downstream method (this is by default, but can be changed to return array, see ```setUnpackResult```), 
 
 c) undefined, if there are no downstream methods.
 
@@ -508,6 +654,13 @@ page.addComment.send('New comment', 'me').then(function(result){
 ```
 
 Call to send returns Promise object which allows for handling the results in both successful and erroneous use cases. In case of an asynchronous operation call, the control is returned to the caller immediately and propagation of calls is done in asynchronous manner at some point in future.
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#send" target="_blank">send</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Calls this operation in an asynchronous way. Returns control immediately. Returns Promise.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
+</tbody></table>
 
 ### Error Handling
 
@@ -533,7 +686,7 @@ Make sure you don't have errors popping out of handle method, since that would p
 
 Apart from the novel encapsulation model which is useful in any application domain, Capsula exhibits concepts specifically dedicated to the domain of user interfaces. These concepts are developed to decouple managing hierarchy of widgets from managing any other behavior.
 
-Capsula allows engineers to combine mutually interacting widgets into a larger components (capsules) without necessarily gluing them together in terms of layout. This enables creating extremely rich and complex components that have very high reuse potential.
+A capsule is not a widget per se. However, a capsule may represent a widget. What's more, it may represent a group of widgets. The layout of this group of widgets may be fixed inside the capsule or left partly or completely unspecified. In other words, Capsula allows engineers to combine mutually interacting widgets into a larger components (capsules) without necessarily gluing them together in terms of layout. This enables creating extremely rich and complex components that have very high reuse potential.
 
 Capsula provides both object-oriented and template-based way of building user interfaces. Anyhow, the same concepts are used in both ways. Let's say a few words on these concepts first and then proceed to explaining both of the supported ways of building user interfaces.
 
@@ -574,19 +727,21 @@ button.setInnerHTML('Open');
 div.hook.tie(button.loop);
 ```
 
-Note that instead of adding one capsule to another, here we've added a loop of one capsule to a hook of another. This is because in general a capsule may represent more that one widget and we have to specify exactly what goes whare. Hooks and loops are being added using the tie method. We call this tying while connections we call ties.
+Note that instead of adding one capsule to another, here we've added a loop of one capsule to a hook of another. This is because in general a capsule may represent more that one widget and we have to specify exactly what goes whare. 
+
+Hooks and loops are being added using the tie method. We call this tying while connections we call ties.
 
 Now, let's add a bit of interaction to this example.
 
 ```js
-button.addEventOutput('click'); // let's listen for click event
+button.addEventOutput('click'); // let's listen for the click event
 
 var dialog = new html.Element('dialog'); // create a dialog element
 dialog.setInnerHTML('This is a dialog!');
 div.hook.tie(dialog.loop); // add dialog to the div
 
-button.click.wire(function(){ // open the dialog handler
-    dialog.setAttribute('open');
+button.click.wire(function(){ // click handler
+    dialog.setAttribute('open', null); // opens it; attribute value not important
 });
 ```
 
@@ -601,20 +756,22 @@ var ShowInfo = capsula.defCapsule({
         button.setInnerHTML('Open');
         button.addEventOutput('click');
         div.hook.tie(button.loop);
-        var dialog = new html.Element('dialog'); // creates a part
+        this.dialog = new html.Element('dialog'); // creates a part in this.dialog
         dialog.setInnerHTML(message);
         div.hook.tie(dialog.loop);
         button.click.wire(this.clickHandler);
         div.loop.tie(this.root); // this is how div gets represented by the root loop
     },
     clickHandler: function(){
-        this.dialog.setAttribute('open');
+        this.dialog.setAttribute('open', null);
     }
 });
 
 var info = new ShowInfo('Have a nice day.');
-info.root.render(document.body); // let's put our capsule into the page body
+info.root.renderInto(document.body); // let's put our capsule into the page body
 ```
+
+Note that renderInto method allows you to directly couple the world of DOM elements with the world of capsules.
 
 Here, the click handler is created as a protected method of ShowInfo capsule, representing a sort of its internal behavior.
 
@@ -643,12 +800,12 @@ var ShowInfo = capsula.defCapsule({
     'this.root': 'div.loop',
     'button.!click': 'this.clickHandler', // pay attention to ! sign (see bellow)
     clickHandler: function(){
-        this.dialog.setAttribute('open');
+        this.dialog.setAttribute('open', null);
     }
 });
 
 var info = new ShowInfo('Have a nice day.');
-info.root.render(document.body);
+info.root.renderInto(document.body);
 ```
 
 As show above, creating parts, tying hooks and loops, and wiring operations (and methods in this case) can all be done in a declarative way.
@@ -658,7 +815,7 @@ One thing should be noted here. Declarative wires and ties are being checked dur
 Also note that making the button listen to click events could be done during construction either as shown above where args property contains additional array of events, or in case of imperative construction like this:
 
 ```js
-let button = new html.Element('button', ['click']); // more events could be added
+var button = new html.Element('button', ['click']); // more events could be added
 ```
 
 Whether being a fan of imperative or declarative style, at this point you have the ShowInfo capsule encapsulating two interacting widgets. However, the ShowInfo capsule specifies not only how the two widgets interact, but also how they are positioned in terms of layout. That's not really flexible.
@@ -684,20 +841,54 @@ var ShowInfo = capsula.defCapsule({
     'this.dialogLoop': 'dialog.loop', // tying the dialog to the dialogLoop
     'button.!click': 'this.clickHandler',
     clickHandler: function(){
-        this.dialog.setAttribute('open');
+        this.dialog.setAttribute('open', null);
     }
 });
 
 var info = new ShowInfo('Have a nice day.');
 
-// now, let's decide where to put button and dialog
-info.dialogLoop.render(document.getElementById('div1'));
-info.buttonLoop.render(document.getElementById('div2'));
+// now, let's decide where to put the button and the dialog
+info.dialogLoop.renderInto(document.getElementById('div1'));
+info.buttonLoop.renderInto(document.getElementById('div2'));
 ```
 
-Now we have our ShowInfo capsule much more flexible, since it only encapsulates interaction, while the layout of its parts is left for someone else (who is using ShowInfo capsule) to decide. This is the core idea behind the mechanism of hooks and loops.
+Now we have our ShowInfo capsule much more flexible, since it only encapsulates interaction, while the layout of its parts is left for someone else (who is using ShowInfo capsule) to specify. This is the core idea behind the mechanism of hooks and loops.
 
-The mechanism of hooks and loops enables us to decide which layout decisions we want to make inside a capsule and which to leave out of it. This enables us to increase complexity of capsules while preserving the capsule's potential to be reused, because in user interface development most of inflexibility comes from fixing the layout of your components inside.
+The mechanism of hooks and loops enables us to decide which layout decisions we want to make inside a capsule and which to leave out of it. This enables us to increase complexity of capsules while preserving the capsule's potential to be reused, because in user interface development most of inflexibility comes from fixing the layout of your components in advance.
+
+#### Working With Native DOM Elements
+
+Sometimes it is useful to have access to low-level APIs in order to be able to achieve your goals. Let's create our ShowInfo capsule using the native (DOM) code.
+
+```js
+var ShowInfo = capsula.defCapsule({
+    loops: ['buttonLoop', 'dialogLoop'], // one for the button, one for the dialog
+    init: function(message){
+        // native
+        var domButton = document.createElement('button');
+        domButton.innerHTML = 'Open';
+        domButton.addEventListener('click', capsula.contextualize(this.clickHandler));
+		
+        this.buttonLoop.render(domButton); // renders our button into its loop
+		
+        // native
+        this.domDialog = document.createElement('dialog');
+        this.domDialog.innerHTML = message;
+		
+        this.dialogLoop.render(this.domDialog); // renders our dialog into its loop
+    },
+    clickHandler: function(){
+        // native
+        this.domDialog.setAttribute('open', null);
+    }
+});
+
+var info = new ShowInfo('Have a nice day.');
+info.dialogLoop.renderInto(document.getElementById('div1'));
+info.buttonLoop.renderInto(document.getElementById('div2'));
+```
+
+Please note that even in cases when you use native code you can easily encapsulate it and then use your capsule like any other regular capsule.
 
 ### Working with Templates
 
@@ -724,10 +915,10 @@ The following attributes of HTML elements (tags) inside the template are support
 - attribute *loop* - HTML element (tag) having loop="myLoop" attribute would be represented by a loop named "myLoop" of the Template capsule. For example, HTML code ```<div loop="myLoop">...</div>``` would make template capsule have loop named myLoop that represents the div element as a child. Element having loop attribute must be one of the root elements in the templete code. Moreover, root elements have to have loop attribute in order to be displayed on the page. Since HTML code of template capsule may have more than one root element, consequently the template capsule may have more than one loop.
 
 ```js
-let caps = ...; // this is an arbitrary capsule having hook named myHook
+var caps = ...; // this is an arbitrary capsule having hook named myHook
 
 // creates template capsule with a loop named loopX
-let template = new html.Template(`
+var template = new html.Template(`
     <div id="abc" loop='loopX'>
         <h1>Hello world!</h1>
     </div>
@@ -739,11 +930,11 @@ caps.myHook.tie(template.loopX); // places the div with id="abc" into its new pa
 - attribute *hook* - HTML element (tag) having hook="myHook" attribute would be represented as a parent by a hook named "myHook" of the Template capsule. Any element (tag) of the HTML template code may have the hook attribute. Usually however, the leaf elements of the template code have it, as they expect to be filled with new HTML content when their hooks get tied.
 
 ```js
-let caps1 = ...; // this is an arbitrary capsule having hook named myHook
-let caps2 = ...; // this is an arbitrary capsule having loop named myLoop
+var caps1 = ...; // this is an arbitrary capsule having hook named myHook
+var caps2 = ...; // this is an arbitrary capsule having loop named myLoop
 
 // creates template capsule with a loop named loopX and a hook named hookX
-let template = new html.Template(`
+var template = new html.Template(`
     <div loop='loopX'>
         <h1>Hello world!</h1>
         <div id="abc" hook="hookX"></div>
@@ -762,7 +953,7 @@ template.hookX.tie(caps2.myLoop);
 
 ```js
 // creates template capsule with input operations to get and set h1's properties
-let template = new html.Template(`
+var template = new html.Template(`
     <div loop='loopX'>
         <h1 prop='setH1Prop' getprop='getH1Prop'>Hello world!</h1>
     </div>
@@ -777,7 +968,7 @@ if (template.getH1Prop('dir') === 'rtl') // checks the property value
 
 ```js
 // creates template capsule with input operations to handle attributes
-let template = new html.Template(`
+var template = new html.Template(`
     <div loop='loopX'>
         <input type='text' attr='setInputAttr' getattr='getInputAttr' remattr='removeInputAttr'>
     </div>
@@ -792,7 +983,7 @@ else
 
 ```js
 // creates template capsule with output operation to signal the 'click' event
-let template = new html.Template(`
+var template = new html.Template(`
     <div loop='loopX'>
         <button on="click" output="clicked"></button>
     </div>
@@ -807,7 +998,7 @@ template.clicked.wire(function(e){
 
 ```js
 // creates template capsule with input operation that returns the label element
-let template = new html.Template(`
+var template = new html.Template(`
     <div loop='loopX'>
         <label get="getLabel">First name:</label>
     </div>
@@ -819,10 +1010,10 @@ As a final example, we demonstrate how to create template capsule that has more 
 
 ```js
 // an arbitrary capsules having hooks named myHook and hk, respectively
-let caps1 = ..., caps2 = ...;
+var caps1 = ..., caps2 = ...;
 
 // creates template capsule with loops named loopX and loopY
-let template = new html.Template(`
+var template = new html.Template(`
     <div id="abc" loop='loopX'>
         <h1>Hello world!</h1>
     </div>
@@ -1003,7 +1194,7 @@ services.flush('myService');
 
 ## Protected State
 
-So far we've learned how capsules enforce access protection for operations, methods, parts, etc. Now we move to protecting data inside capsules.
+Now let's see how to protect data inside capsules.
 
 One way to protect and use protected data inside capsule is shown here:
 
@@ -1095,7 +1286,7 @@ console.log(page1.getContent()); // ["Paragraph 1"]
 console.log(page2.getContent()); // []
 ```
 
-All supported values for instance-level data are given here:
+All supported keywords for instance-level data are given here:
 
 ```js
 var Page = capsula.defCapsule({
@@ -1110,7 +1301,7 @@ var Page = capsula.defCapsule({
 
 and they are all protected.
 
-Finally, we show the most general case to specify protected data. It looks similar to specifying parts. For each datum, you provide a function to be called once for each capsule instance and also arguments for that function. The function could be called with or without new operator, depending on whether you specify it with *call* or with the *new* keyword.
+Finally, we show the most general case to specify protected data. It looks similar to specifying parts. For each datum, you provide a function to be called once for each capsule instance and also arguments for that function. The function could be called with or without new operator, depending on whether you specify it with the *call* or with the *new* keyword.
 
 ```js
 var Page = capsula.defCapsule({
