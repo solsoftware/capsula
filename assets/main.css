@@ -221,3 +221,28 @@ div.floated > p { color: #888; }
 .clear { clear: both; }
 
 .top-padding-2 { padding-top: 2em; }
+
+table.module th {
+    background-color: khaki;
+}
+
+table.class th {
+    background-color: papayawhip;
+}
+
+table.method th {
+    background-color: lightcyan;
+}
+
+table.module th, table.class th, table.method th {
+	color: #888;
+    font-weight: 400;
+}
+
+table.module thead th, table.class thead th, table.method thead th {
+    font-weight: bold;
+}
+
+hr {
+    margin-bottom: 1em;
+}
