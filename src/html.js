@@ -208,15 +208,15 @@ limitations under the License.
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-                    this.getData('listeners')[eventName] = listener;
+					this.listeners.get()[eventName] = listener;
                     this.getTextNode().addEventListener(eventName, listener);
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getTextNode().removeEventListener(i, listeners[i]);
-                    this.setData('listeners', {});
+					this.listeners = new cps.Datum({});
                 },
 
                 'this.loop': 'myText.loop'
@@ -646,15 +646,15 @@ limitations under the License.
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-                    this.getData('listeners')[eventName] = listener;
+                    this.listeners.get()[eventName] = listener;
                     this.getElement().addEventListener(eventName, listener);
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getElement().removeEventListener(i, listeners[i]);
-                    this.setData('listeners', {});
+					this.listeners = new cps.Datum({});
                 },
 
                 root: {
@@ -787,7 +787,7 @@ limitations under the License.
                         }
                         var listener = cps.contextualize(wrapper_(output));
                         outputElement.addEventListener(eventName, listener);
-                        this.getData('listeners').push({
+                        this.listeners.get().push({
                             element: outputElement,
                             event: eventName,
                             handler: listener
@@ -813,12 +813,12 @@ limitations under the License.
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i = 0; i < listeners.length; i++) {
                         var listener = listeners[i];
                         listener.element.removeEventListener(listener.event, listener.handler);
                     }
-                    this.setData('listeners', []);
+					this.listeners = new cps.Datum([]);
                 }
             });
 

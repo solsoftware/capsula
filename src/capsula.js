@@ -110,11 +110,11 @@ limitations under the License.
             this.loops = [];
 
             /**
-             * The private data of this capsule. This object acts as a collection of name-value pairs where name is the id of data and value is the data itself.
+             * The collection of data of this capsule.
              *
-             * @type {Object}
+             * @type {Datum[]}
              */
-            this.data = {};
+            this.data = [];
 
             /**
              * Currently executing operation.
@@ -311,6 +311,26 @@ limitations under the License.
 
         LoopData_.prototype = Object.create(HookLoopData_.prototype);
 
+		/**
+         * Capsule-specific private information.
+         *
+         * @class
+         * @memberof module:capsula
+         * @private
+         */
+        function DatumData_() {
+            PrivateData_.call(this);
+
+            /**
+             * The private information of this datum.
+             *
+             * @type {Object}
+             */
+            this.data;
+        }
+
+        DatumData_.prototype = Object.create(PrivateData_.prototype);
+		
         /**
          * @classdesc Capsule class is an abstract base class in the hierarchy of capsule classes.
          *
@@ -482,6 +502,29 @@ limitations under the License.
             return that;
         }
 
+		/**
+         * Creates new datum as a property of the capsule that represents the current context of execution.
+         *
+         * @class
+         * @classdesc Datum is a specific public property of a [capsule]{@link module:capsula.Capsule}. It serves to store the given information and to protect them from illegal access.
+         *
+         * @param {Object} [opt_data] - information to store and protect
+         * @memberof module:capsula
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         */
+		function Datum(opt_data){
+            var that = Object.create(Datum.prototype);
+            var privateData = new DatumData_();
+            privateData.name = 'd_' + privateData.id;
+            privateData.owner = ctx_;
+			privateData.datum = opt_data;
+			privateData.owner._.data.push(that);
+            that._ = privateData;
+            return that;
+		}
+		
         // *****************************
         // Context
         // *****************************
@@ -946,10 +989,10 @@ limitations under the License.
                                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure part \'' + trimmedKey + '\' is a capsule constructor (function).'));
                         } else if (!isNothing_(value.new)) {
                             if (typeof value.new !== 'function')
-                                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure data \'' + trimmedKey + '\' is a constructor (function).'));
+                                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure datum \'' + trimmedKey + '\' is a constructor (function).'));
                         } else { // if (!isNothing_(value.call))
                             if (typeof value.call !== 'function')
-                                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure data \'' + trimmedKey + '\' is a function.'));
+                                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure datum \'' + trimmedKey + '\' is a function.'));
                         }
                         if (!isNothing_(value.deferredArgs) && typeof value.deferredArgs !== 'function')
                             throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure deferredArgs of \'' + trimmedKey + '\' is a function.'));
@@ -1186,7 +1229,9 @@ limitations under the License.
                         datum = new WeakSet();
                     }
                 }
-                capsule.setData(name, datum);
+				var d = new Datum(datum);
+				d.setName(name);
+				capsule[name] = d;
             }
         }
 
@@ -1754,7 +1799,7 @@ limitations under the License.
          * @public
          * @since 0.1.0
          * @param {string} name - the name of the hook to return
-         * @returns {module:capsula.Operation} a hook (of this capsule) with the given name, or null if there is no such a hook
+         * @returns {module:capsula.Hook} a hook (of this capsule) with the given name, or null if there is no such a hook
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getHook = function (name) {
@@ -1768,7 +1813,7 @@ limitations under the License.
          * @public
          * @since 0.1.0
          * @param {string} name - the name of the loop to return
-         * @returns {module:capsula.Operation} a loop (of this capsule) with the given name, or null if there is no such a loop
+         * @returns {module:capsula.Loop} a loop (of this capsule) with the given name, or null if there is no such a loop
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getLoop = function (name) {
@@ -1780,9 +1825,37 @@ limitations under the License.
         // Protected Capsule's Methods
         // *****************************
 
-        /**
-         * Returns this capsule's protected data (an object) associated with the given id, or null if there is no such data.
+		/**
+         * Returns a datum (of this capsule) with the given name, or null if there is no such a datum.
          *
+         * @public
+         * @since 0.2.0
+         * @param {string} name - the name of the datum to return
+         * @returns {module:capsula.Datum} a datum (of this capsule) with the given name, or null if there is no such a datum
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.getDatum = function (name) {
+            checkCapsuleAsOwner_(this);
+            return getByNameAndType_(this._.data, name);
+        };
+		
+		/**
+         * Returns an array of data (inherited ones included) of this capsule.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {Array.<module:capsula.Datum>} an array of data (inherited ones included)
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.getAllData = function () {
+            checkCapsuleAsThis_(this);
+            return this._.data.slice(0); // new array
+        };
+		
+        /**
+         * Returns this capsule's protected data (object) associated with the given id, or null if there is no such data.
+         *
+		 * @deprecated since version 0.2.0: instead of this.getData('x') write this['x'].get()
          * @public
          * @since 0.1.0
          * @param {string} id - the id of the data to return
@@ -1790,15 +1863,16 @@ limitations under the License.
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getData = function (id) {
-            checkCapsuleAsOwner_(this);
-            if (!isString_(id))
+			if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-            return this._.data[id];
+			var data = this.getDatum(id);
+			return data != null ? data.get() : null;
         };
 
         /**
          * Associates the given data to the given id in the (protected) context of this capsule.
-         *
+         * 
+		 * @deprecated since version 0.2.0: instead of this.setData('x', 'hello!') write this['x'] = new Datum('hello!')
          * @protected
          * @since 0.1.0
          * @param {string} id - the id under which to store the given data in the (protected) context of this capsule
@@ -1809,7 +1883,13 @@ limitations under the License.
             checkCapsuleAsOwner_(this);
             if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-            this._.data[id] = data;
+			var datum = this.getDatum(id);
+			if (datum != null) {
+				datum.set(data);
+			} else {
+				datum = new Datum(data);
+				datum.setName(id);
+			}
         };
 
         /**
@@ -4157,6 +4237,100 @@ limitations under the License.
             return disclose_(this, opt_name);
         };
 
+		/**
+         * Returns the id of this datum.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {number} the id of this datum
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Datum.prototype.getId = function () {
+            checkDatumAsThis_(this);
+            return this._.id;
+        };
+
+        /**
+         * Returns the owner capsule of this datum.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {module:capsula.Capsule} the owner capsule of this datum
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Datum.prototype.getOwner = function () {
+            checkDatumAsThis_(this);
+            return this._.owner;
+        };
+
+        /**
+         * Returns the name of this datum.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {string} the name of this datum
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Datum.prototype.getName = function () {
+            checkDatumAsThis_(this);
+            return this._.name;
+        };
+
+        /**
+         * Sets a new name to this datum. New name can later be used to obtain a reference to this datum from its owner capsule using [getDatum]{@link module:capsula.Capsule#getDatum}.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {string} name - a new name of this datum 
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         */
+        Datum.prototype.setName = function (name) {
+            checkDatumAsThis_(this);
+            checkName_(name);
+            this._.name = name;
+        };
+
+        /**
+         * <p> Returns the fully qualified name of this datum, using the given separator if provided (if not, the :: is used by default).
+         * <p> The fully qualified name comprises the name of this datum, the name of the owner capsule of this datum, the name of its owner, and so on all the way up the capsule hierarchy.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {string} [opt_sep] the separator to use to separate names in the returned fully qualified name
+         * @returns {string} the fully qualified name of this datum
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Datum.prototype.getFQName = function (opt_sep) {
+            checkDatumAsThis_(this);
+            return getFQName_(this, opt_sep);
+        };
+		
+		/**
+         * Returns protected information (data) of this datum.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {Object} protected information (data) of this datum
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+		Datum.prototype.get = function(){
+			checkDatumAsThis_(this);
+			return this._.datum;
+		};
+		
+		/**
+         * Sets protected information (data) of this datum.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {Object} data - protected information (data) of this datum
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+		Datum.prototype.set = function(data){
+			checkDatumAsThis_(this);
+			return this._.datum = data;
+		};
+		
         // *****************************
         // 'is' / 'are' / 'has' / 'does' methods (return true or false)
         // *****************************
@@ -4183,7 +4357,7 @@ limitations under the License.
          * Checks whether an object is Array or not.
          *
          * @private
-         * @param {object} subject - the variable that is tested for Array identity check
+         * @param {Object} subject - the variable that is tested for Array identity check
          * @returns weather the variable is an Array or not
          *
          * Attribution: https://shamasis.net/2011/08/infinite-ways-to-detect-array-in-javascript/
@@ -4302,6 +4476,20 @@ limitations under the License.
          */
         function isLoop(loop) {
             return loop instanceof Loop;
+        }
+		
+		/**
+         * Checks whether the given object is [datum]{@link module:capsula.Datum} or not.
+         *
+         * @memberof module:capsula
+         * @public
+         * @since 0.2.0
+         * @static
+         * @param {Object} obj - object to be checked
+         * @returns {boolean} whether the given object is datum or not
+         */
+        function isDatum(obj) {
+            return obj instanceof Datum;
         }
 
         /**
@@ -4432,6 +4620,22 @@ limitations under the License.
             checkContextOrSubCapsule_(getOwner_(prop));
         }
 
+		/**
+         * @private
+         */
+        function checkDatum_(obj) {
+            if (!isDatum(obj))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure you use datum here.'));
+        }
+		
+		/**
+         * @private
+         */
+        function checkDatumAsThis_(obj) {
+            checkDatum_(obj);
+            checkContextProperty_(obj);
+        }
+		
         /**
          * @private
          */
@@ -5187,10 +5391,10 @@ limitations under the License.
                  * @since 0.1.0
                  */
                 '+ getElement': function () {
-                    return this.getData('element');
+                    return this.element.get();
                 },
                 setElement_: function (el) {
-                    this.setData('element', el);
+                    this.element = new Datum(el);
                     this.hook._.el = el;
                     this.loop._.el = el;
                 }
@@ -5289,6 +5493,7 @@ limitations under the License.
             Output: Output,
             Hook: Hook,
             Loop: Loop,
+			Datum: Datum,
 
             // capsules
             Capsule: Capsule,
@@ -5299,6 +5504,7 @@ limitations under the License.
             isOperation: isOperation,
             isHook: isHook,
             isLoop: isLoop,
+			isDatum: isDatum,
             isCapsuleConstructor: isCapsuleConstructor,
 
             // API
