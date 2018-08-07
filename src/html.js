@@ -216,7 +216,7 @@ limitations under the License.
                     var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getTextNode().removeEventListener(i, listeners[i]);
-					this.listeners = new cps.Datum({});
+					this.listeners = new cps.Data({});
                 },
 
                 'this.loop': 'myText.loop'
@@ -654,7 +654,7 @@ limitations under the License.
                     var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getElement().removeEventListener(i, listeners[i]);
-					this.listeners = new cps.Datum({});
+					this.listeners = new cps.Data({});
                 },
 
                 root: {
@@ -818,7 +818,7 @@ limitations under the License.
                         var listener = listeners[i];
                         listener.element.removeEventListener(listener.event, listener.handler);
                     }
-					this.listeners = new cps.Datum([]);
+					this.listeners = new cps.Data([]);
                 }
             });
 
