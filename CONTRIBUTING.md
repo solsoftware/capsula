@@ -31,7 +31,6 @@ This project's files are placed into the following folders:
 - `config` - configuration (for contributors)
 - `dist` - minified files
 - `docs` - documentation
-- `draw.io` - source files for images used in documentation
 - `jasmine` - tests
 - `src` - source code
 - `static` - static files that JSDoc uses to generate documentation
@@ -79,9 +78,9 @@ To run tests (of source files - src folder) within web browser open any of the `
 
 ## Documentation
 
-Documentation (API reference) has been developed using [JSDoc](http://usejsdoc.org/). Drawings have been developed using [draw.io](https://www.draw.io/).
+Documentation (API reference) has been developed using [JSDoc](http://usejsdoc.org/).
 
-The "source" of documentation is in the source files, i.e. in the `src` folder. Source (.xml) for drawings is in the `draw.io` folder, while the drawings (png) themselves are in the `static/img` folder.
+The "source" of documentation is in the source files, i.e. in the `src` folder.
 
 To generate documentation:
 
