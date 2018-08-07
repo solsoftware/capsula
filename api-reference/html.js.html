@@ -253,15 +253,15 @@ limitations under the License.
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-                    this.getData('listeners')[eventName] = listener;
+					this.listeners.get()[eventName] = listener;
                     this.getTextNode().addEventListener(eventName, listener);
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getTextNode().removeEventListener(i, listeners[i]);
-                    this.setData('listeners', {});
+					this.listeners = new cps.Data({});
                 },
 
                 'this.loop': 'myText.loop'
@@ -691,15 +691,15 @@ limitations under the License.
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-                    this.getData('listeners')[eventName] = listener;
+                    this.listeners.get()[eventName] = listener;
                     this.getElement().addEventListener(eventName, listener);
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getElement().removeEventListener(i, listeners[i]);
-                    this.setData('listeners', {});
+					this.listeners = new cps.Data({});
                 },
 
                 root: {
@@ -832,7 +832,7 @@ limitations under the License.
                         }
                         var listener = cps.contextualize(wrapper_(output));
                         outputElement.addEventListener(eventName, listener);
-                        this.getData('listeners').push({
+                        this.listeners.get().push({
                             element: outputElement,
                             event: eventName,
                             handler: listener
@@ -858,12 +858,12 @@ limitations under the License.
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i = 0; i &lt; listeners.length; i++) {
                         var listener = listeners[i];
                         listener.element.removeEventListener(listener.event, listener.handler);
                     }
-                    this.setData('listeners', []);
+					this.listeners = new cps.Data([]);
                 }
             });
 
@@ -1330,13 +1330,13 @@ limitations under the License.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jul 30 2018 09:32:47 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Aug 07 2018 10:40:47 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

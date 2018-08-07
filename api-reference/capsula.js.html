@@ -155,13 +155,6 @@ limitations under the License.
             this.loops = [];
 
             /**
-             * The private data of this capsule. This object acts as a collection of name-value pairs where name is the id of data and value is the data itself.
-             *
-             * @type {Object}
-             */
-            this.data = {};
-
-            /**
              * Currently executing operation.
              *
              * @type {Operation}
@@ -340,15 +333,42 @@ limitations under the License.
             this.down = null;
 
             /**
+             * ElementRef capsule created in loop.renderInto.
+             *
+             * @type {ElementRef}
+             */
+            this.parentRef = null;
+
+            /**
              * ElementRef capsule created in loop.render.
              *
              * @type {ElementRef}
              */
-            this.ref = null;
+            this.childRef = null;
         }
 
         LoopData_.prototype = Object.create(HookLoopData_.prototype);
 
+		/**
+         * Capsule-specific private information.
+         *
+         * @class
+         * @memberof module:capsula
+         * @private
+         */
+        function DataData_() {
+            PrivateData_.call(this);
+
+            /**
+             * The private information of this data.
+             *
+             * @type {Object}
+             */
+            this.data;
+        }
+
+        DataData_.prototype = Object.create(PrivateData_.prototype);
+		
         /**
          * @classdesc Capsule class is an abstract base class in the hierarchy of capsule classes.
          *
@@ -520,6 +540,28 @@ limitations under the License.
             return that;
         }
 
+		/**
+         * Creates new data as a property of the capsule that represents the current context of execution.
+         *
+         * @class
+         * @classdesc Data is a specific public property of a [capsule]{@link module:capsula.Capsule}. It serves to store the given information and to protect them from illegal access.
+         *
+         * @param {Object} [opt_data] - information to store and protect
+         * @memberof module:capsula
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         */
+		function Data(opt_data){
+            var that = Object.create(Data.prototype);
+            var privateData = new DataData_();
+            privateData.name = 'd_' + privateData.id;
+            privateData.owner = ctx_;
+			privateData.data = opt_data;
+            that._ = privateData;
+            return that;
+		}
+		
         // *****************************
         // Context
         // *****************************
@@ -1224,7 +1266,9 @@ limitations under the License.
                         datum = new WeakSet();
                     }
                 }
-                capsule.setData(name, datum);
+				var d = new Data(datum);
+				d.setName(name);
+				capsule[name] = d;
             }
         }
 
@@ -1792,7 +1836,7 @@ limitations under the License.
          * @public
          * @since 0.1.0
          * @param {string} name - the name of the hook to return
-         * @returns {module:capsula.Operation} a hook (of this capsule) with the given name, or null if there is no such a hook
+         * @returns {module:capsula.Hook} a hook (of this capsule) with the given name, or null if there is no such a hook
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getHook = function (name) {
@@ -1806,7 +1850,7 @@ limitations under the License.
          * @public
          * @since 0.1.0
          * @param {string} name - the name of the loop to return
-         * @returns {module:capsula.Operation} a loop (of this capsule) with the given name, or null if there is no such a loop
+         * @returns {module:capsula.Loop} a loop (of this capsule) with the given name, or null if there is no such a loop
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getLoop = function (name) {
@@ -1817,10 +1861,11 @@ limitations under the License.
         // *****************************
         // Protected Capsule's Methods
         // *****************************
-
+		
         /**
-         * Returns this capsule's protected data (an object) associated with the given id, or null if there is no such data.
+         * Returns this capsule's protected data associated with the given id (from this[id]), or null if there is no such data.
          *
+		 * @deprecated since version 0.2.0: instead of this.getData('x') write this.x.get()
          * @public
          * @since 0.1.0
          * @param {string} id - the id of the data to return
@@ -1828,15 +1873,16 @@ limitations under the License.
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getData = function (id) {
-            checkCapsuleAsOwner_(this);
-            if (!isString_(id))
+			if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-            return this._.data[id];
+			var data = this[id];
+			return data != null ? data.get() : null;
         };
 
         /**
-         * Associates the given data to the given id in the (protected) context of this capsule.
-         *
+         * Associates the given data to the given id. Overwrites existing data associated with the same id if it exists. Puts new data into this[id].
+         * 
+		 * @deprecated since version 0.2.0: instead of this.setData('x', 'hello!') write this.x = new Data('hello!')
          * @protected
          * @since 0.1.0
          * @param {string} id - the id under which to store the given data in the (protected) context of this capsule
@@ -1847,7 +1893,11 @@ limitations under the License.
             checkCapsuleAsOwner_(this);
             if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-            this._.data[id] = data;
+			var d = this[id];
+			if (d != null)
+				d.set(data);
+			else
+				this[id] = new Data(data);
         };
 
         /**
@@ -3145,10 +3195,16 @@ limitations under the License.
             }
 
             if (isLoop(bot)) {
-                var ref = bot._.ref;
-                if (ref)
-                    ref.detach(); // detaches ElementRef created in render
-                bot._.ref = null;
+                var parentRef = bot._.parentRef;
+                if (parentRef)
+                    parentRef.detach(); // detaches ElementRef created in renderInto
+                bot._.parentRef = null;
+            }
+            if (isLoop(top)) {
+                var childRef = top._.childRef;
+                if (childRef)
+                    childRef.detach(); // detaches ElementRef created in render
+                top._.childRef = null;
             }
         }
 
@@ -3774,21 +3830,39 @@ limitations under the License.
         };
 
         /**
-         * &lt;p> Renders this loop (i.e. the DOM element this loop represents) as a child of the given DOM element.
+         * &lt;p> Renders this loop (i.e. the DOM element this loop represents) into the given DOM element.
          *
          * @public
          * @since 0.1.0
-         * @param {Element} to - the DOM element into which to render this loop
+         * @param {Element} el - the DOM element into which to render this loop
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Loop.prototype.render = function (to) {
+        Loop.prototype.renderInto = function (el) {
             checkLoopAsChild_(this);
-            var ref = this._.ref;
-            if (ref)
-                ref.detach();
-            var newRef = new ElementRef(to);
-            this._.ref = newRef;
+            var parentRef = this._.parentRef;
+            if (parentRef)
+                parentRef.detach();
+            var newRef = new ElementRef(el);
+            this._.parentRef = newRef;
             newRef.hook.hook(this);
+        };
+
+        /**
+         * &lt;p> Renders the given DOM element into this loop (i.e. into the DOM element this loop represents).
+         *
+         * @public
+         * @since 0.1.0
+         * @param {Element} el - the DOM element to render into this loop
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Loop.prototype.render = function (el) {
+            checkLoopAsParent_(this);
+            var childRef = this._.childRef;
+            if (childRef)
+                childRef.detach();
+            var newRef = new ElementRef(el);
+            this._.childRef = newRef;
+            this.setPrivateLoop(newRef.loop);
         };
 
         /*
@@ -4171,6 +4245,100 @@ limitations under the License.
             return disclose_(this, opt_name);
         };
 
+		/**
+         * Returns the id of this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {number} the id of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getId = function () {
+            checkDataAsThis_(this);
+            return this._.id;
+        };
+
+        /**
+         * Returns the owner capsule of this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {module:capsula.Capsule} the owner capsule of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getOwner = function () {
+            checkDataAsThis_(this);
+            return this._.owner;
+        };
+
+        /**
+         * Returns the name of this data. 
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {string} the name of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getName = function () {
+            checkDataAsThis_(this);
+            return this._.name;
+        };
+
+        /**
+         * Sets a new name to this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {string} name - a new name of this data 
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         */
+        Data.prototype.setName = function (name) {
+            checkDataAsThis_(this);
+            checkName_(name);
+            this._.name = name;
+        };
+
+        /**
+         * &lt;p> Returns the fully qualified name of this data, using the given separator if provided (if not, the :: is used by default).
+         * &lt;p> The fully qualified name comprises the name of this data, the name of the owner capsule of this data, the name of its owner, and so on all the way up the capsule hierarchy.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {string} [opt_sep] the separator to use to separate names in the returned fully qualified name
+         * @returns {string} the fully qualified name of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getFQName = function (opt_sep) {
+            checkDataAsThis_(this);
+            return getFQName_(this, opt_sep);
+        };
+		
+		/**
+         * Returns protected information of this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {Object} protected information (data) of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+		Data.prototype.get = function(){
+			checkDataAsThis_(this);
+			return this._.data;
+		};
+		
+		/**
+         * Sets protected information to this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {Object} data - protected information of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+		Data.prototype.set = function(data){
+			checkDataAsThis_(this);
+			return this._.data = data;
+		};
+		
         // *****************************
         // 'is' / 'are' / 'has' / 'does' methods (return true or false)
         // *****************************
@@ -4197,7 +4365,7 @@ limitations under the License.
          * Checks whether an object is Array or not.
          *
          * @private
-         * @param {object} subject - the variable that is tested for Array identity check
+         * @param {Object} subject - the variable that is tested for Array identity check
          * @returns weather the variable is an Array or not
          *
          * Attribution: https://shamasis.net/2011/08/infinite-ways-to-detect-array-in-javascript/
@@ -4316,6 +4484,20 @@ limitations under the License.
          */
         function isLoop(loop) {
             return loop instanceof Loop;
+        }
+		
+		/**
+         * Checks whether the given object is [data]{@link module:capsula.Data} or not.
+         *
+         * @memberof module:capsula
+         * @public
+         * @since 0.2.0
+         * @static
+         * @param {Object} obj - object to be checked
+         * @returns {boolean} whether the given object is data or not
+         */
+        function isData(obj) {
+            return obj instanceof Data;
         }
 
         /**
@@ -4446,6 +4628,22 @@ limitations under the License.
             checkContextOrSubCapsule_(getOwner_(prop));
         }
 
+		/**
+         * @private
+         */
+        function checkData_(obj) {
+            if (!isData(obj))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure you use data here.'));
+        }
+		
+		/**
+         * @private
+         */
+        function checkDataAsThis_(obj) {
+            checkData_(obj);
+            checkContextProperty_(obj);
+        }
+		
         /**
          * @private
          */
@@ -5201,10 +5399,10 @@ limitations under the License.
                  * @since 0.1.0
                  */
                 '+ getElement': function () {
-                    return this.getData('element');
+                    return this.element.get();
                 },
                 setElement_: function (el) {
-                    this.setData('element', el);
+                    this.element = new Data(el);
                     this.hook._.el = el;
                     this.loop._.el = el;
                 }
@@ -5303,6 +5501,7 @@ limitations under the License.
             Output: Output,
             Hook: Hook,
             Loop: Loop,
+			Data: Data,
 
             // capsules
             Capsule: Capsule,
@@ -5313,6 +5512,7 @@ limitations under the License.
             isOperation: isOperation,
             isHook: isHook,
             isLoop: isLoop,
+			isData: isData,
             isCapsuleConstructor: isCapsuleConstructor,
 
             // API
@@ -5356,13 +5556,13 @@ limitations under the License.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Jul 30 2018 09:32:47 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Aug 07 2018 10:40:47 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

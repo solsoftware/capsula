@@ -684,132 +684,137 @@ Make sure you don't have errors popping out of handle method, since that would p
 
 ## Protected State
 
-Now let's see how to protect data inside capsules.
+Now that we've covered how to work with methods and operations, let's see how to handle data in an encapsulated way, i.e. how to protect data inside capsules. Basically, the idea is to use a wrapper class that stores the data and enforces protection.
 
-One way to protect and use protected data inside capsule is shown here:
+To create protected object simply do the following:
 
 ```js
-var Page = capsula.defCapsule({
-    init: function(title){
-        this.setData('myTitle', title); // anything goes as a second argument
+var protectedObject = new capsula.Data({name: 'Hello world!'});
+```
+
+The ```protectedObject``` would only allow access to its inner object from the context of capsule that created it, i.e. from the capsule whose method (or operation) executed ```capsula.Data``` constructor.
+
+An argument of ```capsula.Data``` constructor can be just about anything, from simple values to objects and arrays. Whatever you put inside would later be available to you if you ask from the right context.
+
+<table class="class">
+<thead><tr><th colspan="2">[class] <a href="{{ "/api-reference/module-capsula.Data.html" | relative_url }}" target="_blank">Data</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Data is a specific public property of a capsule. It serves to store information and to protect them from illegal access.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
+</tbody></table>
+
+To get and modify protected object:
+
+```js
+var obj = protectedObject.get();
+obj.name = 'Hello protected world!';
+```
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Data.html" | relative_url }}#get" target="_blank">get</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Returns protected information from this data.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Data.html" | relative_url }}" target="_blank">Data</a></td></tr>
+</tbody></table>
+
+To replace protected object:
+
+```js
+protectedObject.set({name: 'Replacement'});
+```
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Data.html" | relative_url }}#set" target="_blank">set</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Sets protected information to this data.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Data.html" | relative_url }}" target="_blank">Data</a></td></tr>
+</tbody></table>
+
+If you try to call ```protectedObject.get``` or ```protectedObject.set``` from anywhere other than capsule that created it, an ```Error``` would be thrown, since that would be an attempt of illegal access, access that breaks encapsulation.
+
+Let's now return to our application and make use of protected data. Let's add message log that keeps track of all received messages.
+
+```js
+var Application = capsula.defCapsule({
+    // declaration of operations
+    '< onDelivered': function(message){},
+    '> newMessage': function(message){ // let's put each message to the message log
+        this.messageLog.get().push(message);
     },
-    '+ getTitle': function(){
-        return this.getData('myTitle'); // returns protected data
-    }
-});
 
-var page = new Page('Protected page title');
-page.getData('myTitle'); // Error: Oops! Make sure you do this in the right context.
-page.myTitle; // undefined
-page.getTitle(); // Success: 'Protected page title'
-```
-
-Methods *getData* and *setData* are protected methods inherited from the root Capsule class. They allow for storing any sort of data under the given id inside the capsule.
-
-Creating protected data could be done declaratively as well. For example:
-
-```js
-var Page = capsula.defCapsule({
-    myTitle: 'Protected page title',
-    '+ getTitle': function(){
-        return this.getData('myTitle');
-    }
-});
-
-var page = new Page();
-page.getData('myTitle'); // Error: Oops! Make sure you do this in the right context.
-page.myTitle; // undefined
-page.getTitle(); // Success: 'Protected page title'
-```
-
-Note however that in this case all pages would have the same value for myTitle: the value provided in the Page capsule definition object.
-
-Imagine the following similar example:
-
-```js
-var Page = capsula.defCapsule({
-    myContent: [],
-    '+ getContent': function(){
-        return JSON.stringify(this.getData('myContent'));
+    // parts
+    delivery: MessageDelivery,
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
     },
-    '+ addParagraph': function(text){
-        this.getData('myContent').push(text);
-    }
-});
 
-var page1 = new Page();
-var page2 = new Page();
+    // wires
+    'delivery.onDelivered': ['archive.process', 'this.onDelivered'],
+    'newMessage': 'delivery.process',
 
-console.log(page1.getContent()); // []
-console.log(page2.getContent()); // []
-
-page1.addParagraph('Paragraph 1');
-
-console.log(page1.getContent()); // ["Paragraph 1"]
-console.log(page2.getContent()); // ["Paragraph 1"] !
-```
-
-According to this, we could conclude that myContent is a static reference. However, it is not. It is an instance-level reference, like all others, however, the trick here is that both of these references (for page1 and page2) have been initialized with the same array: the one provided in the Page capsule definition object. This way, static data could be achieved if we ever need it. 
-
-To have a new array for each page instance, try this:
-
-```js
-var Page = capsula.defCapsule({
-    myContent: '*[]', // the keyword meaning new array for each instance
-    '+ getContent': function(){
-        return JSON.stringify(this.getData('myContent'));
+    // constructor
+    init: function(){
+        this.messageLog = new capsula.Data([]); // creates new data out of an array
     },
-    '+ addParagraph': function(text){
-        this.getData('myContent').push(text);
-    }
-});
 
-var page1 = new Page();
-var page2 = new Page();
-
-console.log(page1.getContent()); // []
-console.log(page2.getContent()); // []
-
-page1.addParagraph('Paragraph 1');
-
-console.log(page1.getContent()); // ["Paragraph 1"]
-console.log(page2.getContent()); // []
-```
-
-All supported keywords for instance-level data are given here:
-
-```js
-var Page = capsula.defCapsule({
-    myObject: '*{}',        // each page gets new Object in this.getData('myObject')
-    myArray: '*[]',         // each page gets new Array in this.getData('myArray')
-    myMap: '*Map',          // each page gets new Map in this.getData('myMap')
-    mySet: '*Set',          // each page gets new Set in this.getData('mySet')
-    myWeakMap: '*WeakMap',  // each page gets new WeakMap in this.getData('myWeakMap')
-    myWeakSet: '*WeakSet',  // each page gets new WeakSet in this.getData('myWeakSet')
-});
-```
-
-and they are all protected.
-
-Finally, we show the most general case to specify protected data. It looks similar to specifying parts. For each datum, you provide a function to be called once for each capsule instance and also arguments for that function. The function could be called with or without new operator, depending on whether you specify it with the *call* or with the *new* keyword.
-
-```js
-var Page = capsula.defCapsule({
-    myTitle: {
-        call: function(text){ // "call" or "new"
-            return '---' + text + '---'; // myTitle becomes what is returned here
-        },
-        args: 'this.args' // (args / arguments / deferredArgs); the same as with parts
+    // public methods
+    '+ getMessage': function(index){
+        return JSON.stringify(this.messageLog.get()[index]);
     },
-    '+ getTitle': function(){
-        return this.getData('myTitle');
+    '+ resetLog': function(){
+        this.messageLog.set([]); // new empty array
     }
 });
 
-var page = new Page('hi');
-page.getData('myTitle'); // Error: Oops! Make sure you do this in the right context.
-page.myTitle; // undefined
-page.getTitle(); // Success: '---hi---'
+var app = new Application(true);
+app.newMessage({body: 'The first message.'});
+app.newMessage({body: 'The second message.'});
+
+app.messageLog.get()[0]; // Error: Oops! Make sure you do this in the right context.
+app.getMessage(0); // "{"body":"The first message."}"
+
+app.resetLog();
+```
+
+The following changes are introduced to the *Application* capsule. Constructor ```init``` function is added to create protected data, i.e. the protected message log array. The ```newMessage``` input operation is now wired to both ```delivery.process``` operation and function that stores each received message to the message log. Methods ```getMessage``` and ```resetLog``` are added to return logged message based on the order of appearance and to reset the log so it doesn't get too large.
+
+Creating protected data could be done declaratively as well. 
+
+For example, if we replace the constructor which initializes ```messageLog``` with a new array with the following:
+
+```js
+messageLog: '*[]',
+```
+
+we would get exactly the same result. The ```'*[]'``` is basically a keyword that means *new array for every instance*. All supported keywords are given here:
+
+```js
+myObject: '*{}',        // new Object in this.myObject
+myArray: '*[]',         // new Array in this.myArray
+myMap: '*Map',          // new Map in this.myMap
+mySet: '*Set',          // new Set in this.mySet
+myWeakMap: '*WeakMap',  // new WeakMap in this.myWeakMap
+myWeakSet: '*WeakSet',  // new WeakSet in this.myWeakSet
+```
+
+Of course, instead of any of the given keywords, we could use any other value to initialize protected data, however in that case each capsule instance would have its protected data initialized with that particular value. For example:
+
+```js
+myArray: [1, 2, 3],
+```
+
+would mean that each capsule instance would have ```myArray``` protected data object initialized with the same array of three numbers.
+
+Finally, let's see the most general case to specify protected data. It looks similar to specifying parts. For each data, you provide a function to be called once for each capsule instance and also arguments for that function. The function could be called with or without new operator, depending on whether you specify it with the ```call``` or with the ```new``` keyword.
+
+```js
+myObject: {
+    call: function(arg){ // "call" or "new"
+        return {name: arg}; // myObject becomes what is returned here
+    },
+    args: 'this.args' // (args / arguments / deferredArgs); the same as with parts
+},
 ```
 
 ## Building User Interfaces
