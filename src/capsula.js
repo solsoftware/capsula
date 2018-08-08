@@ -575,7 +575,7 @@ limitations under the License.
         }
 
         /**
-         * Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called; when called, the returned (contextualized) function executes the given (in argument) function in that ("remembered") context. More on contexts is given [here]{@link module:capsula.Capsule}.
+         * Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called. When called, the returned function executes the function being an argument of contextualize within that "remembered" context.
          *
          * @memberof module:capsula
          * @public
