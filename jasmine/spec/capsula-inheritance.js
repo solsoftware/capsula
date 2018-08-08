@@ -292,9 +292,10 @@ describe('inheritance', function () {
         it('should verify default init is called when init is not specified', function () {
             var C1 = sol.defCapsule({
                     init: function () {
-                        this.x = new sol.Input('x', function () {
+                        this.x = new sol.Input(function () {
                                 return 'Hello';
                             });
+                        this.x.setName('x');
                     }
                 });
 
@@ -316,18 +317,20 @@ describe('inheritance', function () {
         it('should verify default init is NOT called when init is specified', function () {
             var C1 = sol.defCapsule({
                     init: function () {
-                        this.x = new sol.Input('x', function () {
+                        this.x = new sol.Input(function () {
                                 return 'Hello';
                             });
+                        this.x.setName('x');
                     }
                 });
 
             var C2 = sol.defCapsule({
                     base: C1,
                     init: function () {
-                        this.x = new sol.Input('x', function () {
+                        this.x = new sol.Input(function () {
                                 return 'World';
                             });
+                        this.x.setName('x');
                     }
                 });
 

@@ -304,7 +304,7 @@ limitations under the License.
 
         LoopData_.prototype = Object.create(HookLoopData_.prototype);
 
-		/**
+        /**
          * Capsule-specific private information.
          *
          * @class
@@ -323,7 +323,7 @@ limitations under the License.
         }
 
         DataData_.prototype = Object.create(PrivateData_.prototype);
-		
+
         /**
          * @classdesc Capsule class is an abstract base class in the hierarchy of capsule classes.
          *
@@ -342,9 +342,7 @@ limitations under the License.
         /**
          * @private
          */
-        function Operation_(name, func, isInput) {
-            if (name)
-                checkName_(name);
+        function Operation_(func, isInput) {
             var that;
             if (isInput)
                 that = function Input() {
@@ -357,9 +355,7 @@ limitations under the License.
             Object.setPrototypeOf(that, oProto_);
 
             var privateData = new OperationData_();
-            if (!name)
-                name = 'o_' + privateData.id;
-            privateData.name = name;
+            privateData.name = 'o_' + privateData.id;
             privateData.owner = ctx_;
             privateData.owner._.pins.push(that);
             privateData.isInput = isInput ? true : false;
@@ -392,9 +388,8 @@ limitations under the License.
         Operation.prototype = oProto_;
 
         /**
-         * Creates new input operation as a property of the capsule that represents the current context of execution, with the given name and implementation function (if provided). The given name can later be used to obtain a reference to this operation from its owner capsule using [getInput]{@link module:capsula.Capsule#getInput} or [getOperation]{@link module:capsula.Capsule#getOperation}.
+         * Creates new input operation as a property of the capsule that represents the current context of execution.
          *
-         * @param {string} [opt_name] - optional name of input operation to create
          * @param {Function} [opt_function] - optional function that gets called every time input operation gets called, i.e. it is a sort of implementation of the input operation to be created
          * @class
          * @classdesc
@@ -410,16 +405,15 @@ limitations under the License.
          * @see {@link module:capsula.Operation}
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Input(opt_name, opt_function) {
-            return Operation_(opt_name, opt_function, true);
+        function Input(opt_function) {
+            return Operation_(opt_function, true);
         }
 
         /**
-         * Creates new output operation as a property of the capsule that represents the current context of execution, with the given name (if provided). The given name can later be used to obtain a reference to this operation from its owner capsule using [getOutput]{@link module:capsula.Capsule#getOutput} or [getOperation]{@link module:capsula.Capsule#getOperation}.
+         * Creates new output operation as a property of the capsule that represents the current context of execution.
          *
-         * @param {string} [opt_name] - optional name of the output operation to create
          * @class
          * @classdesc
          * <ul>
@@ -434,34 +428,28 @@ limitations under the License.
          * @see {@link module:capsula.Operation}
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Output(opt_name) {
-            return Operation_(opt_name, null, false);
+        function Output() {
+            return Operation_(null, false);
         }
 
         /**
-         * Creates new hook as a property of the capsule that represents the current context of execution, with the given name (if provided). The given name can later be used to obtain a reference to this hook from its owner capsule using [getHook]{@link module:capsula.Capsule#getHook}.
+         * Creates new hook as a property of the capsule that represents the current context of execution.
          *
          * @class
          * @classdesc Hook is a specific public property of a [capsule]{@link module:capsula.Capsule}. It is a representation of a parent element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a parent in a parent-child relationship.
          * <p> Hooks always go along with loops; they are complementary concepts.
          *
-         * @param {string} [opt_name] - the name of the hook to create
          * @memberof module:capsula
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Hook(opt_name) {
-            if (opt_name)
-                checkName_(opt_name);
+        function Hook() {
             var that = Object.create(Hook.prototype);
-
             var privateData = new HookData_();
-            if (!opt_name)
-                opt_name = 'h_' + privateData.id;
-            privateData.name = opt_name;
+            privateData.name = 'h_' + privateData.id;
             privateData.owner = ctx_;
             privateData.owner._.hooks.push(that);
             that._ = privateData;
@@ -469,33 +457,28 @@ limitations under the License.
         }
 
         /**
-         * Creates new loop as a property of the capsule that represents the current context of execution, with the given name (if provided). The given name can later be used to obtain a reference to this loop from its owner capsule using [getLoop]{@link module:capsula.Capsule#getLoop}.
+         * Creates new loop as a property of the capsule that represents the current context of execution.
          *
          * @class
          * @classdesc Loop is a specific public property of a [capsule]{@link module:capsula.Capsule}. It is a representation of a child element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a child in a parent-child relationship.
          * <p> Loops always go along with hooks; they are complementary concepts.
          *
-         * @param {string} [opt_name] - the name of the loop to create
          * @memberof module:capsula
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Loop(opt_name) {
-            if (opt_name)
-                checkName_(opt_name);
+        function Loop() {
             var that = Object.create(Loop.prototype);
             var privateData = new LoopData_();
-            if (!opt_name)
-                opt_name = 'l_' + privateData.id;
-            privateData.name = opt_name;
+            privateData.name = 'l_' + privateData.id;
             privateData.owner = ctx_;
             privateData.owner._.loops.push(that);
             that._ = privateData;
             return that;
         }
 
-		/**
+        /**
          * Creates new data as a property of the capsule that represents the current context of execution.
          *
          * @class
@@ -507,16 +490,16 @@ limitations under the License.
          * @since 0.2.0
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
          */
-		function Data(opt_data){
+        function Data(opt_data) {
             var that = Object.create(Data.prototype);
             var privateData = new DataData_();
             privateData.name = 'd_' + privateData.id;
             privateData.owner = ctx_;
-			privateData.data = opt_data;
+            privateData.data = opt_data;
             that._ = privateData;
             return that;
-		}
-		
+        }
+
         // *****************************
         // Context
         // *****************************
@@ -1141,7 +1124,8 @@ limitations under the License.
         function newInterface_(capsule, interfaceElements, Cotr) {
             for (var i = 0; i < interfaceElements.length; i++) {
                 var name = interfaceElements[i],
-                el = new Cotr(name);
+                el = new Cotr();
+                el._.name = name;
                 capsule[name] = el;
             }
         }
@@ -1221,9 +1205,9 @@ limitations under the License.
                         datum = new WeakSet();
                     }
                 }
-				var d = new Data(datum);
-				d.setName(name);
-				capsule[name] = d;
+                var d = new Data(datum);
+                d.setName(name);
+                capsule[name] = d;
             }
         }
 
@@ -1816,11 +1800,11 @@ limitations under the License.
         // *****************************
         // Protected Capsule's Methods
         // *****************************
-		
+
         /**
          * Returns this capsule's protected data associated with the given id (from this[id]), or null if there is no such data.
          *
-		 * @deprecated since version 0.2.0: instead of this.getData('x') write this.x.get()
+         * @deprecated since version 0.2.0: instead of this.getData('x') write this.x.get()
          * @public
          * @since 0.1.0
          * @param {string} id - the id of the data to return
@@ -1828,16 +1812,16 @@ limitations under the License.
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getData = function (id) {
-			if (!isString_(id))
+            if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-			var data = this[id];
-			return data != null ? data.get() : null;
+            var data = this[id];
+            return data != null ? data.get() : null;
         };
 
         /**
          * Associates the given data to the given id. Overwrites existing data associated with the same id if it exists. Puts new data into this[id].
-         * 
-		 * @deprecated since version 0.2.0: instead of this.setData('x', 'hello!') write this.x = new Data('hello!')
+         *
+         * @deprecated since version 0.2.0: instead of this.setData('x', 'hello!') write this.x = new Data('hello!')
          * @protected
          * @since 0.1.0
          * @param {string} id - the id under which to store the given data in the (protected) context of this capsule
@@ -1848,11 +1832,11 @@ limitations under the License.
             checkCapsuleAsOwner_(this);
             if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-			var d = this[id];
-			if (d != null)
-				d.set(data);
-			else
-				this[id] = new Data(data);
+            var d = this[id];
+            if (d != null)
+                d.set(data);
+            else
+                this[id] = new Data(data);
         };
 
         /**
@@ -4200,7 +4184,7 @@ limitations under the License.
             return disclose_(this, opt_name);
         };
 
-		/**
+        /**
          * Returns the id of this data.
          *
          * @public
@@ -4227,7 +4211,7 @@ limitations under the License.
         };
 
         /**
-         * Returns the name of this data. 
+         * Returns the name of this data.
          *
          * @public
          * @since 0.2.0
@@ -4244,7 +4228,7 @@ limitations under the License.
          *
          * @public
          * @since 0.2.0
-         * @param {string} name - a new name of this data 
+         * @param {string} name - a new name of this data
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
          */
         Data.prototype.setName = function (name) {
@@ -4267,8 +4251,8 @@ limitations under the License.
             checkDataAsThis_(this);
             return getFQName_(this, opt_sep);
         };
-		
-		/**
+
+        /**
          * Returns protected information of this data.
          *
          * @public
@@ -4276,12 +4260,12 @@ limitations under the License.
          * @returns {Object} protected information (data) of this data
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-		Data.prototype.get = function(){
-			checkDataAsThis_(this);
-			return this._.data;
-		};
-		
-		/**
+        Data.prototype.get = function () {
+            checkDataAsThis_(this);
+            return this._.data;
+        };
+
+        /**
          * Sets protected information to this data.
          *
          * @public
@@ -4289,11 +4273,11 @@ limitations under the License.
          * @param {Object} data - protected information of this data
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-		Data.prototype.set = function(data){
-			checkDataAsThis_(this);
-			return this._.data = data;
-		};
-		
+        Data.prototype.set = function (data) {
+            checkDataAsThis_(this);
+            return this._.data = data;
+        };
+
         // *****************************
         // 'is' / 'are' / 'has' / 'does' methods (return true or false)
         // *****************************
@@ -4440,8 +4424,8 @@ limitations under the License.
         function isLoop(loop) {
             return loop instanceof Loop;
         }
-		
-		/**
+
+        /**
          * Checks whether the given object is [data]{@link module:capsula.Data} or not.
          *
          * @memberof module:capsula
@@ -4583,22 +4567,22 @@ limitations under the License.
             checkContextOrSubCapsule_(getOwner_(prop));
         }
 
-		/**
+        /**
          * @private
          */
         function checkData_(obj) {
             if (!isData(obj))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure you use data here.'));
         }
-		
-		/**
+
+        /**
          * @private
          */
         function checkDataAsThis_(obj) {
             checkData_(obj);
             checkContextProperty_(obj);
         }
-		
+
         /**
          * @private
          */
@@ -5456,7 +5440,7 @@ limitations under the License.
             Output: Output,
             Hook: Hook,
             Loop: Loop,
-			Data: Data,
+            Data: Data,
 
             // capsules
             Capsule: Capsule,
@@ -5467,7 +5451,7 @@ limitations under the License.
             isOperation: isOperation,
             isHook: isHook,
             isLoop: isLoop,
-			isData: isData,
+            isData: isData,
             isCapsuleConstructor: isCapsuleConstructor,
 
             // API

@@ -2251,8 +2251,10 @@ describe('operations', function () {
     describe('dynamic instantiation of operations using new operator', function () {
         var C = sol.defCapsule({
                 '> newPairOfOperations': function (name) {
-                    var i = new sol.Input('i' + name),
-                    o = new sol.Output('o' + name);
+                    var i = new sol.Input(),
+                    o = new sol.Output();
+                    i.setName('i' + name);
+                    o.setName('o' + name);
                     i.target(o);
                 },
                 '> newPairOfNonameOperations': function (name) {
@@ -2263,9 +2265,10 @@ describe('operations', function () {
                     i.target(o);
                 },
                 '> newInput': function (name) {
-                    new sol.Input('i' + name, function () {
-                        return 'Hi';
-                    });
+                    var input = new sol.Input(function () {
+                            return 'Hi';
+                        });
+                    input.setName('i' + name);
                 },
             }),
         c = new C();

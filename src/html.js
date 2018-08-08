@@ -202,13 +202,13 @@ limitations under the License.
                         outputName = eventName;
                     }
 
-                    var output = new cps.Output(outputName);
+                    var output = new cps.Output();
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-					this.listeners.get()[eventName] = listener;
+                    this.listeners.get()[eventName] = listener;
                     this.getTextNode().addEventListener(eventName, listener);
                 },
 
@@ -216,7 +216,7 @@ limitations under the License.
                     var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getTextNode().removeEventListener(i, listeners[i]);
-					this.listeners = new cps.Data({});
+                    this.listeners = new cps.Data({});
                 },
 
                 'this.loop': 'myText.loop'
@@ -640,7 +640,7 @@ limitations under the License.
                         outputName = eventName;
                     }
 
-                    var output = new cps.Output(outputName);
+                    var output = new cps.Output();
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
@@ -654,7 +654,7 @@ limitations under the License.
                     var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getElement().removeEventListener(i, listeners[i]);
-					this.listeners = new cps.Data({});
+                    this.listeners = new cps.Data({});
                 },
 
                 root: {
@@ -727,7 +727,7 @@ limitations under the License.
                         loopName = el.getAttribute(T_LOOP),
                         part = new cps.ElementRef(el);
                         el.removeAttribute(T_LOOP);
-                        this[loopName] = new cps.Loop(loopName);
+                        this[loopName] = new cps.Loop();
                         this[loopName].tie(part.loop);
                     }
 
@@ -738,7 +738,7 @@ limitations under the License.
                         hookRef = new cps.ElementRef(hookElement),
                         hookName = hookElement.getAttribute(T_HOOK);
                         hookElement.removeAttribute(T_HOOK);
-                        this[hookName] = new cps.Hook(hookName);
+                        this[hookName] = new cps.Hook();
                         hookRef.hook.tie(this[hookName]);
                     }
 
@@ -782,7 +782,7 @@ limitations under the License.
                         eventName = outputElement.getAttribute(T_ON),
                         output = this.getOutput(outputName);
                         if (output == null) {
-                            output = new cps.Output(outputName);
+                            output = new cps.Output();
                             this[outputName] = output;
                         }
                         var listener = cps.contextualize(wrapper_(output));
@@ -804,7 +804,7 @@ limitations under the License.
                         inputName = el.getAttribute(attrName),
                         input = this.getInput(inputName);
                         if (input == null) {
-                            input = new cps.Input(inputName);
+                            input = new cps.Input();
                             this[inputName] = input;
                         }
                         input.wire(inputTargetFunction.bind(el));
@@ -818,7 +818,7 @@ limitations under the License.
                         var listener = listeners[i];
                         listener.element.removeEventListener(listener.event, listener.handler);
                     }
-					this.listeners = new cps.Data([]);
+                    this.listeners = new cps.Data([]);
                 }
             });
 
