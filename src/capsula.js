@@ -399,7 +399,7 @@ limitations under the License.
          * <li> Input
          * </ul>
          * </ul>
-         * <p> Input operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Input operations go along with output operations; they are complementary concepts.
+         * <p> Input operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation. Input operations go along with output operations; they are complementary concepts.
          *
          * @memberof module:capsula
          * @see {@link module:capsula.Operation}
@@ -422,7 +422,7 @@ limitations under the License.
          * <li> Output
          * </ul>
          * </ul>
-         * <p> Output operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Output operations go along with input operations; they are complementary concepts.
+         * <p> Output operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Output operation serves as a propagator of calls from the inside towards the outside of its owner capsule. Output operations go along with input operations; they are complementary concepts.
          *
          * @memberof module:capsula
          * @see {@link module:capsula.Operation}
