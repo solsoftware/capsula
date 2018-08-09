@@ -4915,7 +4915,7 @@ limitations under the License.
          * @private
          */
         function getSelf_(self, ownerName) {
-            return ownerName === 'this' ? self : getByNameAndType_(self._.parts, ownerName);
+            return ownerName === 'this' ? self : self[ownerName];
         }
 
         /**
