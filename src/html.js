@@ -1077,7 +1077,7 @@ limitations under the License.
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
                     }
                     if (this.readyState == 4) {
-                        if (this.status == 408) // timeout
+                        if (this.status == 0) // timeout
                             services.setServiceStatus(serviceName, 'offline');
                         else
                             services.setServiceStatus(serviceName, 'online');
@@ -1103,7 +1103,7 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
-                if (xhttp.status == 408) // timeout
+                if (xhttp.status == 0) // timeout
                     services.setServiceStatus(serviceName, 'offline');
                 else
                     services.setServiceStatus(serviceName, 'online');
@@ -1131,7 +1131,7 @@ limitations under the License.
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
                     }
                     if (this.readyState == 4) {
-                        if (this.status == 408) // timeout
+                        if (this.status == 0) // timeout
                             services.setServiceStatus(serviceName, 'offline');
                         else
                             services.setServiceStatus(serviceName, 'online');
@@ -1166,7 +1166,7 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
-                if (xhttp.status == 408) // timeout
+                if (xhttp.status == 0) // timeout
                     services.setServiceStatus(serviceName, 'offline');
                 else
                     services.setServiceStatus(serviceName, 'online');
@@ -1193,7 +1193,7 @@ limitations under the License.
             });
             jQueryRequest.fail(function (jqXHR, textStatus, errorThrown) {
                 services.rejectAll(requests, errorThrown);
-                if (jqXHR.status == 408) // timeout
+                if (jqXHR.status == 0) // timeout
                     services.setServiceStatus(serviceName, 'offline');
                 else
                     services.setServiceStatus(serviceName, 'online');
