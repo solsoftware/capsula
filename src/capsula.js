@@ -1154,7 +1154,7 @@ limitations under the License.
                 var inputName = inputNames[i],
                 method = capsule.constructor.prototype[inputName];
                 if (method) {
-                    var input = getByNameAndType_(capsule._.pins, inputName, 'isInput');
+                    var input = getByThisNameAndType_(capsule, isInput_, 'pins', inputName, 'isInput');
                     input._.targets.push(method);
                 }
             }
@@ -1218,7 +1218,7 @@ limitations under the License.
             for (var i = 0; i < compiledFilters.length; i++) {
                 var compiledFilter = compiledFilters[i],
                 owner = getSelf_(capsule, compiledFilter.owner),
-                operation = getByNameAndType_(owner._.pins, compiledFilter.name);
+                operation = getByThisNameAndType_(owner, isOperation, 'pins', compiledFilter.name);
                 if (isNothing_(operation))
                     throw new Error(Errors.ELEMENT_NOT_FOUND.toString(compiledFilter.owner + '.' + compiledFilter.name, 'operations'));
                 doInContextAndDirection_(function (pipe) {
@@ -1236,7 +1236,7 @@ limitations under the License.
             for (var i = 0; i < compiledWires.length; i++) {
                 var compiledWire = compiledWires[i],
                 owner1 = getSelf_(capsule, compiledWire.owner1),
-                operation1 = getByNameAndType_(owner1._.pins, compiledWire.name1);
+                operation1 = getByThisNameAndType_(owner1, isOperation, 'pins', compiledWire.name1);
                 if (isNothing_(operation1))
                     throw new Error(Errors.ELEMENT_NOT_FOUND.toString(compiledWire.owner1 + '.' + compiledWire.name1, 'operations'));
 
@@ -1276,7 +1276,7 @@ limitations under the License.
             for (var i = 0; i < compiledBindings.length; i++) {
                 var compiledBinding = compiledBindings[i],
                 owner1 = getSelf_(capsule, compiledBinding.owner1),
-                operation1 = getByNameAndType_(owner1._.pins, compiledBinding.name1),
+                operation1 = getByThisNameAndType_(owner1, isOperation, 'pins', compiledBinding.name1),
                 hookLoop1,
                 owner2,
                 operation2,
@@ -1738,7 +1738,7 @@ limitations under the License.
          */
         Capsule.prototype.getOperation = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.pins, name);
+            return getByThisNameAndType_(this, isOperation, 'pins', name);
         };
 
         /**
@@ -1752,7 +1752,7 @@ limitations under the License.
          */
         Capsule.prototype.getInput = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.pins, name, 'isInput');
+            return getByThisNameAndType_(this, isInput_, 'pins', name, 'isInput');
         };
 
         /**
@@ -1766,7 +1766,7 @@ limitations under the License.
          */
         Capsule.prototype.getOutput = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.pins, name, 'isOutput');
+            return getByThisNameAndType_(this, isOutput_, 'pins', name, 'isOutput');
         };
 
         /**
@@ -1780,7 +1780,7 @@ limitations under the License.
          */
         Capsule.prototype.getHook = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.hooks, name);
+            return getByThisNameAndType_(this, isHook, 'hooks', name);
         };
 
         /**
@@ -1794,7 +1794,7 @@ limitations under the License.
          */
         Capsule.prototype.getLoop = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.loops, name);
+            return getByThisNameAndType_(this, isLoop, 'loops', name);
         };
 
         // *****************************
@@ -1866,7 +1866,7 @@ limitations under the License.
          */
         Capsule.prototype.getPart = function (name) {
             checkCapsuleAsOwner_(this);
-            return getByNameAndType_(this._.parts, name);
+            return getByThisNameAndType_(this, isCapsule, 'parts', name);
         };
 
         /**
@@ -4410,6 +4410,13 @@ limitations under the License.
         function isHookOrLoop_(obj) {
             return isLoop(obj) || isHook(obj);
         }
+		
+		/**
+         * @private
+         */
+        function isInput_(obj) {
+            return isOperation(obj) && obj.isInput();
+        }
 
         /**
          * Checks whether the given object is [loop]{@link module:capsula.Loop} or not.
@@ -4474,6 +4481,13 @@ limitations under the License.
             return typeof obj === 'function' && isObject_(obj._);
         }
 
+		/**
+         * @private
+         */
+        function isOutput_(obj) {
+            return isOperation(obj) && (!obj.isInput());
+        }
+		
         /**
          * @private
          */
@@ -4862,6 +4876,17 @@ limitations under the License.
             }
             return null;
         }
+		
+		/**
+         * @private
+         */
+        function getByThisNameAndType_(that, isFunction, collectionName, name, typeFn) {
+			var result = that[name];
+			if (!isNothing_(result) && isFunction(result))
+				return result;
+			else
+				return getByNameAndType_(that._[collectionName], name, typeFn);
+		}
 
         /**
          * @private
@@ -4922,9 +4947,9 @@ limitations under the License.
          * @private
          */
         function getSelfHookOrLoop_(self, name) {
-            var result = getByNameAndType_(self._.hooks, name);
+            var result = getByThisNameAndType_(self, isHook, 'hooks', name);
             if (isNothing_(result))
-                return getByNameAndType_(self._.loops, name);
+                return getByThisNameAndType_(self, isLoop, 'loops', name);
             return result;
         }
 
@@ -4940,7 +4965,7 @@ limitations under the License.
          * @private
          */
         function getSelfOperationOrMethod_(self, name) {
-            var result = getByNameAndType_(self._.pins, name);
+            var result = getByThisNameAndType_(self, isOperation, 'pins', name);
             if (isNothing_(result))
                 return getSelfMethod_(self, name);
             return result;
