@@ -203,6 +203,7 @@ limitations under the License.
                     }
 
                     var output = new cps.Output();
+					output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
@@ -641,6 +642,7 @@ limitations under the License.
                     }
 
                     var output = new cps.Output();
+					output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
