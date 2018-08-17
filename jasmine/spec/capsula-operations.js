@@ -2271,7 +2271,8 @@ describe('operations', function () {
                     input.setName('i' + name);
                 },
             }),
-        c = new C();
+        c = new C(),
+		c2 = new C();
 
         it('should verify dynamically created input operations with function work as expected', function () {
             c.newInput('A');
@@ -2291,15 +2292,15 @@ describe('operations', function () {
         });
 
         it('should verify dynamically created operations without name work as expected', function () {
-            c.newPairOfNonameOperations('X');
-            c.newPairOfNonameOperations('Y');
-            c.oX.target(c.iY);
-            c.oY.target(function () {
+            c2.newPairOfNonameOperations('X');
+            c2.newPairOfNonameOperations('Y');
+            c2.oX.target(c2.iY);
+            c2.oY.target(function () {
                 return 'Hi';
             });
 
-            expect(c.iY()).toEqual('Hi');
-            expect(c.iX()).toEqual('Hi');
+            expect(c2.iY()).toEqual('Hi');
+            expect(c2.iX()).toEqual('Hi');
         });
     });
 });
