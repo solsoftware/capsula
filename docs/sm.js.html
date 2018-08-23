@@ -1,0 +1,523 @@
+<!-- 
+   Copyright 2018 SOL Software
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: sm.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+	<link type="text/css" rel="stylesheet" href="css/custom.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: sm.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+Copyright 2018 SOL Software
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ */
+
+/**
+ * @file State machines module provides support for implementing behavior using state machines. Read [more]{@link module:sm}.
+ * @copyright 2018 SOL Software
+ * @license Apache-2.0
+ * @version 0.2.0
+ */
+
+(function (root, factory) {
+    if (typeof define === 'function' &amp;&amp; define.amd) {
+        define([], factory);
+    } else if (typeof module === 'object' &amp;&amp; module.exports) {
+        module.exports = factory();
+    } else {
+        root.sm = factory();
+    }
+}
+    (this, function () {
+
+        'use strict';
+
+        var TOP_STATE_NAME = 'TOP',
+        SEP = '.',
+        NO_TRIGGER = 'no_trigger',
+        INITIAL = 'initial',
+        FINAL = 'final',
+        TARGET = 'target',
+        GUARD = 'guard',
+        EFFECT = 'effect';
+
+		/**
+         * Stores all information about a state.
+         *
+         * @class
+         * @memberof module:sm
+         * @private
+         */
+        function State_(name, definition, parent) {
+            this.name = name;
+            this.definition = definition;
+            this.parent = parent;
+            this.initial = null;
+            this.isComposite = false;
+            this.isFinal = false;
+            this.isInitial = false;
+            this.triggerless = [];
+        }
+
+		/**
+         * Private data for the state machine instance. Stores the host object and its state.
+         *
+         * @class
+         * @memberof module:sm
+         * @private
+         */
+        function StateMachineInstanceData_(host, state) {
+            this.host = host;
+            this.state = state;
+        }
+
+		/**
+         * Stores all information about the whole state machine.
+         *
+         * @class
+         * @memberof module:sm
+         * @private
+         */
+        function StateMachineClassData_() {
+            this.states = {}; // all states (name - value pairs)
+        }
+
+		/**
+         * Recursively processes the state machine definition and creates internal representation of the state machine.
+		 * 
+		 * @private
+         */
+        StateMachineClassData_.prototype.processDefinition = function (name, defKey, definition, parent) {
+            var state = new State_(name, definition, parent);
+            if (defKey === INITIAL &amp;&amp; !isNothing_(parent))
+                parent.initial = state;
+            this.states[name] = state;
+            var isComposite = false,
+            numInitial = 0,
+            numFinal = 0;
+            for (var key in definition) {
+                var value = definition[key]; // order: 1
+                key = key.trim(); // order: 2
+                if (key === NO_TRIGGER) {
+                    if (!isObject_(value) &amp;&amp; !isArray_(value))
+                        throw new Error(Errors.ILLEGAL_DESIGN.toString('The ' + NO_TRIGGER + ' property for state ' + state.name + ' should either be a transition object or an array of transition objects.'));
+                    state.triggerless.push(value);
+                } else if (isObject_(value)) {
+                    if (isNothing_(value[TARGET])) { // (sub) state
+                        isComposite = true;
+                        if (key === INITIAL)
+                            numInitial++;
+                        if (key === FINAL)
+                            numFinal++;
+                        this.processDefinition(name + SEP + key, key, value, state);
+                    }
+                }
+            }
+            if (isComposite &amp;&amp; numInitial !== 1)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has exactly one initial state.'));
+            if (isComposite &amp;&amp; numFinal > 1)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has at most one final state.'));
+
+            state.isComposite = isComposite;
+            state.isFinal = defKey === FINAL;
+            state.isInitial = defKey === INITIAL;
+            if (state.isComposite &amp;&amp; (state.isFinal || state.isInitial))
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the composite state ' + state.name + ' is neither initial nor final.'));
+            if (state.isInitial &amp;&amp; state.triggerless.length === 0)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the initial state ' + state.name + ' has at least one outgoing triggerless transition.'));
+            if (state.isFinal &amp;&amp; state.triggerless.length > 0)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the final state ' + state.name + ' has no outgoing transitions at all.'));
+            if (state.isFinal) {
+                state.triggerless = parent.triggerless;
+            }
+        };
+
+		/**
+         * @classdesc Holds the the host object and the state of the host object. Runs the host object through the lifecycle according to the state machine definition. The root class for all SM classes.
+         *
+         * @abstract
+         * @class
+         * @memberof module:sm
+         * @public
+         * @since 0.2.0
+         */
+        function StateMachine(host) {
+            var privateData = new StateMachineInstanceData_(host, this.constructor.compiledDef.states[TOP_STATE_NAME]);
+            this._ = privateData;
+        }
+
+		/**
+         * Starts the lifecycle of the host object, i.e. "pushes" the host object into the initial state of this state machine (and further from there).
+         *
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [RUNTIME_ERROR]{@link module:sm.Errors.RUNTIME_ERROR}
+         */
+        StateMachine.prototype.init = function () {
+            proceeed_(this, null);
+        };
+
+		/**
+         * Returns the state of its corresponding host object.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {string} the state of its corresponding host object
+         */
+        StateMachine.prototype.getState = function () {
+            return this._.state.name;
+        };
+
+		/**
+         * Executes the state machine according to the given trigger. 
+         *
+		 * @param {string} trigger - event that triggers state machine execution
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:sm.Errors.ILLEGAL_ARGUMENT}, [RUNTIME_ERROR]{@link module:sm.Errors.RUNTIME_ERROR}
+         */
+        StateMachine.prototype.process = function (trigger) {
+            if (!isString_(trigger) || trigger.trim().length === 0)
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure the \'trigger\' argument is a non-empty string.'));
+
+            proceeed_(this, trigger);
+        };
+
+		/**
+         * Creates new state machine (class). Using the returned class one can create state machine instances one for each host object that needs to be handled by the given state machine definition.
+         *
+		 * @param {object} definition - specification of the state machine under construction
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:sm.Errors.ILLEGAL_ARGUMENT}, [ILLEGAL_DESIGN]{@link module:sm.Errors.ILLEGAL_DESIGN}
+         */
+        function defSM(definition) {
+            if (!isObject_(definition))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure the \'definition\' argument is an object.'));
+
+            var StateMachineClass = function StateMachineClass(host) {
+				if (!isObject_(host))
+					throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure the \'host\' argument is provided.'));
+                var sm;
+                if (!this || !this.isSMConstructed) {
+                    sm = Object.create(StateMachineClass.prototype);
+                    Object.defineProperty(sm, 'isSMConstructed', {
+                        value: true,
+                        writeable: false,
+                        enumerable: false
+                    });
+                } else {
+                    throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure \'this\' is not an already constructed state machine.'));
+                }
+                StateMachine.apply(sm, arguments);
+                return sm;
+            };
+
+            StateMachineClass.def = definition;
+            var smData = new StateMachineClassData_();
+            smData.processDefinition(TOP_STATE_NAME, '', definition, null);
+            StateMachineClass.compiledDef = smData;
+            extend_(StateMachineClass, StateMachine);
+            return StateMachineClass;
+        }
+
+        /**
+         * @private
+         */
+        function proceeed_(sm, trigger) {
+            var host = sm._.host,
+            state = sm._.state,
+            smClass = sm.constructor;
+            var possibilities = findTransitions_(state, trigger);
+            var isLeft = false;
+            for (var i = 0; i &lt; possibilities.length; i++) {
+                var t = possibilities[i];
+                if (isNothing_(t[GUARD]) || execute_(host, t[GUARD], sm)) {
+                    var target = smClass.compiledDef.states[t[TARGET]];
+                    if (isNothing_(target))
+                        throw new Error(Errors.RUNTIME_ERROR.toString('Make sure the \'target\' property (' + t.target + ') points to an existing state.'));
+                    isLeft = true;
+                    var commonOwner = getCommonOwner_(state, target),
+                    exitArr = getExitActions_(state, commonOwner),
+                    entryArr = getEntryActions_(target, commonOwner);
+
+                    for (var ex = 0; ex &lt; exitArr.length; ex++)
+                        execute_(host, exitArr[ex], sm);
+
+                    execute_(host, t[EFFECT], sm);
+
+                    for (var en = 0; en &lt; entryArr.length; en++)
+                        execute_(host, entryArr[en], sm);
+
+                    sm._.state = target;
+
+                    proceeed_(sm, null);
+                    break;
+                }
+            }
+            if (!isLeft &amp;&amp; (state.isComposite || state.isInitial))
+                throw new Error(Errors.RUNTIME_ERROR.toString('Make sure the state machine never stops (completes) in initial or composite state like ' + state.name));
+        }
+
+        /**
+         * @private
+         */
+        function findTransitions_(state, trigger) {
+            if (state.isComposite)
+                return [{
+                        target: state.initial.name
+                    }
+                ];
+            var transitions = [];
+            for (; state != null; state = state.parent) {
+                if (isNothing_(trigger))
+                    Array.prototype.push.apply(transitions, state.triggerless);
+                else if (!isNothing_(state.definition[trigger]))
+                    transitions.push(state.definition[trigger]);
+            }
+            return transitions;
+        }
+
+        /**
+         * @private
+         */
+        function getCommonOwner_(state1, state2) {
+            for (var s1 = state1; s1 != null; s1 = s1.parent) {
+                var candidate = s1;
+                for (var s2 = state2; s2 != null; s2 = s2.parent) {
+                    if (s2 === candidate)
+                        return s2;
+                }
+            }
+            return null; // this should never happen
+        }
+
+        /**
+         * @private
+         */
+        function getExitActions_(s, owner) {
+            var actions = [];
+            for (; s != owner; s = s.parent)
+                if (!isNothing_(s.definition.exit))
+                    actions.push(s.definition.exit);
+            return actions;
+        }
+
+        /**
+         * @private
+         */
+        function getEntryActions_(s, owner) {
+            var actions = [];
+            for (; s != owner; s = s.parent)
+                if (!isNothing_(s.definition.entry))
+                    actions.splice(0, 0, s.definition.entry); // reverse order
+            return actions;
+        }
+
+        /**
+         * @private
+         */
+        function execute_(host, func, sm) {
+            if (isNothing_(func))
+                return;
+            if (typeof func === 'function')
+                return func.call(host, sm);
+            else
+                return host[func].call(host, sm);
+        }
+
+        /**
+         * @private
+         */
+        function extend_(Sub, Base) {
+            Sub.prototype = Object.create(Base.prototype);
+            Sub.prototype.constructor = Sub;
+            Sub.super$ = Base;
+        }
+
+        /**
+         * Checks whether an object is Array or not.
+         *
+         * @private
+         * @param {object} subject - the variable that is tested for Array identity check
+         * @returns weather the variable is an Array or not
+         *
+         * Attribution: https://shamasis.net/2011/08/infinite-ways-to-detect-array-in-javascript/
+         */
+        var isArray_ = (function () {
+            // Use compiler's own isArray when available
+            if (Array.isArray) {
+                return Array.isArray;
+            }
+
+            // Retain references to variables for performance
+            // optimization
+            var objectToStringFn = Object.prototype.toString,
+            arrayToStringResult = objectToStringFn.call([]);
+
+            return function (subject) {
+                return objectToStringFn.call(subject) === arrayToStringResult;
+            };
+        }
+            ());
+
+        /**
+         * @private
+         */
+        function isNothing_(obj) {
+            return obj === null || obj === undefined;
+        }
+
+        /**
+         * @private
+         */
+        function isNumber_(obj) {
+            return typeof obj === 'number';
+        }
+
+        /**
+         * @private
+         */
+        function isObject_(obj) {
+            return obj &amp;&amp; typeof obj === 'object' &amp;&amp; !isArray_(obj);
+        }
+
+        /**
+         * @private
+         */
+        function isString_(obj) {
+            return typeof obj === 'string';
+        }
+
+		/**
+         * @private
+         */
+        function ErrorMessage_(code, desc) {
+            if (!isNumber_(code))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure code is a number.'));
+            if (!isString_(desc))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure desc is a string.'));
+            this.code = code;
+            this.desc = desc;
+        }
+
+        /**
+         * @private
+         */
+        ErrorMessage_.prototype.toString = function (var_args) {
+            var desc = this.desc;
+            for (var i = 0; i &lt; arguments.length; i++)
+                desc = desc.replace('$' + (i + 1), arguments[i]);
+            return 'Oops! ' + desc + ' (#' + this.code + ')';
+        };
+		
+		/**
+         * A collection of messages to use in appropriate erroneous situations.
+         *
+         * @memberof module:sm
+         * @namespace
+         * @public
+         * @readonly
+         * @since 0.2.0
+         * @static
+         */
+        var Errors = {
+			/**
+             * Usage: when function argument is not according to expectations. Error message (without $1 placeholder replaced and with the error code):
+             * &lt;p>&lt;i> 'Oops! Illegal argument(s). $1 (#3000)' &lt;/i>
+             */
+			ILLEGAL_ARGUMENT: new ErrorMessage_(3000, 'Illegal argument(s). $1'),
+			/**
+             * Usage: when state machine has obvious problem visible in the design-time. Error message (without $1 placeholder replaced and with the error code):
+             * &lt;p>&lt;i> 'Oops! Illegal design of state machine. $1 (#3001)' &lt;/i>
+             */
+			ILLEGAL_DESIGN: new ErrorMessage_(3001, 'Illegal design of state machine. $1'),
+			/**
+             * Usage: when runtime error occurs during the execution of state machine. Error message (without $1 placeholder replaced and with the error code):
+             * &lt;p>&lt;i> 'Oops! Runtime error. $1 (#3002)' &lt;/i>
+             */
+			RUNTIME_ERROR: new ErrorMessage_(3002, 'Runtime error. $1'),
+		}
+		
+        /**
+         * &lt;p> sm.js module provides means to create and use &lt;a href="https://en.wikipedia.org/wiki/Finite-state_machine" target="_blank">state machines&lt;/a>. State machines are very powerful tool for handling behavior and dynamic aspects of any software.
+         *
+         * @exports sm
+         * @version 0.1.0
+         */
+        var ns = {
+            defSM: defSM
+        };
+
+        return ns;
+    }));
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li><li><a href="module-sm.html">sm</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li><li><a href="module-sm.StateMachine.html">StateMachine</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li><li><a href="module-sm.Errors.html">Errors</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Aug 23 2018 16:58:06 GMT+0200 (Central Europe Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
