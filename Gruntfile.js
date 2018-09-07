@@ -19,10 +19,10 @@ module.exports = function (grunt) {
                 vendor: 'jasmine/lib/jquery-3.2.1.min.js'
             },
             src: {
-                src: ['src/services.js', 'src/capsula.js', 'src/html.js']
+                src: ['src/services.js', 'src/capsula.js', 'src/html.js', 'src/sm.js']
             },
             dist: {
-                src: ['dist/services.js', 'dist/capsula.js', 'dist/html.js']
+                src: ['dist/services.js', 'dist/capsula.js', 'dist/html.js', 'dist/sm.js']
             }
         },
         jsdoc: {
@@ -43,7 +43,8 @@ module.exports = function (grunt) {
                 files: {
                     'dist/services.js': 'src/services.js',
                     'dist/capsula.js': 'src/capsula.js',
-                    'dist/html.js': 'src/html.js'
+                    'dist/html.js': 'src/html.js',
+					'dist/sm.js': 'src/sm.js'
                 },
                 options: {
                     mangle: false,

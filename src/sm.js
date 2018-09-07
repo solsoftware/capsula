@@ -36,12 +36,13 @@ limitations under the License.
 
         var TOP_STATE_NAME = 'TOP',
         SEP = '.',
-        NO_TRIGGER = 'no_trigger',
+        TRIGGERLESS = 'next',
         INITIAL = 'initial',
         FINAL = 'final',
         TARGET = 'target',
         GUARD = 'guard',
-        EFFECT = 'effect';
+        EFFECT = 'effect',
+		STEADY = 'steady';
 
 		/**
          * Stores all information about a state.
@@ -55,9 +56,10 @@ limitations under the License.
             this.definition = definition;
             this.parent = parent;
             this.initial = null;
-            this.isComposite = false;
-            this.isFinal = false;
-            this.isInitial = false;
+            this.isComposite = null;
+            this.isFinal = null;
+            this.isInitial = null;
+			this.isSteady = null;
             this.triggerless = [];
         }
 
@@ -95,16 +97,33 @@ limitations under the License.
                 parent.initial = state;
             this.states[name] = state;
             var isComposite = false,
+			isSteadyFlagSet = false,
+			steadyFlag = null,
             numInitial = 0,
-            numFinal = 0;
+            numFinal = 0,
+			hasTransitions = false;
             for (var key in definition) {
                 var value = definition[key]; // order: 1
                 key = key.trim(); // order: 2
-                if (key === NO_TRIGGER) {
+                if (key === TRIGGERLESS) {
                     if (!isObject_(value) && !isArray_(value))
-                        throw new Error(Errors.ILLEGAL_DESIGN.toString('The ' + NO_TRIGGER + ' property for state ' + state.name + ' should either be a transition object or an array of transition objects.'));
-                    state.triggerless.push(value);
-                } else if (isObject_(value)) {
+                        throw new Error(Errors.ILLEGAL_DESIGN.toString('The ' + TRIGGERLESS + ' property for state ' + state.name + ' should either be a transition object or an array of transition objects.'));
+					if (isArray_(value)){
+						for (var i = 0; i < value.length; i++){
+							if (isNothing_(value[i][TARGET]))
+								throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure triggerless transitions all have \'target\' property. State: ' + state.name));
+							state.triggerless.push(value[i]);
+						}
+					} else {
+						if (isNothing_(value[TARGET]))
+							throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure triggerless transitions all have \'target\' property. State: ' + state.name));
+						state.triggerless.push(value);
+					}
+					hasTransitions = true;
+                } else if (key === STEADY) {
+					isSteadyFlagSet = true;
+					steadyFlag = !!value;
+				} else if (isObject_(value)) {
                     if (isNothing_(value[TARGET])) { // (sub) state
                         isComposite = true;
                         if (key === INITIAL)
@@ -112,7 +131,9 @@ limitations under the License.
                         if (key === FINAL)
                             numFinal++;
                         this.processDefinition(name + SEP + key, key, value, state);
-                    }
+                    } else { // transition
+						hasTransitions = true;
+					}
                 }
             }
             if (isComposite && numInitial !== 1)
@@ -123,6 +144,21 @@ limitations under the License.
             state.isComposite = isComposite;
             state.isFinal = defKey === FINAL;
             state.isInitial = defKey === INITIAL;
+			
+			if (state.isFinal && hasTransitions)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure final states don\'t have transitions of their own. State: ' + state.name));
+			
+			if (isSteadyFlagSet){
+				if (steadyFlag){
+					if (state.isInitial || state.isComposite)
+						throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite and initial states are never steady. State: ' + state.name));
+				} else {
+					if (state.isFinal)
+						throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure final states are always steady. State: ' + state.name));
+				}
+			}
+			state.isSteady = !state.isComposite && !state.isInitial;
+
             if (state.isComposite && (state.isFinal || state.isInitial))
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the composite state ' + state.name + ' is neither initial nor final.'));
             if (state.isInitial && state.triggerless.length === 0)
@@ -156,7 +192,7 @@ limitations under the License.
          * @throws {Error} [RUNTIME_ERROR]{@link module:sm.Errors.RUNTIME_ERROR}
          */
         StateMachine.prototype.init = function () {
-            proceeed_(this, null);
+            proceeed_(this, null, null);
         };
 
 		/**
@@ -182,15 +218,18 @@ limitations under the License.
             if (!isString_(trigger) || trigger.trim().length === 0)
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure the \'trigger\' argument is a non-empty string.'));
 
-            proceeed_(this, trigger);
+            proceeed_(this, null, trigger);
         };
 
 		/**
-         * Creates new state machine (class). Using the returned class one can create state machine instances one for each host object that needs to be handled by the given state machine definition.
-         *
-		 * @param {object} definition - specification of the state machine under construction
+         * Creates and returns a state machine constructor function based on the given state machine definition object. Using the returned constructor function one can create state machine instances one for each host object that needs to be handled by the given state machine definition.
+         * 
+		 * @memberof module:sm
          * @public
+         * @static
          * @since 0.2.0
+		 * @param {object} definition - specification of the state machine
+		 * @returns {Function} state machine constructor function
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:sm.Errors.ILLEGAL_ARGUMENT}, [ILLEGAL_DESIGN]{@link module:sm.Errors.ILLEGAL_DESIGN}
          */
         function defSM(definition) {
@@ -226,22 +265,22 @@ limitations under the License.
         /**
          * @private
          */
-        function proceeed_(sm, trigger) {
+        function proceeed_(sm, commonOwner, trigger) {
             var host = sm._.host,
             state = sm._.state,
             smClass = sm.constructor;
-            var possibilities = findTransitions_(state, trigger);
+            var transitions = findTransitions_(state, commonOwner, trigger);
             var isLeft = false;
-            for (var i = 0; i < possibilities.length; i++) {
-                var t = possibilities[i];
+            for (var i = 0; i < transitions.length; i++) {
+                var t = transitions[i];
                 if (isNothing_(t[GUARD]) || execute_(host, t[GUARD], sm)) {
                     var target = smClass.compiledDef.states[t[TARGET]];
                     if (isNothing_(target))
                         throw new Error(Errors.RUNTIME_ERROR.toString('Make sure the \'target\' property (' + t.target + ') points to an existing state.'));
                     isLeft = true;
-                    var commonOwner = getCommonOwner_(state, target),
-                    exitArr = getExitActions_(state, commonOwner),
-                    entryArr = getEntryActions_(target, commonOwner);
+                    var newCommonOwner = getCommonOwner_(state, target),
+                    exitArr = getExitActions_(state, newCommonOwner),
+                    entryArr = getEntryActions_(target, newCommonOwner);
 
                     for (var ex = 0; ex < exitArr.length; ex++)
                         execute_(host, exitArr[ex], sm);
@@ -253,30 +292,33 @@ limitations under the License.
 
                     sm._.state = target;
 
-                    proceeed_(sm, null);
+                    proceeed_(sm, newCommonOwner, null);
                     break;
                 }
             }
-            if (!isLeft && (state.isComposite || state.isInitial))
-                throw new Error(Errors.RUNTIME_ERROR.toString('Make sure the state machine never stops (completes) in initial or composite state like ' + state.name));
+            if (!isLeft && !state.isSteady)
+                throw new Error(Errors.RUNTIME_ERROR.toString('Make sure the state machine never stops (completes) in a not steady state, such as: ' + state.name));
         }
 
         /**
          * @private
          */
-        function findTransitions_(state, trigger) {
+        function findTransitions_(state, commonOwner, trigger) {
             if (state.isComposite)
                 return [{
                         target: state.initial.name
                     }
                 ];
+
             var transitions = [];
-            for (; state != null; state = state.parent) {
-                if (isNothing_(trigger))
-                    Array.prototype.push.apply(transitions, state.triggerless);
-                else if (!isNothing_(state.definition[trigger]))
-                    transitions.push(state.definition[trigger]);
-            }
+			if (isNothing_(trigger)){ // triggerless
+				for (; state != null && state != commonOwner; state = state.parent)
+					Array.prototype.push.apply(transitions, state.triggerless);
+			} else {
+				for (; state != null; state = state.parent)
+					if (!isNothing_(state.definition[trigger]))
+						transitions.push(state.definition[trigger]);
+			}
             return transitions;
         }
 

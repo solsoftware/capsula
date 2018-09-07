@@ -6,6 +6,7 @@
 
 - create your application out of **encapsulated components** - capsules.
 - have **multi-level architectural views** of your application and **handle complexity better**.
+- easily implement complex behavioral lifecycles using **state machines**.
 - be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
 - **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
 - **handle asynchronous communication** focusing only on what's essential.
