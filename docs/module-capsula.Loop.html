@@ -118,7 +118,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line471">line 471</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line457">line 457</a>
     </li></ul></dd>
     
 
@@ -194,6 +194,513 @@
 
     
         <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="add"><span class="type-signature"></span>add<span class="signature">(&hellip;var_args)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Ties this loop acting as a parent in the current context of execution to the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>var_args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last">loops to tie this parent loop to (an array of loops also accepted)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3928">line 3928</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="addAt"><span class="type-signature"></span>addAt<span class="signature">(at, &hellip;var_args)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Ties this loop acting as a parent in the current context of execution to the given loops according to the given <i>at</i> index. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>at</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">the index to use when tying this parent loop to the given loops</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>var_args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last">loops to tie this parent loop to (an array of loops also accepted)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3942">line 3942</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>, <a href="module-capsula.Errors.html#.INDEX_OUT_OF_BOUNDS">INDEX_OUT_OF_BOUNDS</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="clear"><span class="type-signature"></span>clear<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Unties this loop acting as a parent in the current context of execution from all the loops it is tied to. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3990">line 3990</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
 
         
             
@@ -317,7 +824,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4182">line 4182</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4062">line 4062</a>
     </li></ul></dd>
     
 
@@ -385,6 +892,146 @@
     <dd>
         
 <span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getChildren"><span class="type-signature"></span>getChildren<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;<a href="module-capsula.Loop.html">module:capsula.Loop</a>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns an array of loops this loop is tied to acting as a parent in the current context of execution; or an empty array if it is not tied to any loop. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-since">Since:</dt>
+    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3915">line 3915</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    an array of loops this loop is tied to acting as the current context of execution; or an empty array
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;<a href="module-capsula.Loop.html">module:capsula.Loop</a>></span>
 
 
     </dd>
@@ -518,7 +1165,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3752">line 3752</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3838">line 3838</a>
     </li></ul></dd>
     
 
@@ -603,146 +1250,6 @@
     
 
     
-    <h4 class="name" id="getHook"><span class="type-signature"></span>getHook<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-capsula.Hook.html">module:capsula.Hook</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p> Returns the hook (of a sibling capsule of this loop's owner capsule) this loop is tied to; or null if it is not tied to such a hook. The tying is checked in the current context of execution only.<p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3838">line 3838</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the hook this loop is tied to (in the current context of execution)
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="getId"><span class="type-signature"></span>getId<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
     
 
@@ -798,7 +1305,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3676">line 3676</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3738">line 3738</a>
     </li></ul></dd>
     
 
@@ -883,146 +1390,6 @@
     
 
     
-    <h4 class="name" id="getLoop"><span class="type-signature"></span>getLoop<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-capsula.Loop.html">module:capsula.Loop</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p> Returns the loop this loop is tied to; or null if it is not tied to a loop in the current context of execution.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3984">line 3984</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the loop this loop is tied to (in the current context of execution)
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="getName"><span class="type-signature"></span>getName<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
@@ -1078,7 +1445,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3723">line 3723</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3809">line 3809</a>
     </li></ul></dd>
     
 
@@ -1218,7 +1585,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3710">line 3710</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3796">line 3796</a>
     </li></ul></dd>
     
 
@@ -1358,7 +1725,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3949">line 3949</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3884">line 3884</a>
     </li></ul></dd>
     
 
@@ -1446,7 +1813,7 @@
     
 
     
-    <h4 class="name" id="getPrivateLoop"><span class="type-signature"></span>getPrivateLoop<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-capsula.Loop.html">module:capsula.Loop</a>}</span></h4>
+    <h4 class="name" id="isParentOf"><span class="type-signature"></span>isParentOf<span class="signature">(&hellip;var_args)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
     
 
     
@@ -1454,7 +1821,7 @@
 
 
 <div class="description">
-    <p> Returns the loop (of the part capsule of this loop's owner capsule) this loop is tied to; or null if it is not tied to such a loop. The tying is checked in the current context of execution only.<p> Assumes this loop belongs to the capsule that represents the current context of execution. Otherwise it throws error.
+    Checks whether this loop acting as a parent in the current context of execution is tied to all the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
 </div>
 
 
@@ -1465,144 +1832,65 @@
 
 
 
-
-
-
-
-<dl class="details">
-
+    <h5>Parameters:</h5>
     
 
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-    
+        <th>Type</th>
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3914">line 3914</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
+        
+        <th>Attributes</th>
+        
 
         
 
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>var_args</code></td>
+            
+
+            <td class="type">
+            
                 
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    the private loop this loop is tied to (in the current context of execution)
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
 <span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
 
 
-    </dd>
-</dl>
+            
+            </td>
 
-    
+            
+                <td class="attributes">
+                
 
+                
 
-
-
-
-        
+                
+                    &lt;repeatable><br>
+                
+                </td>
             
 
-    
+            
+
+            <td class="description last">loops to check (an array of loops also accepted)</td>
+        </tr>
 
     
-    <h4 class="name" id="getPublicLoop"><span class="type-signature"></span>getPublicLoop<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="module-capsula.Loop.html">module:capsula.Loop</a>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p> Returns the loop (of the owner capsule of this loop's owner capsule) this loop is tied to; or null if it is not tied to such a loop. The tying is checked in the current context of execution only.<p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-</div>
-
-
-
-
-
-
-
+    </tbody>
+</table>
 
 
 
@@ -1641,7 +1929,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3875">line 3875</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3968">line 3968</a>
     </li></ul></dd>
     
 
@@ -1697,7 +1985,7 @@
 
         
 <div class="param-desc">
-    the public loop this loop is tied to (in the current context of execution)
+    whether this parent loop is tied to all the given loops (in the current context of execution)
 </div>
 
 
@@ -1708,147 +1996,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getTies"><span class="type-signature"></span>getTies<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;(<a href="module-capsula.Hook.html">module:capsula.Hook</a>|<a href="module-capsula.Loop.html">module:capsula.Loop</a>)>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Returns (an array with) the hook or the loop this loop is tied to in the current context of execution; or an empty array if it is not tied to any hook or loop. The returned hook or loop is packaged into an array before returning for the compatibility reasons with hook's <a href="module-capsula.Hook.html#getTies">getTies</a>.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4011">line 4011</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    an array with the hook or the loop this loop is tied to in the current context of execution; or an empty array
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array.&lt;(<a href="module-capsula.Hook.html">module:capsula.Hook</a>|<a href="module-capsula.Loop.html">module:capsula.Loop</a>)></span>
+<span class="param-type">boolean</span>
 
 
     </dd>
@@ -1921,7 +2069,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3766">line 3766</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3852">line 3852</a>
     </li></ul></dd>
     
 
@@ -2006,7 +2154,7 @@
     
 
     
-    <h4 class="name" id="isTiedTo"><span class="type-signature"></span>isTiedTo<span class="signature">(hookOrLoop)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="remove"><span class="type-signature"></span>remove<span class="signature">(&hellip;var_args)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2014,7 +2162,7 @@
 
 
 <div class="description">
-    Checks whether this loop is tied to the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
+    Unties this loop acting as a parent in the current context of execution from the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
 </div>
 
 
@@ -2038,6 +2186,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -2050,29 +2200,33 @@
 
         <tr>
             
-                <td class="name"><code>hookOrLoop</code></td>
+                <td class="name"><code>var_args</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
-|
-
 <span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-|
-
-<span class="param-type">Array.&lt;(<a href="module-capsula.Hook.html">module:capsula.Hook</a>|<a href="module-capsula.Loop.html">module:capsula.Loop</a>)></span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
 
             
 
-            <td class="description last">hook or loop to check</td>
+            <td class="description last">loops to untie this parent loop from (an array of loops also accepted)</td>
         </tr>
 
     
@@ -2116,196 +2270,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4088">line 4088</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    whether this loop is tied to the given hook or loop (in the current context of execution)
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="render"><span class="type-signature"></span>render<span class="signature">(el)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p> Renders the given DOM element into this loop (i.e. into the DOM element this loop represents).
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>el</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Element</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the DOM element to render into this loop</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3797">line 3797</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4005">line 4005</a>
     </li></ul></dd>
     
 
@@ -2472,7 +2437,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3779">line 3779</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3865">line 3865</a>
     </li></ul></dd>
     
 
@@ -2535,7 +2500,7 @@
     
 
     
-    <h4 class="name" id="retie"><span class="type-signature"></span>retie<span class="signature">(hookOrLoop)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="set"><span class="type-signature"></span>set<span class="signature">(&hellip;var_args)</span><span class="type-signature"></span></h4>
     
 
     
@@ -2543,7 +2508,7 @@
 
 
 <div class="description">
-    First, it unties this loop from any hook or loop it may be tied to in the current context of execution and then ties this loop to the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
+    First, unties this loop acting as a parent in the current context of execution from all the loops it is tied to and then ties this loop to the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
 </div>
 
 
@@ -2567,6 +2532,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -2579,29 +2546,33 @@
 
         <tr>
             
-                <td class="name"><code>hookOrLoop</code></td>
+                <td class="name"><code>var_args</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
-|
-
 <span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-|
-
-<span class="param-type">Array.&lt;(<a href="module-capsula.Hook.html">module:capsula.Hook</a>|<a href="module-capsula.Loop.html">module:capsula.Loop</a>)></span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
 
             
 
-            <td class="description last">hook or loop to tie this loop to</td>
+            <td class="description last">loops to re-tie this parent loop to (an array of loops also accepted)</td>
         </tr>
 
     
@@ -2645,12 +2616,183 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4154">line 4154</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4023">line 4023</a>
     </li></ul></dd>
     
 
     
 
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setClass"><span class="type-signature"></span>setClass<span class="signature">(cls)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Sets a class to this loop. When a class is set to a loop, each element represented by this loop's subtree would be flagged by this class. To understand how this flagging works <a href="module-capsula.html#.setDefaultElementHandlers">setDefaultElementHandlers</a> should be consulted.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>cls</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the class to set to this loop</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3772">line 3772</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-capsula.html#.setDefaultElementHandlers">setDefaultElementHandlers</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -2835,341 +2977,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3692">line 3692</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setHook"><span class="type-signature"></span>setHook<span class="signature">(hook)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p> Ties this loop to the given hook which has to be the hook of a sibling capsule of this loop's owner capsule (throws error if not).<p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>hook</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the hook to tie this loop to</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3855">line 3855</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setLoop"><span class="type-signature"></span>setLoop<span class="signature">(loop)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p> Ties this loop to the given loop in the current context of execution.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>loop</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the loop to tie this loop to</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3997">line 3997</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3754">line 3754</a>
     </li></ul></dd>
     
 
@@ -3336,7 +3144,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3736">line 3736</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3822">line 3822</a>
     </li></ul></dd>
     
 
@@ -3506,7 +3314,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3963">line 3963</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3898">line 3898</a>
     </li></ul></dd>
     
 
@@ -3569,7 +3377,7 @@
     
 
     
-    <h4 class="name" id="setPrivateLoop"><span class="type-signature"></span>setPrivateLoop<span class="signature">(loop)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="tie"><span class="type-signature"></span>tie<span class="signature">(var_args)</span><span class="type-signature"></span></h4>
     
 
     
@@ -3577,7 +3385,7 @@
 
 
 <div class="description">
-    <p> Ties this loop to the given loop which has to be the loop of a sibling capsule of this loop's owner capsule (throws error if not).<p> Assumes this loop belongs to the capsule that represents the current context of execution. Otherwise it throws error.
+    Ties this loop to the given parent hook or loop or the given child loops in the current context of execution. The function accepts loops in an array as well.
 </div>
 
 
@@ -3613,341 +3421,7 @@
 
         <tr>
             
-                <td class="name"><code>loop</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the private loop to tie this loop to</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3928">line 3928</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="setPublicLoop"><span class="type-signature"></span>setPublicLoop<span class="signature">(loop)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p> Ties this loop to the given loop which has to be the loop of the owner capsule of this loop's owner capsule (throws error if not).<p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>loop</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the public loop to tie this loop to</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3892">line 3892</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="tie"><span class="type-signature"></span>tie<span class="signature">(hookOrLoop)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Ties this loop to the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>hookOrLoop</code></td>
+                <td class="name"><code>var_args</code></td>
             
 
             <td class="type">
@@ -3959,7 +3433,7 @@
 <span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
 |
 
-<span class="param-type">Array.&lt;(<a href="module-capsula.Hook.html">module:capsula.Hook</a>|<a href="module-capsula.Loop.html">module:capsula.Loop</a>)></span>
+<span class="param-type">Array.&lt;<a href="module-capsula.Loop.html">module:capsula.Loop</a>></span>
 
 
             
@@ -3969,7 +3443,7 @@
 
             
 
-            <td class="description last">hook or loop to tie this loop to</td>
+            <td class="description last">hook, loop, or an array of loops to tie this loop to</td>
         </tr>
 
     
@@ -4013,494 +3487,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4029">line 4029</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="tieAt"><span class="type-signature"></span>tieAt<span class="signature">(at, hookOrLoop)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Ties this loop to the given hook or loop according to the given <i>at</i> index and the current context of execution. The at index is taken into consideration only when tying this loop to a hook since only hooks can have more than one child; otherwise it is ignored. The function accepts the given hook or loop in an array as well.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>at</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">the index to use when tying this loop to the given hook or loop</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>hookOrLoop</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
-|
-
-<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-|
-
-<span class="param-type">Array.&lt;(<a href="module-capsula.Hook.html">module:capsula.Hook</a>|<a href="module-capsula.Loop.html">module:capsula.Loop</a>)></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">hook or loop to tie this loop to</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4055">line 4055</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>, <a href="module-capsula.Errors.html#.INDEX_OUT_OF_BOUNDS">INDEX_OUT_OF_BOUNDS</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="untie"><span class="type-signature"></span>untie<span class="signature">(hookOrLoop)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Unties this loop from the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>hookOrLoop</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-capsula.Hook.html">module:capsula.Hook</a></span>
-|
-
-<span class="param-type"><a href="module-capsula.Loop.html">module:capsula.Loop</a></span>
-|
-
-<span class="param-type">Array.&lt;(<a href="module-capsula.Hook.html">module:capsula.Hook</a>|<a href="module-capsula.Loop.html">module:capsula.Loop</a>)></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">hook or loop to untie this loop from</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4125">line 4125</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.OUT_OF_CONTEXT">OUT_OF_CONTEXT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="untieAll"><span class="type-signature"></span>untieAll<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Unties this loop from the hook or the loop it is tied to in the current context of execution.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4112">line 4112</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4036">line 4036</a>
     </li></ul></dd>
     
 
@@ -4579,7 +3566,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Fri Aug 24 2018 14:18:47 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Sep 12 2018 15:59:20 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
