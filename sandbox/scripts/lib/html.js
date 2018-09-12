@@ -202,21 +202,22 @@ limitations under the License.
                         outputName = eventName;
                     }
 
-                    var output = new cps.Output(outputName);
+                    var output = new cps.Output();
+					output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-                    this.getData('listeners')[eventName] = listener;
+                    this.listeners.get()[eventName] = listener;
                     this.getTextNode().addEventListener(eventName, listener);
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getTextNode().removeEventListener(i, listeners[i]);
-                    this.setData('listeners', {});
+                    this.listeners = new cps.Data({});
                 },
 
                 'this.loop': 'myText.loop'
@@ -640,21 +641,22 @@ limitations under the License.
                         outputName = eventName;
                     }
 
-                    var output = new cps.Output(outputName);
+                    var output = new cps.Output();
+					output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-                    this.getData('listeners')[eventName] = listener;
+                    this.listeners.get()[eventName] = listener;
                     this.getElement().addEventListener(eventName, listener);
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getElement().removeEventListener(i, listeners[i]);
-                    this.setData('listeners', {});
+                    this.listeners = new cps.Data({});
                 },
 
                 root: {
@@ -690,9 +692,8 @@ limitations under the License.
          * <li> Template
          * </ul>
          * </ul>
-         * <p>Template capsule provides means to easily reuse portions of HTML code enriched with a bit of behavior. It introduces HTML-based templates to the capsules code. By doing so, it provides a coupling between capsules and HTML code and allows for programmers to achieve a perfect mix of template-based and object-oriented code, i.e. to the exploit the benefits of both worlds.
-         * <p> Template capsule helps in situations when creating a portion of user interface is easier using template-based approach over the object-oriented approach. Still, the template capsule preserves semantics of capsules and acts as any other capsule with input and output operations, hooks, and loops which makes it easy to combine with other capsules. In other words, the world of templates and the world of capsules are perfectly compatible and semantically coupled.
-         * <p> Template capsule is easily instantiated from the portion of HTML code: new html.Template(`HTML code here`). The HTML code may have more root elements (tags), i.e. there is no requirement for it to be rooted in a single HTML element.
+         * <p>Template capsule provides means to easily reuse portions of HTML code enriched with a bit of behavior. It introduces HTML-based templates to the capsules code.
+         * <p> Template capsule is easily instantiated from the portion of HTML code: <code>new html.Template(`&lt;div&gt;Hello World!&lt;/div&gt;`);</code>
          * <p> The HTML code (tags) used for instantiating Template capsule may have special attributes, i.e. attribute-based extensions for hooks, loops, and operations. This is a) to enable template sections (root tags) to be included somewhere on the HTML page, b) to enable template to include other HTML content under its tags, and c) to enrich the template with a bit of behavior. The following attributes of HTML elements (tags) inside the template are supported:
          * <ul>
          * <li> attribute loop - HTML element (tag) having loop="myLoop" attribute would be represented by a loop named "myLoop" of the Template capsule. For example, HTML code &lt;div loop="myLoop"&gt;...&lt;/div&gt; would make template capsule have loop named myLoop that represents the div element. Element having loop attribute must be one of the root elements in the templete code. Moreover, root elements have to have loop attribute in order to be displayed on the page. Since HTML code of template capsule may have more than one root element, consequently the template capsule may have more than one loop.
@@ -706,78 +707,6 @@ limitations under the License.
          * <li> attribute get - HTML element having get="getMe" attribute would act as a target for "getMe" input operation of the Template capsule. The operation returns the target (DOM) element itself.
          * </ul>
          * <p> Initially, the Template capsule has no methods, operations, hooks, or loops. However it dynamically creates them during instantiation, depending on how the abovementioned attribures are being used within the template.
-         * <p> See examples for more details.
-         *
-         * @example <caption>Template with one loop</caption>
-         * let caps = ...; // this is an arbitrary capsule having hook named myHook
-         * let template = new html.Template(`
-         *     <div id="abc" loop='loopX'>
-         *         <h1>Hello world!</h1>
-         *     </div>
-         * `); // creates HTML template capsule with a loop named loopX
-         * caps.myHook.tie(template.loopX); // places the div with id="abc" into its new parent
-         *
-         * @example <caption>Template with a hook and a loop</caption>
-         * let caps1 = ...; // this is an arbitrary capsule having hook named myHook
-         * let caps2 = ...; // this is an arbitrary capsule having loop named myLoop
-         * let template = new html.Template(`
-         *     <div loop='loopX'>
-         *         <h1>Hello world!</h1>
-         *         <div id="abc" hook="hookX"></div>
-         *     </div>
-         * `); // creates HTML template capsule with a loop named loopX and a hook named hookX
-         * caps1.myHook.tie(template.loopX); // places the whole template into its new parent
-         * template.hookX.tie(caps2.myLoop); // places an arbitrary content (represented by caps2.myLoop) into the template's hook (i.e. into the div with id="abc")
-         *
-         * @example <caption>Template and properties</caption>
-         * let template = new html.Template(`
-         *     <div loop='loopX'>
-         *         <h1 prop='setH1Prop' getprop='getH1Prop'>Hello world!</h1>
-         *     </div>
-         * `); // creates HTML template capsule with input operations to get and set h1's properties
-         * if (template.getH1Prop('dir') === 'rtl') // checks the property value
-         *     template.setH1Prop('dir', 'ltr'); // sets the property value
-         *
-         * @example <caption>Template and attributes</caption>
-         * let template = new html.Template(`
-         *     <div loop='loopX'>
-         *         <input type='text' attr='setInputAttr' getattr='getInputAttr' remattr='removeInputAttr'>
-         *     </div>
-         * `); // creates HTML template capsule with input operations to get, set, and remove input's attributes
-         * if (template.getInputAttr('disabled')) // checks the attribute value
-         *     template.removeH1Attr('disabled'); // removes the attribute
-         * else
-         *     template.setH1Attr('disabled', false); // sets the attribute value
-         *
-         * @example <caption>Template and events</caption>
-         * let template = new html.Template(`
-         *     <div loop='loopX'>
-         *         <button on="click" output="clicked"></button>
-         *     </div>
-         * `); // creates HTML template capsule with output operation to signal the 'click' event
-         * template.clicked.wire(function(e){
-         *     alert('Button ' + e.type + 'ed!'); // alerts 'Button clicked!'
-         * });
-         * @example <caption>Template and get attribute</caption>
-         * let template = new html.Template(`
-         *     <div loop='loopX'>
-         *         <label get="getLabel">First name:</label>
-         *     </div>
-         * `); // creates HTML template capsule with input operation getLabel that returns the label DOM element
-         * alert(template.getLabel().innerText); // alerts 'First name:'
-         *
-         * @example <caption>Template with two loops</caption>
-         * let caps1 = ..., caps2 = ...; // an arbitrary capsules having hooks named myHook and hk, respectively
-         * let template = new html.Template(`
-         *     <div id="abc" loop='loopX'>
-         *         <h1>Hello world!</h1>
-         *     </div>
-         *     <div id="cba" loop='loopY'>
-         *         <h1>Hello world again!</h1>
-         *     </div>
-         * `); // creates HTML template capsule with loops named loopX and loopY
-         * caps1.myHook.tie(template.loopX); // places the template's div with id="abc" into its new parent
-         * caps2.hk.tie(template.loopY); // places the template's div with id="cba" into its new parent
          *
          * @memberof module:html
          * @param {string} htmlCode - template HTML code with optional extensions (special attributes). We suggest using template literals for htmlCode instead of single or double quotes so that IDE can visually distinguish templates from regular strings.
@@ -800,7 +729,7 @@ limitations under the License.
                         loopName = el.getAttribute(T_LOOP),
                         part = new cps.ElementRef(el);
                         el.removeAttribute(T_LOOP);
-                        this[loopName] = new cps.Loop(loopName);
+                        this[loopName] = new cps.Loop();
                         this[loopName].tie(part.loop);
                     }
 
@@ -811,7 +740,7 @@ limitations under the License.
                         hookRef = new cps.ElementRef(hookElement),
                         hookName = hookElement.getAttribute(T_HOOK);
                         hookElement.removeAttribute(T_HOOK);
-                        this[hookName] = new cps.Hook(hookName);
+                        this[hookName] = new cps.Hook();
                         hookRef.hook.tie(this[hookName]);
                     }
 
@@ -855,12 +784,12 @@ limitations under the License.
                         eventName = outputElement.getAttribute(T_ON),
                         output = this.getOutput(outputName);
                         if (output == null) {
-                            output = new cps.Output(outputName);
+                            output = new cps.Output();
                             this[outputName] = output;
                         }
                         var listener = cps.contextualize(wrapper_(output));
                         outputElement.addEventListener(eventName, listener);
-                        this.getData('listeners').push({
+                        this.listeners.get().push({
                             element: outputElement,
                             event: eventName,
                             handler: listener
@@ -877,7 +806,7 @@ limitations under the License.
                         inputName = el.getAttribute(attrName),
                         input = this.getInput(inputName);
                         if (input == null) {
-                            input = new cps.Input(inputName);
+                            input = new cps.Input();
                             this[inputName] = input;
                         }
                         input.wire(inputTargetFunction.bind(el));
@@ -886,12 +815,12 @@ limitations under the License.
                 },
 
                 onDetach: function () {
-                    var listeners = this.getData('listeners');
+                    var listeners = this.listeners.get();
                     for (var i = 0; i < listeners.length; i++) {
                         var listener = listeners[i];
                         listener.element.removeEventListener(listener.event, listener.handler);
                     }
-                    this.setData('listeners', []);
+                    this.listeners = new cps.Data([]);
                 }
             });
 
@@ -1129,7 +1058,7 @@ limitations under the License.
             AJAX_JQUERY: 'AJAX_JQUERY'
         };
 
-        services.registerType(ServiceType.AJAX, function (requests, config) {
+        services.registerType(ServiceType.AJAX, function (requests, config, serviceName) {
             var arr = [],
             packed,
             responses;
@@ -1140,7 +1069,7 @@ limitations under the License.
             var xhttp = createXMLHTTPRequest_();
             if (config.async !== false)
                 xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) { // Success
+                    if (this.readyState == 4 && isSuccess_(this.status)) {
                         responses = JSON.parse(this.responseText);
                         if (!isArray_(responses) || responses.length !== requests.length)
                             services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1148,6 +1077,12 @@ limitations under the License.
                             services.resolveAllSuccessful(requests, responses);
                     } else if (this.readyState == 4) { // Error
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
+                    }
+                    if (this.readyState == 4) {
+                        if (this.status == 0) // timeout
+                            services.setServiceStatus(serviceName, 'offline');
+                        else
+                            services.setServiceStatus(serviceName, 'online');
                     }
                 };
             xhttp.open(config.method,
@@ -1161,7 +1096,7 @@ limitations under the License.
                 config.beforeSend(xhttp);
             xhttp.send(packed);
             if (config.async === false) {
-                if (xhttp.status === 200) {
+                if (isSuccess_(xhttp.status)) {
                     responses = JSON.parse(xhttp.responseText);
                     if (!isArray_(responses) || responses.length !== requests.length)
                         services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1170,10 +1105,14 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
+                if (xhttp.status == 0) // timeout
+                    services.setServiceStatus(serviceName, 'offline');
+                else
+                    services.setServiceStatus(serviceName, 'online');
             }
         });
 
-        services.registerType(ServiceType.AJAX_URL_ENCODED, function (requests, config) {
+        services.registerType(ServiceType.AJAX_URL_ENCODED, function (requests, config, serviceName) {
             var arr = [],
             packed,
             responses;
@@ -1184,7 +1123,7 @@ limitations under the License.
             var xhttp = createXMLHTTPRequest_();
             if (config.async !== false)
                 xhttp.onreadystatechange = function () {
-                    if (this.readyState == 4 && this.status == 200) { // Success
+                    if (this.readyState == 4 && isSuccess_(this.status)) {
                         responses = JSON.parse(this.responseText);
                         if (!isArray_(responses) || responses.length !== requests.length)
                             services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1192,6 +1131,12 @@ limitations under the License.
                             services.resolveAllSuccessful(requests, responses);
                     } else if (this.readyState == 4) { // Error
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
+                    }
+                    if (this.readyState == 4) {
+                        if (this.status == 0) // timeout
+                            services.setServiceStatus(serviceName, 'offline');
+                        else
+                            services.setServiceStatus(serviceName, 'online');
                     }
                 };
             var index = config.url.indexOf('?'),
@@ -1214,7 +1159,7 @@ limitations under the License.
                 config.beforeSend(xhttp);
             xhttp.send(null);
             if (config.async === false) {
-                if (xhttp.status === 200) {
+                if (isSuccess_(xhttp.status)) {
                     responses = JSON.parse(xhttp.responseText);
                     if (!isArray_(responses) || responses.length !== requests.length)
                         services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
@@ -1223,10 +1168,14 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
+                if (xhttp.status == 0) // timeout
+                    services.setServiceStatus(serviceName, 'offline');
+                else
+                    services.setServiceStatus(serviceName, 'online');
             }
         });
 
-        services.registerType(ServiceType.AJAX_JQUERY, function (requests, config) {
+        services.registerType(ServiceType.AJAX_JQUERY, function (requests, config, serviceName) {
             var arr = [],
             packed;
             for (var i = 0; i < requests.length; i++)
@@ -1242,11 +1191,23 @@ limitations under the License.
                     services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
                 else
                     services.resolveAllSuccessful(requests, responses);
+                services.setServiceStatus(serviceName, 'online');
             });
             jQueryRequest.fail(function (jqXHR, textStatus, errorThrown) {
                 services.rejectAll(requests, errorThrown);
+                if (jqXHR.status == 0) // timeout
+                    services.setServiceStatus(serviceName, 'offline');
+                else
+                    services.setServiceStatus(serviceName, 'online');
             });
         });
+
+        /**
+         * @private
+         */
+        function isSuccess_(statusCode) {
+            return (statusCode >= 200 && statusCode < 300) || statusCode === 304;
+        }
 
         /**
          * @private

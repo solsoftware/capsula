@@ -1,49 +1,4 @@
-<!-- 
-   Copyright 2018 SOL Software
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
--->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Source: sm.js</title>
-
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
-	<link type="text/css" rel="stylesheet" href="css/custom.css">
-</head>
-
-<body>
-
-<div id="main">
-
-    <h1 class="page-title">Source: sm.js</h1>
-
-    
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/*
+/*
 Copyright 2018 SOL Software
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,9 +22,9 @@ limitations under the License.
  */
 
 (function (root, factory) {
-    if (typeof define === 'function' &amp;&amp; define.amd) {
+    if (typeof define === 'function' && define.amd) {
         define([], factory);
-    } else if (typeof module === 'object' &amp;&amp; module.exports) {
+    } else if (typeof module === 'object' && module.exports) {
         module.exports = factory();
     } else {
         root.sm = factory();
@@ -138,7 +93,7 @@ limitations under the License.
          */
         StateMachineClassData_.prototype.processDefinition = function (name, defKey, definition, parent) {
             var state = new State_(name, definition, parent);
-            if (defKey === INITIAL &amp;&amp; !isNothing_(parent))
+            if (defKey === INITIAL && !isNothing_(parent))
                 parent.initial = state;
             this.states[name] = state;
             var isComposite = false,
@@ -151,10 +106,10 @@ limitations under the License.
                 var value = definition[key]; // order: 1
                 key = key.trim(); // order: 2
                 if (key === TRIGGERLESS) {
-                    if (!isObject_(value) &amp;&amp; !isArray_(value))
+                    if (!isObject_(value) && !isArray_(value))
                         throw new Error(Errors.ILLEGAL_DESIGN.toString('The ' + TRIGGERLESS + ' property for state ' + state.name + ' should either be a transition object or an array of transition objects.'));
 					if (isArray_(value)){
-						for (var i = 0; i &lt; value.length; i++){
+						for (var i = 0; i < value.length; i++){
 							if (isNothing_(value[i][TARGET]))
 								throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure triggerless transitions all have \'target\' property. State: ' + state.name));
 							state.triggerless.push(value[i]);
@@ -181,16 +136,16 @@ limitations under the License.
 					}
                 }
             }
-            if (isComposite &amp;&amp; numInitial !== 1)
+            if (isComposite && numInitial !== 1)
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has exactly one initial state.'));
-            if (isComposite &amp;&amp; numFinal > 1)
+            if (isComposite && numFinal > 1)
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has at most one final state.'));
 
             state.isComposite = isComposite;
             state.isFinal = defKey === FINAL;
             state.isInitial = defKey === INITIAL;
 			
-			if (state.isFinal &amp;&amp; hasTransitions)
+			if (state.isFinal && hasTransitions)
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure final states don\'t have transitions of their own. State: ' + state.name));
 			
 			if (isSteadyFlagSet){
@@ -202,13 +157,13 @@ limitations under the License.
 						throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure final states are always steady. State: ' + state.name));
 				}
 			}
-			state.isSteady = !state.isComposite &amp;&amp; !state.isInitial;
+			state.isSteady = !state.isComposite && !state.isInitial;
 
-            if (state.isComposite &amp;&amp; (state.isFinal || state.isInitial))
+            if (state.isComposite && (state.isFinal || state.isInitial))
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the composite state ' + state.name + ' is neither initial nor final.'));
-            if (state.isInitial &amp;&amp; state.triggerless.length === 0)
+            if (state.isInitial && state.triggerless.length === 0)
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the initial state ' + state.name + ' has at least one outgoing triggerless transition.'));
-            if (state.isFinal &amp;&amp; state.triggerless.length > 0)
+            if (state.isFinal && state.triggerless.length > 0)
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the final state ' + state.name + ' has no outgoing transitions at all.'));
             if (state.isFinal) {
                 state.triggerless = parent.triggerless;
@@ -316,7 +271,7 @@ limitations under the License.
             smClass = sm.constructor;
             var transitions = findTransitions_(state, commonOwner, trigger);
             var isLeft = false;
-            for (var i = 0; i &lt; transitions.length; i++) {
+            for (var i = 0; i < transitions.length; i++) {
                 var t = transitions[i];
                 if (isNothing_(t[GUARD]) || execute_(host, t[GUARD], sm)) {
                     var target = smClass.compiledDef.states[t[TARGET]];
@@ -327,12 +282,12 @@ limitations under the License.
                     exitArr = getExitActions_(state, newCommonOwner),
                     entryArr = getEntryActions_(target, newCommonOwner);
 
-                    for (var ex = 0; ex &lt; exitArr.length; ex++)
+                    for (var ex = 0; ex < exitArr.length; ex++)
                         execute_(host, exitArr[ex], sm);
 
                     execute_(host, t[EFFECT], sm);
 
-                    for (var en = 0; en &lt; entryArr.length; en++)
+                    for (var en = 0; en < entryArr.length; en++)
                         execute_(host, entryArr[en], sm);
 
                     sm._.state = target;
@@ -341,7 +296,7 @@ limitations under the License.
                     break;
                 }
             }
-            if (!isLeft &amp;&amp; !state.isSteady)
+            if (!isLeft && !state.isSteady)
                 throw new Error(Errors.RUNTIME_ERROR.toString('Make sure the state machine never stops (completes) in a not steady state, such as: ' + state.name));
         }
 
@@ -357,7 +312,7 @@ limitations under the License.
 
             var transitions = [];
 			if (isNothing_(trigger)){ // triggerless
-				for (; state != null &amp;&amp; state != commonOwner; state = state.parent)
+				for (; state != null && state != commonOwner; state = state.parent)
 					Array.prototype.push.apply(transitions, state.triggerless);
 			} else {
 				for (; state != null; state = state.parent)
@@ -468,7 +423,7 @@ limitations under the License.
          * @private
          */
         function isObject_(obj) {
-            return obj &amp;&amp; typeof obj === 'object' &amp;&amp; !isArray_(obj);
+            return obj && typeof obj === 'object' && !isArray_(obj);
         }
 
         /**
@@ -495,7 +450,7 @@ limitations under the License.
          */
         ErrorMessage_.prototype.toString = function (var_args) {
             var desc = this.desc;
-            for (var i = 0; i &lt; arguments.length; i++)
+            for (var i = 0; i < arguments.length; i++)
                 desc = desc.replace('$' + (i + 1), arguments[i]);
             return 'Oops! ' + desc + ' (#' + this.code + ')';
         };
@@ -513,23 +468,23 @@ limitations under the License.
         var Errors = {
 			/**
              * Usage: when function argument is not according to expectations. Error message (without $1 placeholder replaced and with the error code):
-             * &lt;p>&lt;i> 'Oops! Illegal argument(s). $1 (#3000)' &lt;/i>
+             * <p><i> 'Oops! Illegal argument(s). $1 (#3000)' </i>
              */
 			ILLEGAL_ARGUMENT: new ErrorMessage_(3000, 'Illegal argument(s). $1'),
 			/**
              * Usage: when state machine has obvious problem visible in the design-time. Error message (without $1 placeholder replaced and with the error code):
-             * &lt;p>&lt;i> 'Oops! Illegal design of state machine. $1 (#3001)' &lt;/i>
+             * <p><i> 'Oops! Illegal design of state machine. $1 (#3001)' </i>
              */
 			ILLEGAL_DESIGN: new ErrorMessage_(3001, 'Illegal design of state machine. $1'),
 			/**
              * Usage: when runtime error occurs during the execution of state machine. Error message (without $1 placeholder replaced and with the error code):
-             * &lt;p>&lt;i> 'Oops! Runtime error. $1 (#3002)' &lt;/i>
+             * <p><i> 'Oops! Runtime error. $1 (#3002)' </i>
              */
 			RUNTIME_ERROR: new ErrorMessage_(3002, 'Runtime error. $1'),
 		}
 		
         /**
-         * &lt;p> sm.js module provides means to create and use &lt;a href="https://en.wikipedia.org/wiki/Finite-state_machine" target="_blank">state machines&lt;/a>. State machines are very powerful tool for handling behavior and dynamic aspects of any software.
+         * <p> sm.js module provides means to create and use <a href="https://en.wikipedia.org/wiki/Finite-state_machine" target="_blank">state machines</a>. State machines are very powerful tool for handling behavior and dynamic aspects of any software.
          *
          * @exports sm
          * @version 0.1.0
@@ -540,26 +495,3 @@ limitations under the License.
 
         return ns;
     }));
-</code></pre>
-        </article>
-    </section>
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li><li><a href="module-sm.html">sm</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li><li><a href="module-sm.StateMachine.html">StateMachine</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li><li><a href="module-sm.Errors.html">Errors</a></li></ul>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Sep 12 2018 16:47:01 GMT+0200 (Central Europe Summer Time)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
-</body>
-</html>

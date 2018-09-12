@@ -110,13 +110,6 @@ limitations under the License.
             this.loops = [];
 
             /**
-             * The private data of this capsule. This object acts as a collection of name-value pairs where name is the id of data and value is the data itself.
-             *
-             * @type {Object}
-             */
-            this.data = {};
-
-            /**
              * Currently executing operation.
              *
              * @type {Operation}
@@ -227,6 +220,13 @@ limitations under the License.
             this.up = null;
 
             /**
+             * The children collection of hooks and loops.
+             *
+             * @type {Array.<Hook|Loop>}
+             */
+            this.children = [];
+
+            /**
              * The element of this hook or loop.
              *
              * @type {Object}
@@ -246,6 +246,13 @@ limitations under the License.
              * @type {Function}
              */
             this.offHook = null;
+
+            /**
+             * ElementRef capsule created in renderInto.
+             *
+             * @type {ElementRef}
+             */
+            this.parentRef = null;
         }
 
         HookLoopData_.prototype = Object.create(PrivateData_.prototype);
@@ -259,13 +266,6 @@ limitations under the License.
          */
         function HookData_() {
             HookLoopData_.call(this);
-
-            /**
-             * The children collection of hooks and loops of this hook.
-             *
-             * @type {Array.<Hook|Loop>}
-             */
-            this.children = [];
 
             /**
              * The class of this hook. In HTML domain, this is the CSS class which is being added to all child elements when the chain is completed and removed when the chain is destructured.
@@ -286,83 +286,32 @@ limitations under the License.
          */
         function LoopData_() {
             HookLoopData_.call(this);
-
-            /**
-             * The child loop of this loop.
-             *
-             * @type {Loop}
-             */
-            this.down = null;
-
-            /**
-             * ElementRef capsule created in loop.render.
-             *
-             * @type {ElementRef}
-             */
-            this.ref = null;
         }
 
         LoopData_.prototype = Object.create(HookLoopData_.prototype);
 
         /**
-         * @classdesc
-        <p> Capsule class is an abstract base class in the hierarchy of (built-in and user-defined) capsule classes. In many ways capsule classes are similar to the typical OO classes. They support single inheritance model and polymorphism the way OO classes do. However, capsules differ from OO classes in many ways as well. They are dynamic the way JavaScript language is. Also, they enforce a special encapsulation model and accommodate several new concepts which are explained in the lines that follow.
-         * <h3>Capsule Properties</h3>
-         * <p> There are five types of capsule properties: parts, operations, methods, hooks, and loops.
-         * <p> Part is a property of capsule instance that represents another capsule instance that "belongs" to it, i.e. part capsule is basically a child capsule. Child capsule is always created in the context of its parent and accessible only from within that context. Next section explains the term capsule context more precisely.
-         * <p> An operation is a capsule's property that acts like a very powerful method. It can be used as a regular method, however operation adds support for asynchronous calls, argumetns filtering, declarative wiring to other operations to specify propagation of calls, etc. There are input and output operations. Read more on what can be achieved using [operations]{@link module:capsula.Operation}.
-         * <p> Method is a capsule property that behaves as anyone would imagine, that is, as a simple JavaScript method. Methods can be either public or protected.
-         * <p> [Hooks]{@link module:capsula.Hook} and [loops]{@link module:capsula.Loop} provide capsule with a special support for managing hierarchy of external elements (widgets for example) in a flexible way.
-         * <p>When creating a capsule class, one must define which and how many of these properties should be present in it (see [defCapsule]{@link module:capsula.defCapsule}). Once created, capsule class cannot be modified afterwards. All instances of that class would then have the properties as defined in the class. However, once an instance of capsule class is created, it can be dynamically modified (by adding new properties for example, or removing existing ones); just as anyone would expect from a JavaScript object.
-         * <p> Table bellow specifies characteristics of capsule properties (like: are they visible?, do they get inherited?, and are they dynamically addable / removable in runtime?):
-         * <table>
-         * <thead><tr><td>property type</td><td>visibility</td><td>inheritable</td><td>addable</td><td>removable</td></tr></thead>
-         * <tbody><tr><th>part</th><td>protected</td><td>true</td><td>true</td><td>true</td></tr>
-         * <tr><th>operation</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-         * <tr><th>method</th><td>protected or public</td><td>true</td><td>false</td><td>false</td></tr>
-         * <tr><th>hook</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-         * <tr><th>loop</th><td>public</td><td>true</td><td>true</td><td>false</td></tr>
-         * </tbody></table>
-         * <p> Behind its interface made up of operations, public methods, hooks, and loops, capsules hide:
-         * <ul>
-         * <li> parts <br>
-         * <li> the way parts' and capsule's operations are connected (wired) between one another, <br>
-         * <li> the way parts' and capsule's hooks and loops are connected (tied) between one another, <br>
-         * <li> protected methods (i.e. protected behavior), and <br>
-         * <li> protected data.
-         * </ul>
-         * <p> Private properties are not supported.
-         * <p>
-         * <h3>Encapsulation Model and the "Current Context of Execution"</h3>
-         * <p> As a reminder, in a typical OO encapsulation model, all public properties and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we have to carefully manage references. Effectively managing references can be a bit too difficult and that is why capsules introduce quite a novel encapsulation model which is a restriction to the <i>"everything public is accessible"</i> policy.
-         * <p> To understand the policy of our encapsulation model, it is fundamentally important to understand the notion of <i>"current context of execution"</i>. Current context of execution is specified with respect to the given point in time and it always represents a capsule instance:
-         * <p> <i> For the given point in time t and the given capsule instance x, x is the current context of execution at t, if and only if the call stack at t lists a method of x and no method of capsule instance other than x deeper in the call stack.</i>
-         * <p> If x is the current context of execution, we informally say that <i>"we are in the context of x"</i>.
-         * <p> Now we can define "is part of" relation between capsules instances:
-         * <p> <i> Two capsule instances x and y are in "is part of" relation (x is part of y) if and only if y was the current context of execution at the moment of instantiation of x.</i>
-         * <p> Note that "is part of" relation is neither symmetric, nor transitive, nor reflexive.
-         * <p> For these two capsule instances we informally say that x is part of y. If x is part of y, we also informally say that "y is the owner of x". At any point in time a capsule instance can have zero or more parts (part properties) and zero or one owner.
-         * <p> Now, our policy could easily be expressed: when we are in the context of y, it is allowed to use (access, call) a) public properties of capsule instance x if and only if x is a part of y and b) protected properties of capsule instance y.
-         * <p> When trying to use a properties against these rules, an [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT} error is going to be thrown.
-         * <h3>How to create a capsule class?</h3>
-         * <p> To create a capsule class call the [defCapsule]{@link module:capsula.defCapsule} method:
-         * <pre class="prettyprint"><code>var MyCapsuleClass = capsula.defCapsule(capsule_definition_object);</code></pre>
-         * <h3>How to create a capsule instance?</h3>
-         * <p> To instantiate capsule class (i.e. to obtain a capsule instance or capsule) use one of the two possible ways: <br>
-         * <p> a) instantiate imperatively using the <i>new</i> operator and a function returned from the call to defCapsule:
-         * <pre class="prettyprint"><code>var myCapsuleInstance = new MyCapsuleClass(optional_arguments);</code></pre>
-         * In this case, myCapsuleInstance capsule implicitly becomes a part property of the capsule which represents the current context of execution.
-         * <p> b) instantiate declaratively using the capsule definition object in defCapsule:
-         * <pre class="prettyprint"><code>var OwnerClass = capsula.defCapsule({
-         *     ...
-         *     myCapsuleInstance: {
-         *         capsule: MyCapsuleClass,
-         *         args: [optional_arguments]
-         *     }
-         *     ...
-         * });
-         * </code></pre>
-         * In this case, we declare that every instance of the OwnerClass would have an instance of MyCapsuleClass (myCapsuleInstance) as its part property.
+         * Capsule-specific private information.
+         *
+         * @class
+         * @memberof module:capsula
+         * @private
+         */
+        function DataData_() {
+            PrivateData_.call(this);
+
+            /**
+             * The private information of this data.
+             *
+             * @type {Object}
+             */
+            this.data;
+        }
+
+        DataData_.prototype = Object.create(PrivateData_.prototype);
+
+        /**
+         * @classdesc Capsule class is an abstract base class in the hierarchy of capsule classes.
          *
          * @abstract
          * @class
@@ -379,9 +328,7 @@ limitations under the License.
         /**
          * @private
          */
-        function Operation_(name, func, isInput) {
-            if (name)
-                checkName_(name);
+        function Operation_(func, isInput) {
             var that;
             if (isInput)
                 that = function Input() {
@@ -394,9 +341,7 @@ limitations under the License.
             Object.setPrototypeOf(that, oProto_);
 
             var privateData = new OperationData_();
-            if (!name)
-                name = 'o_' + privateData.id;
-            privateData.name = name;
+            privateData.name = 'o_' + privateData.id;
             privateData.owner = ctx_;
             privateData.owner._.pins.push(that);
             privateData.isInput = isInput ? true : false;
@@ -419,36 +364,6 @@ limitations under the License.
          * @class
          * @classdesc Operation is [capsule's]{@link module:capsula.Capsule} public property. It is like a method (or function) and much more. It can be used either by calling it (just like a method) or by calling methods on it (to exploit its additional features). For example, if o is an operation it is meant to be called like this: <code>o(optional_arguments)</code>. But it can also be used as an object to call methods on it, for example <code>o.getName()</code>. By default, calling an operation does nothing, but this can be changed by "wiring" (connecting) operation to other operations or methods that do something. Wiring operation to other operations or methods actually specifies propagation of operation (method) calls. The result of calling an operation is a combined result of all operations and methods downstream.
          * <p> Operation can either be [input]{@link module:capsula.Input} or [output]{@link module:capsula.Output}. Input operation serves as a propagator of calls from the outside towards the inside of the capsule the operation is property of. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its capsule.
-         * <p> To call operation, wire two operations, or wire operation to a capsule's method one must take into consideration the following: a) type(s) of each operation (input or output) or method (always input) involved, b) relationship of their owning capsules (in terms of are they sibling capsules or one capsule is part of another), and c) the current context of execution.
-         * <p> For example, let capsule c be the capsule of the current context of execution. Let c1 and c2 be its part capsules, o1, o2, ..., o5 their operations, and m1 and m2 methods (see figure bellow).
-         * <p> <img src="img/operations.png">
-         * <p> Operations eligible to be called in the current context of execution (c) are c2.o3 and c.o5 (the same as this.o5). It is illegal to call c1.o1, c2.o4, c.o2 (the same as this.o2).
-         * <p> The following operations are wired to one another and to methods: <br>
-         * 1) input operation o2 of capsule c to input operation o3 of capsule c2, <br>
-         * 2) output operation o4 of capsule c2 to output operation o5 of capsule c, <br>
-         * 3) output operation o1 of capsule c1 to input operation o3 of capsule c2, <br>
-         * 4) input operation o2 of capsule c to output operation o5 of capsule c, <br>
-         * 5) input operation o2 of capsule c to method m2 of capsule c, and <br>
-         * 6) output operation o1 of capsule c1 to method m1 of capsule c.
-         * <p> It is said that operations o2, o4, and o1 act as "source" operations while operations o3 and o5 and methods m1 and m2 act as "targets" in these wires. Note that each source operation (for example o2) could be wired to many targets (o3, o5, and m2). Similarly, each target operation or method (for example operation o5) could be wired to many source operations (o4 and o2). A method can only act as a target when being wired. Wiring of operations is either done declaratively (in [defCapsule]{@link module:capsula.defCapsule}) or by calling methods on operations (see [wire]{@link module:capsula.Operation#wire}, [source]{@link module:capsula.Operation#source}, [target]{@link module:capsula.Operation#target}, and all related methods from there).
-         * <p> Input operation can be used (depending on the context) either:
-         * <p> 1) as a target if used from the outside of its capsule or <br>
-         * 2) as a source if used from the inside.
-         * <p> Output operation can be used (depending on the context) either:
-         * <p> 1) as a source if used from the outside of its capsule or <br>
-         * 2) as a target if used from the inside.
-         * <p> As stated above, operations' wiring defines propagation of operation calls. For example, calling:
-         * <pre class="prettyprint"><code>c.o2('something');</code></pre>
-         * <p> would effectively mean calling:
-         * <pre class="prettyprint"><code>
-         * c.m2('something');
-         * c2.o3('something');
-         * c.o5('something');
-         * </code></pre>
-         * In other words, operation calls are being propagated according to the wiring. Wiring network ends where operations are wired to methods. The methods make the final combined effect of an operation call. When calling an operation, if there is more than one downstream method an array of method results is returned. If however there is only one downstream method its result is returned (this is by default, but can be changed, see [setUnpackResult]{@link module:capsula.Operation#setUnpackResult}). If there is no downstream methods for it, undefined is returned.
-         * <p> Operations are by default enabled but could be disabled in which case the propagation of calls does not work and undefined is returned when disabled operation is called. See [setEnabled]{@link module:capsula.Operation#setEnabled}.
-         * <p> As mentioned above, calling an operation o is done by <code>o(optional_arguments)</code>. This is a synchronous operation call. It means control is returned to the caller once all of the downstream operations and methods are executed. There is however an asynchronous way of calling an operation. For operation o this is done by <code>o.send(optional_arguments)</code>. This returns Promise object which allows for handling the results in both successful and erroneous use cases. In case of an async operation call, the control is returned to the caller immediately and propagation of calls is done in asynchronous manner at some point in future. See [send]{@link module:capsula.Operation#send}.
-         * <p> Operations could have a filter set to modify operation arguments before further propagation of operation call or even to completely filter out (disable) individual operation calls. Since each operation is in a way on a boundary between two contexts (context of a capsule that owns the operation and its outer context), filters can be set to operation in both contexts. See [setFilter]{@link module:capsula.Operation#setFilter} for more details.
          *
          * @memberof module:capsula
          * @public
@@ -459,9 +374,8 @@ limitations under the License.
         Operation.prototype = oProto_;
 
         /**
-         * Creates new input operation as a property of the capsule that represents the current context of execution, with the given name and implementation function (if provided). The given name can later be used to obtain a reference to this operation from its owner capsule using [getInput]{@link module:capsula.Capsule#getInput} or [getOperation]{@link module:capsula.Capsule#getOperation}.
+         * Creates new input operation as a property of the capsule that represents the current context of execution.
          *
-         * @param {string} [opt_name] - optional name of input operation to create
          * @param {Function} [opt_function] - optional function that gets called every time input operation gets called, i.e. it is a sort of implementation of the input operation to be created
          * @class
          * @classdesc
@@ -471,22 +385,21 @@ limitations under the License.
          * <li> Input
          * </ul>
          * </ul>
-         * <p> Input operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Input operations go along with output operations; they are complementary concepts that cannot be explained in separation. This is why input and output operations' essentials are given in one place and that is the [operations' page]{@link module:capsula.Operation}.
+         * <p> Input operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation. Input operations go along with output operations; they are complementary concepts.
          *
          * @memberof module:capsula
          * @see {@link module:capsula.Operation}
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Input(opt_name, opt_function) {
-            return Operation_(opt_name, opt_function, true);
+        function Input(opt_function) {
+            return Operation_(opt_function, true);
         }
 
         /**
-         * Creates new output operation as a property of the capsule that represents the current context of execution, with the given name (if provided). The given name can later be used to obtain a reference to this operation from its owner capsule using [getOutput]{@link module:capsula.Capsule#getOutput} or [getOperation]{@link module:capsula.Capsule#getOperation}.
+         * Creates new output operation as a property of the capsule that represents the current context of execution.
          *
-         * @param {string} [opt_name] - optional name of the output operation to create
          * @class
          * @classdesc
          * <ul>
@@ -495,156 +408,34 @@ limitations under the License.
          * <li> Output
          * </ul>
          * </ul>
-         * <p> Output operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Output operations go along with input operations; they are complementary concepts that cannot be explained in separation. This is why input and output operations' essentials are given in one place and that is the [operations' page]{@link module:capsula.Operation}.
+         * <p> Output operation is a specific public property of a [capsule]{@link module:capsula.Capsule}. Output operation serves as a propagator of calls from the inside towards the outside of its owner capsule. Output operations go along with input operations; they are complementary concepts.
          *
          * @memberof module:capsula
          * @see {@link module:capsula.Operation}
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Output(opt_name) {
-            return Operation_(opt_name, null, false);
+        function Output() {
+            return Operation_(null, false);
         }
 
         /**
-         * Creates new hook as a property of the capsule that represents the current context of execution, with the given name (if provided). The given name can later be used to obtain a reference to this hook from its owner capsule using [getHook]{@link module:capsula.Capsule#getHook}.
+         * Creates new hook as a property of the capsule that represents the current context of execution.
          *
          * @class
          * @classdesc Hook is a specific public property of a [capsule]{@link module:capsula.Capsule}. It is a representation of a parent element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a parent in a parent-child relationship.
-         * <p> Hooks always go along with loops; they are complementary concepts that cannot be explained in separation. This is why loops' essentials are also given here, on the hooks' page. For all the details about loops there is a dedicated [loops' page]{@link module:capsula.Loop}.
-         * <p> Similarly to hook, a loop is a specific public property of a capsule. Unlike hook which represents a parent element, loop is a representation of a child element in a hierarchical structure of elements (e.x. widgets).
-         * <p> A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent element and more than one child element (at the same time).
-         * <p> In the <i>Capsula</i> library, element hierarchy is built by managing hierarchies of hooks and loops instead of dealing with elements directly. As will be shown, this brings lots of flexibility and at the same time makes the code less dependent on the external API (like for example the DOM API).
-         * <p> The following short example shows what can be done with hooks and loops and how it is better than today's common practice. Then, it is explained exactly how to create and modify hierarchy of elements by managing hierarchies of hooks and loops more formally.
-         * <h3>The Example</h3>
-         * <p> Capsula framework does not impose what elements mentined above must be; in this example elements are UI widgets. This example shows how to design really flexible and highly reusable tab UI component.
-         * <p> Imagine a typical tab UI component (see the figure just bellow). Tab has a menu that reacts on user clicks and makes sure the corresponding page is displayed bellow. Tab capsule (also shown bellow) implements this behavior internally.
-         * <p> Tab has two roles. It acts as a parent widget for its contents. This role is represented by the <i>pages</i> hook of the tab capsule, i.e. the pages hook represents the tab as a parent in tab's parent-child relationships with its children.
-         * <p> On the other hand, tab acts as a child widget for its container. This role is represented by the loop named <i>loop</i> of the tab capsule, i.e. the loop represents the tab as a child in the tab's parent-child relationship with its parent.
-         * <p> At this point, the tab capsule is not too good in terms of reusability because although we can reuse the tab as it is, in terms of layout the tab menu and its contents are bound to one another which is quite inflexible. How can that be improved then?
-         * <p> <img src="img/tab-2.png" style="margin-right:5em"><img src="img/tab-1.png">
-         * <p> It is not difficult to imagine a requirement to have an ads section between the tab menu and the tab contents (see bellow). In that case, our tab capsule won't do the job. However, we improve it by introducing additional hook named <i>ads</i> in the tab capsule. Now, if we use the ads hook (i.e. put somthing in it) we are able to meet the given requirement, otherwise the tab looks the same as before. This improves flexibility of the tab because the ads hook allows us to put anything we want between the tab menu and the tab contents and that is done outside of the tab capsule. So, instead of ads, we can have the breaking news section in between, or anything else. This is better, but still one could ask for more flexibility.
-         * <p> <img src="img/tab-4.png" style="margin-right:5em"><img src="img/tab-3.png">
-         * <p> Let's forget the ads hook, reset to the original tab capsule, and redesign it from scratch. Instead of a single loop, let's create two loops: <i>tabMenu</i> and <i>tabContents</i>. The tabMenu loop represents the tabMenu widget as a child in its parent-child relationship with its parent. The tabContents loop represents the container of tab pages as a child in its parent-child relationship with its parent. Now, the programmer can decide where in the page to put the tab menu and where to put the tab contents (see the figure bellow). In this example, the tab contents is displayed first on the page, then there is some arbitrary contents (designated with three dots), and finally there is the tab menu. Still, wherever the tab menu and the tab contents are placed on the page, they continue to work together so when the tab menu item is clicked, the corresponding page is displayed.
-         * <p> Decisions on where to put the menu and the contents are left to the programmer that uses the tab capsule, i.e. they are extracted from the tab capsule and now belong to the outside of the tab capsule. This is why the tab capsule as it is now is much more flexible (and because of that much more reusable) than before. The interaction between the tab menu and the tab contents is however left inside the capsule, which makes sense because the two are logically related. This is the most flexible solution one could ask for.
-         * <p> <img src="img/tab-6.png" style="margin-right:5em"><img src="img/tab-5.png">
-         * <p> As shown in this example, a capsule is a logical unit of work; what the logic of a capsule is, is left to programmers to decide. The logic may or may not include layout decisions, again according to the requirements. Hooks and loops allow for decoupling the layout from other concers in an effective way. This brings lots of flexibility and improves capsules' potential for reuse.
-         * <h3>Hooks&Loops Hierarchies and Paths</h3>
-         * <p> This section explains how to create and modify hierarchy of elements by managing hierarchies of hooks and loops. How to create a valid hierarchy of hooks and loops is explained first. Then, we explain how it maps to an element structure.
-         * <p> Hierarchy of hooks and loops is a tree made up of hooks and loops according to the rules that follow. Hooks and loops are connected (tied) to one another using so called "ties" (ties are actually the branches in the tree).
-         * <p> There are two types of hooks and loops: a) connector hooks and loops and b) connecting hooks and loops.
-         * <p> <i> A connector hook directly represents parent element in a parent-child relationship of elements. A connector loop directly represents child element in a parent-child relationship of elements.</i>
-         * <p> (To obtain a connector hook (or loop) check [ElementRef capsule]{@link module:capsula.ElementRef}.)
-         * <p> <i> A connecting hook represents parent element indirectly, through a connector hook it is (directly or indirectly) tied to. A connecting loop represents child element indirectly, through a connector loop it is (directly or indirectly) tied to. A connecting hook (loop) may or may not be directly or indirectly tied to a connector hook (loop). </i>
-         * <p> So, a tree of hooks and loops is made up of connector hooks and loops and connecting hooks and loops. Hooks and loops form the tree according to the following rules:
-         * <ul>
-         * <li> Hook may have many children (or none). Each child must either be a hook or a loop. The ordering of hook's children is significant since it represents the ordering of elements in the corresponding section of the element structure.
-         * <li> Hook can either be unparented or have exactly one parent. The parent can only be another hook.
-         * <li> A connector hook must not have a parent. If it exists in the tree, it must be the root node.
-         * <li> Loop can either be unparented or have exactly one parent. The parent can be another loop or a hook.
-         * <li> Loop may have zero or one child. A child, if it exists, must be another loop.
-         * <li> A connector loop must not have a child. If it exists in the tree, it must be a leaf node in the tree.
-         * </ul>
-         * <p> The same rules could be expressed more formally. Let's consider a tree of hooks and loops to be a collection of paths from the root node of the tree to each of the leaf nodes.
-         * <p> <i> A valid hierarchy (tree) of hooks and loops is a collection of valid paths only. </i>
-         * <p> <i>A valid path is a chain of hooks and loops that a) spans from the root node towards the leaf node over the nodes and ties that exist between them and b) is formed according to the following rules:
-         * <ul>
-         * <li> Connector hook, if it exists in the chain, can only be the first (root) node in the chain.
-         * <li> Connector loop, if it exists in the chain, can only be the last (leaf) node in the chain.
-         * <li> A pair of hook h and loop l where d(h) > d(l) does not exist. Here, d(n) is the distance of node n from the first (root) node of the chain.
-         * </ul></i>
-         * <p> <i>A path is complete if the following holds:
-         * <ul>
-         * <li> It is a valid path.
-         * <li> The root node is a connector hook.
-         * <li> The leaf node is a connector loop.
-         * </ul></i>
-         * <p> The following paths are complete (the root node is the leftmost node) (J represents a connecting hook, J' represents a connector hook, O - represents a connecting loop, O' - represents a connector loop):
-         * <ul>
-         * <li> J' - O'
-         * <li> J' - J - O'
-         * <li> J' - O - O'
-         * <li> J' - J - ... - J - O - ... - O'
-         * </ul>
-         * <p> A complete path represents an existing completed relationship between the parent element (represented by the connector hook) and the child element (represented by a connector loop).
-         * <p> The following paths are valid, but not complete:
-         * <ul>
-         * <li> J
-         * <li> J - ... - J
-         * <li> J' - J - ... - J
-         * <li> O
-         * <li> O - ... - O
-         * <li> O - ... - O'
-         * <li> J - O
-         * <li> J - ... - J - O - ... - O
-         * <li> J' - J - ... - J - O - ... - O
-         * <li> J - ... - J - O - ... - O'
-         * </ul>
-         * <p> A valid yet incomplete path represents an incomplete relationship between the parent and the child element (when either one or both of them are missing). Incomplete path would become completed as soon as it obtains both a connector hook and a connector loop. At that point the element represented by a connector hook and the element represented by the connector loop would establish a parent-child relationship.
-         * <p> The following paths are not valid (* represents hook, loop, or nothing at all):
-         * <ul>
-         * <li> * - O - * - J - *
-         * <li> * - O' - * - J - *
-         * <li> * - O - * - J' - *
-         * <li> * - O' - * - J' - *
-         * </ul>
-         * <p> Modifications in the structure of a path may or may not affect the structure of actual elements:
-         * <p> <i> If a modification results in a new complete path (or paths) being formed, the elements' structure gets extended with corresponding new child element(s). If a modification results in an existing complete path (or paths) becoming incomplete, the element structure gets corresponding child element(s) removed. </i>
-         * <h3>Creating Hooks</h3>
-         * <p> To create a connecting hook use one of the two ways: <br>
-         * a) instantiate imperatively using the <i>new</i> operator and a Hook constructor:
-         * <pre class="prettyprint"><code>let myHook = new capsula.Hook('myHook');</code></pre>
-         * In this case, myHook implicitly becomes a hook of the capsule which represents the current context of execution.
-         * <p> b) instantiate declaratively using the capsule definition object in defCapsule:
-         * <pre class="prettyprint"><code>let MyCapsuleClass = capsula.defCapsule({
-         *     ...
-         *     hooks: ['myHook', ...]
-         *     ...
-         * });
-         * </code></pre>
-         * In this case, we declare that every instance of the MyCapsuleClass would have a hook named 'myHook'.
-         * <p> To obtain a connector hook use the ElementRef capsule:
-         * <pre class="prettyprint"><code>let pRef = new capsula.ElementRef(parentElement), // pRef wraps parentElement
-         * connectorHook = pRef.hook; // connectorHook represents the wrapped parentElement</code></pre>
-         * <h3>Creating Loops</h3>
-         * <p> To create a connecting loop use one of the two possible ways: <br>
-         * a) instantiate imperatively using the <i>new</i> operator and a Loop constructor:
-         * <pre class="prettyprint"><code>let myLoop = new capsula.Loop('myLoop');</code></pre>
-         * In this case, myLoop implicitly becomes a loop of the capsule which represents the current context of execution.
-         * <p> b) instantiate declaratively using the capsule definition object in defCapsule:
-         * <pre class="prettyprint"><code>var MyCapsuleClass = capsula.defCapsule({
-         *     ...
-         *     loops: ['myLoop', ...]
-         *     ...
-         * });
-         * </code></pre>
-         * In this case, we declare that every instance of the MyCapsuleClass would have a loop named 'myLoop'.
-         * <p> To obtain a connector loop use the ElementRef capsule:
-         * <pre class="prettyprint"><code>let cRef = new capsula.ElementRef(childElement), // cRef wraps childElement
-         * connectorLoop = cRef.loop; // connectorLoop represents the wrapped childElement</code></pre>
-         * <h3>Tying Hooks and Loops</h3>
-         * Hooks and loops are connected to one another according to the rules explained above. This can be done in two ways, imperatively using [tie]{@link module:capsula.Hook#tie} (or one of the many other hook's and loop's methods that create ties):
-         * <pre class="prettyprint"><code>hook.tie(loop);</code></pre>
-         * <p> or declaratively (see [defCapsule]{@link module:capsula.defCapsule}).
-         * <p> Ties could also be destroyed using [untie]{@link module:capsula.Hook#untie} (or one of the many other hook's and loop's methods that destroy ties):
-         * <pre class="prettyprint"><code>hook.untie(loop);</code></pre>
+         * <p> Hooks always go along with loops; they are complementary concepts.
          *
-         * @param {string} [opt_name] - the name of the hook to create
          * @memberof module:capsula
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Hook(opt_name) {
-            if (opt_name)
-                checkName_(opt_name);
+        function Hook() {
             var that = Object.create(Hook.prototype);
-
             var privateData = new HookData_();
-            if (!opt_name)
-                opt_name = 'h_' + privateData.id;
-            privateData.name = opt_name;
+            privateData.name = 'h_' + privateData.id;
             privateData.owner = ctx_;
             privateData.owner._.hooks.push(that);
             that._ = privateData;
@@ -652,28 +443,45 @@ limitations under the License.
         }
 
         /**
-         * Creates new loop as a property of the capsule that represents the current context of execution, with the given name (if provided). The given name can later be used to obtain a reference to this loop from its owner capsule using [getLoop]{@link module:capsula.Capsule#getLoop}.
+         * Creates new loop as a property of the capsule that represents the current context of execution.
          *
          * @class
          * @classdesc Loop is a specific public property of a [capsule]{@link module:capsula.Capsule}. It is a representation of a child element in a hierarchical structure of elements (e.x. widgets). In other words, it represents a child in a parent-child relationship.
-         * <p> Loops always go along with hooks; they are complementary concepts that cannot be explained in separation. This is why hooks' and loops' essentials are given in one place and that is the [hooks' page]{@link module:capsula.Hook}. The loops' API however is presented here.
+         * <p> Loops always go along with hooks; they are complementary concepts.
          *
-         * @param {string} [opt_name] - the name of the loop to create
          * @memberof module:capsula
          * @public
          * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}
          */
-        function Loop(opt_name) {
-            if (opt_name)
-                checkName_(opt_name);
+        function Loop() {
             var that = Object.create(Loop.prototype);
             var privateData = new LoopData_();
-            if (!opt_name)
-                opt_name = 'l_' + privateData.id;
-            privateData.name = opt_name;
+            privateData.name = 'l_' + privateData.id;
             privateData.owner = ctx_;
             privateData.owner._.loops.push(that);
+            that._ = privateData;
+            return that;
+        }
+
+        /**
+         * Creates new data as a property of the capsule that represents the current context of execution.
+         *
+         * @class
+         * @classdesc Data is a specific public property of a [capsule]{@link module:capsula.Capsule}. It serves to store the given information and to protect them from illegal access.
+         *
+         * @param {Object} [opt_data] - information to store and protect
+         * @memberof module:capsula
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         */
+        function Data(opt_data) {
+            var that = Object.create(Data.prototype);
+            var privateData = new DataData_();
+            privateData.name = 'd_' + privateData.id;
+            privateData.owner = ctx_;
+            privateData.data = opt_data;
             that._ = privateData;
             return that;
         }
@@ -736,7 +544,7 @@ limitations under the License.
         }
 
         /**
-         * Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called; when called, the returned (contextualized) function executes the given (in argument) function in that ("remembered") context. More on contexts is given [here]{@link module:capsula.Capsule}.
+         * Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called. When called, the returned function executes the function being an argument of contextualize within that "remembered" context.
          *
          * @memberof module:capsula
          * @public
@@ -1302,7 +1110,8 @@ limitations under the License.
         function newInterface_(capsule, interfaceElements, Cotr) {
             for (var i = 0; i < interfaceElements.length; i++) {
                 var name = interfaceElements[i],
-                el = new Cotr(name);
+                el = new Cotr();
+                el._.name = name;
                 capsule[name] = el;
             }
         }
@@ -1331,7 +1140,7 @@ limitations under the License.
                 var inputName = inputNames[i],
                 method = capsule.constructor.prototype[inputName];
                 if (method) {
-                    var input = getByNameAndType_(capsule._.pins, inputName, 'isInput');
+                    var input = getByThisNameAndType_(capsule, isInput_, 'pins', inputName, 'isInput');
                     input._.targets.push(method);
                 }
             }
@@ -1382,7 +1191,9 @@ limitations under the License.
                         datum = new WeakSet();
                     }
                 }
-                capsule.setData(name, datum);
+                var d = new Data(datum);
+                d.setName(name);
+                capsule[name] = d;
             }
         }
 
@@ -1393,7 +1204,7 @@ limitations under the License.
             for (var i = 0; i < compiledFilters.length; i++) {
                 var compiledFilter = compiledFilters[i],
                 owner = getSelf_(capsule, compiledFilter.owner),
-                operation = getByNameAndType_(owner._.pins, compiledFilter.name);
+                operation = getByThisNameAndType_(owner, isOperation, 'pins', compiledFilter.name);
                 if (isNothing_(operation))
                     throw new Error(Errors.ELEMENT_NOT_FOUND.toString(compiledFilter.owner + '.' + compiledFilter.name, 'operations'));
                 doInContextAndDirection_(function (pipe) {
@@ -1411,7 +1222,7 @@ limitations under the License.
             for (var i = 0; i < compiledWires.length; i++) {
                 var compiledWire = compiledWires[i],
                 owner1 = getSelf_(capsule, compiledWire.owner1),
-                operation1 = getByNameAndType_(owner1._.pins, compiledWire.name1);
+                operation1 = getByThisNameAndType_(owner1, isOperation, 'pins', compiledWire.name1);
                 if (isNothing_(operation1))
                     throw new Error(Errors.ELEMENT_NOT_FOUND.toString(compiledWire.owner1 + '.' + compiledWire.name1, 'operations'));
 
@@ -1451,7 +1262,7 @@ limitations under the License.
             for (var i = 0; i < compiledBindings.length; i++) {
                 var compiledBinding = compiledBindings[i],
                 owner1 = getSelf_(capsule, compiledBinding.owner1),
-                operation1 = getByNameAndType_(owner1._.pins, compiledBinding.name1),
+                operation1 = getByThisNameAndType_(owner1, isOperation, 'pins', compiledBinding.name1),
                 hookLoop1,
                 owner2,
                 operation2,
@@ -1745,12 +1556,12 @@ limitations under the License.
             var loops = this.getLoops();
             for (var i = 0; i < loops.length; i++) {
                 var lp = loops[i];
-                lp.untieAll();
+                lp.setParent(null);
             }
             var hooks = this.getHooks();
             for (i = 0; i < hooks.length; i++) {
                 var hk = hooks[i];
-                hk.untieAll();
+                hk.clear();
             }
 
             // unwire all pins between this and sibling capsules (including this!)
@@ -1913,7 +1724,7 @@ limitations under the License.
          */
         Capsule.prototype.getOperation = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.pins, name);
+            return getByThisNameAndType_(this, isOperation, 'pins', name);
         };
 
         /**
@@ -1927,7 +1738,7 @@ limitations under the License.
          */
         Capsule.prototype.getInput = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.pins, name, 'isInput');
+            return getByThisNameAndType_(this, isInput_, 'pins', name, 'isInput');
         };
 
         /**
@@ -1941,7 +1752,7 @@ limitations under the License.
          */
         Capsule.prototype.getOutput = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.pins, name, 'isOutput');
+            return getByThisNameAndType_(this, isOutput_, 'pins', name, 'isOutput');
         };
 
         /**
@@ -1950,12 +1761,12 @@ limitations under the License.
          * @public
          * @since 0.1.0
          * @param {string} name - the name of the hook to return
-         * @returns {module:capsula.Operation} a hook (of this capsule) with the given name, or null if there is no such a hook
+         * @returns {module:capsula.Hook} a hook (of this capsule) with the given name, or null if there is no such a hook
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getHook = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.hooks, name);
+            return getByThisNameAndType_(this, isHook, 'hooks', name);
         };
 
         /**
@@ -1964,12 +1775,259 @@ limitations under the License.
          * @public
          * @since 0.1.0
          * @param {string} name - the name of the loop to return
-         * @returns {module:capsula.Operation} a loop (of this capsule) with the given name, or null if there is no such a loop
+         * @returns {module:capsula.Loop} a loop (of this capsule) with the given name, or null if there is no such a loop
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getLoop = function (name) {
             checkCapsuleAsThis_(this);
-            return getByNameAndType_(this._.loops, name);
+            return getByThisNameAndType_(this, isLoop, 'loops', name);
+        };
+
+        /**
+         * Returns an array of capsules (children) whose select hooks or loops are children of a select hook or loop of this capsule (parent). The parent's hook or loop is determined like this:
+         * <p> If this capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         *
+         * @public
+         * @returns {Array.<module:capsula.Capsule>} an array of child capsules depending on the current context of execution
+         * @since 0.2.0
+         * @throws {Error} [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.getChildren = function () {
+            checkCapsuleAsThis_(this);
+            var par = getParentHoop_(this);
+
+            var childrenHoops;
+            if (this === ctx_)
+                childrenHoops = Loop.prototype.getChildren.apply(par);
+            else
+                childrenHoops = Hook.prototype.getChildren.apply(par);
+
+            var children = [];
+            for (var i = 0; i < childrenHoops.length; i++)
+                children.push(childrenHoops[i]._.owner);
+            return children;
+        };
+
+        /**
+         * Ties select hooks or loops of the given capsules (children) to a select hook or loop of this capsule (parent). The parent's hook or loop is first determined:
+         * <p> If this capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         * <p> For each of the given capsules, the child hook or loop is determined like this:
+         * <p> If the given capsule represents the current context of execution, then its hook returned by the [getDefaultChildHook]{@link module:capsula.Capsule#getDefaultChildHook} method is considered as a child here.
+         * <p> If the given capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its loop returned by the [getDefaultChildLoop]{@link module:capsula.Capsule#getDefaultChildLoop} method is considered as a child here.
+         *
+         * @param {...(module:capsula.Capsule)} var_args - child capsules whose hooks or loops would be added to their new parent (an array of capsules also accepted)
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.add = function (var_args) {
+            checkCapsuleAsThis_(this);
+            var par = getParentHoop_(this); // par means parent
+            var children = getChildrenHoops_.apply(this, arguments);
+
+            if (this === ctx_)
+                Loop.prototype.add.apply(par, children);
+            else
+                Hook.prototype.add.apply(par, children);
+        };
+
+        /**
+         *
+         * Ties select hooks or loops of the given capsules (children) to a select hook or loop of this capsule (parent) according to the given <i>at</i> index. The parent's hook or loop is first determined:
+         * <p> If this capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         * <p> For each of the given capsules, the child hook or loop is determined like this:
+         * <p> If the given capsule represents the current context of execution, then its hook returned by the [getDefaultChildHook]{@link module:capsula.Capsule#getDefaultChildHook} method is considered as a child here.
+         * <p> If the given capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its loop returned by the [getDefaultChildLoop]{@link module:capsula.Capsule#getDefaultChildLoop} method is considered as a child here.
+         *
+         * @param {number} at - the index at which the child hooks or loops should be added to their new parent
+         * @param {...(module:capsula.Capsule)} var_args - child capsules whose hooks or loops would be added to their new parent (an array of capsules also accepted)
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [INDEX_OUT_OF_BOUNDS]{@link module:capsula.Errors.INDEX_OUT_OF_BOUNDS}
+         */
+        Capsule.prototype.addAt = function (at, var_args) {
+            checkCapsuleAsThis_(this);
+            var par = getParentHoop_(this);
+            var children = getChildrenHoops_.apply(this, Array.prototype.slice.call(arguments, 1));
+
+            if (this === ctx_)
+                Loop.prototype.addAt.apply(par, [at].concat(children));
+            else
+                Hook.prototype.addAt.apply(par, [at].concat(children));
+        };
+
+        /**
+         * Returns whether all the select hooks or loops of the given capsules (children) are tied to a select hook or loop of this capsule (parent). The parent's hook or loop is first determined:
+         * <p> If this capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         * <p> For each of the given capsules, the child hook or loop is determined like this:
+         * <p> If the given capsule represents the current context of execution, then its hook returned by the [getDefaultChildHook]{@link module:capsula.Capsule#getDefaultChildHook} method is considered as a child here.
+         * <p> If the given capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its loop returned by the [getDefaultChildLoop]{@link module:capsula.Capsule#getDefaultChildLoop} method is considered as a child here.
+         *
+         * @param {...(module:capsula.Capsule)} var_args - child capsules whose hooks or loops would be checked (an array of capsules also accepted)
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.isParentOf = function (var_args) {
+            checkCapsuleAsThis_(this);
+            var par = getParentHoop_(this); // par means parent
+            var children = getChildrenHoops_.apply(this, arguments);
+
+            if (this === ctx_)
+                return Loop.prototype.isParentOf.apply(par, children);
+            else
+                return Hook.prototype.isParentOf.apply(par, children);
+        };
+
+        /**
+         * Clears child hooks or loops of a select hook or loop of this capsule (parent). The parent's hook or loop is determined like this:
+         * <p> If this capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         *
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.clear = function () {
+            checkCapsuleAsThis_(this);
+            var par = getParentHoop_(this);
+
+            if (this === ctx_)
+                Loop.prototype.clear.apply(par);
+            else
+                Hook.prototype.clear.apply(par);
+        };
+
+        /**
+         * Removes select hooks or loops of the given capsules (children) from the hook or loop of this capsule (parent). The parent's hook or loop is first determined:
+         * <p> If this capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         * <p> For each of the given capsules, the child hook or loop is determined like this:
+         * <p> If the given capsule represents the current context of execution, then its hook returned by the [getDefaultChildHook]{@link module:capsula.Capsule#getDefaultChildHook} method is considered as a child here.
+         * <p> If the given capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its loop returned by the [getDefaultChildLoop]{@link module:capsula.Capsule#getDefaultChildLoop} method is considered as a child here.
+         *
+         * @param {...(module:capsula.Capsule)} var_args - child capsules whose hooks or loops would be removed from their old parent (an array of capsules also accepted)
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.remove = function (var_args) {
+            checkCapsuleAsThis_(this);
+            var par = getParentHoop_(this);
+            var children = getChildrenHoops_.apply(this, arguments);
+
+            if (this === ctx_)
+                Loop.prototype.remove.apply(par, children);
+            else
+                Hook.prototype.remove.apply(par, children);
+        };
+
+        /**
+         * Sets select hooks or loops of the given capsules (children) to the hook or loop of this capsule (parent). The parent's hook or loop is first determined:
+         * <p> If this capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         * <p> For each of the given capsules, the child hook or loop is determined like this:
+         * <p> If the given capsule represents the current context of execution, then its hook returned by the [getDefaultChildHook]{@link module:capsula.Capsule#getDefaultChildHook} method is considered as a child here.
+         * <p> If the given capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its loop returned by the [getDefaultChildLoop]{@link module:capsula.Capsule#getDefaultChildLoop} method is considered as a child here.
+         *
+         * @param {...(module:capsula.Capsule)} var_args - child capsules whose hooks or loops would be set to their new parent (an array of capsules also accepted)
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.set = function (var_args) {
+            checkCapsuleAsThis_(this);
+            var par = getParentHoop_(this);
+            var children = getChildrenHoops_.apply(this, arguments);
+
+            if (this === ctx_)
+                Loop.prototype.set.apply(par, children);
+            else
+                Hook.prototype.set.apply(par, children);
+        };
+
+        /**
+         * Returns a capsule whose hook or loop is a parent of a select hook or loop of this capsule (child). The child's hook or loop is determined like this:
+         * <p> If this capsule represents the current context of execution, then its hook returned by the [getDefaultChildHook]{@link module:capsula.Capsule#getDefaultChildHook} method is considered as a child here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its loop returned by the [getDefaultChildLoop]{@link module:capsula.Capsule#getDefaultChildLoop} method is considered as a child here.
+         *
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.getParent = function () {
+            checkCapsuleAsThis_(this);
+            var chd = getChildHoop_(this);
+
+            var parentHoop;
+            if (this === ctx_)
+                parentHoop = Hook.prototype.getParent.apply(chd);
+            else
+                parentHoop = Loop.prototype.getParent.apply(chd);
+
+            if (parentHoop != null)
+                return parentHoop._.owner;
+            else
+                return null;
+        };
+
+        /**
+         * Sets a select hook or loop of the given capsule (parent) as a parent of a select hook or loop of this capsule (child). The child's hook or loop is determined like this:
+         * <p> If the given capsule represents the current context of execution, then its loop returned by the [getDefaultParentLoop]{@link module:capsula.Capsule#getDefaultParentLoop} method is considered as a parent here.
+         * <p> If the given capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its hook returned by the [getDefaultParentHook]{@link module:capsula.Capsule#getDefaultParentHook} method is considered as a parent here.
+         * <p> If this capsule represents the current context of execution, then its hook returned by the [getDefaultChildHook]{@link module:capsula.Capsule#getDefaultChildHook} method is considered as a child here.
+         * <p> If this capsule represents a capsule which is a part of the capsule that represents the current context of execution, then its loop returned by the [getDefaultChildLoop]{@link module:capsula.Capsule#getDefaultChildLoop} method is considered as a child here.
+         *
+         * @param {module:capsula.Capsule} capsule - a capsule whose select hook or loop would be set as a new parent to this capsule's select hook or loop.
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Capsule.prototype.setParent = function (capsule) {
+            checkCapsuleAsThis_(this);
+            var par = null;
+            if (capsule != null)
+                par = getParentHoop_(capsule);
+            var chd = getChildHoop_(this);
+
+            if (this === ctx_)
+                Hook.prototype.setParent.call(chd, par);
+            else
+                Loop.prototype.setParent.call(chd, par);
+        };
+
+        /**
+         * Returns the default loop of this capsule, a loop that can act as a child in the current context of execution. When there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * <p> The method is meant to be overridden in cases when capsule has more than one loop.
+         *
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [DEFAULT_NOT_FOUND]{@link module:capsula.Errors.DEFAULT_NOT_FOUND}
+         */
+        Capsule.prototype.getDefaultChildLoop = function () {
+            checkCapsuleAsThis_(this);
+            if (this._.loops.length !== 1)
+                throw new Error(Errors.DEFAULT_NOT_FOUND.toString('child loop'));
+            return this._.loops[0];
+        };
+
+        /**
+         * Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution. When there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * <p> The method is meant to be overridden in cases when capsule has more than one hook.
+         *
+         * @public
+         * @since 0.2.0
+         * @throws {Error} [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [DEFAULT_NOT_FOUND]{@link module:capsula.Errors.DEFAULT_NOT_FOUND}
+         */
+        Capsule.prototype.getDefaultParentHook = function () {
+            checkCapsuleAsThis_(this);
+            if (this._.hooks.length !== 1)
+                throw new Error(Errors.DEFAULT_NOT_FOUND.toString('parent hook'));
+            return this._.hooks[0];
         };
 
         // *****************************
@@ -1977,24 +2035,58 @@ limitations under the License.
         // *****************************
 
         /**
-         * Returns this capsule's protected data (an object) associated with the given id, or null if there is no such data.
+         * Returns the default hook of this capsule, a hook that can act as a child in the current context of execution. When there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * <p> The method is meant to be overridden in cases when capsule has more than one hook.
+         * <p> This method could only be called from the capsule's interior, i.e. only with "this".
          *
-         * @public
+         * @protected
+         * @since 0.2.0
+         * @throws {Error} [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [DEFAULT_NOT_FOUND]{@link module:capsula.Errors.DEFAULT_NOT_FOUND}
+         */
+        Capsule.prototype.getDefaultChildHook = function () {
+            checkCapsuleAsOwner_(this);
+            if (this._.hooks.length !== 1)
+                throw new Error(Errors.DEFAULT_NOT_FOUND.toString('child hook'));
+            return this._.hooks[0];
+        };
+
+        /**
+         * Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution. When there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * <p> The method is meant to be overridden in cases when capsule has more than one loop.
+         * <p> This method could only be called from the capsule's interior, i.e. only with "this".
+         *
+         * @protected
+         * @since 0.2.0
+         * @throws {Error} [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [DEFAULT_NOT_FOUND]{@link module:capsula.Errors.DEFAULT_NOT_FOUND}
+         */
+        Capsule.prototype.getDefaultParentLoop = function () {
+            checkCapsuleAsOwner_(this);
+            if (this._.loops.length !== 1)
+                throw new Error(Errors.DEFAULT_NOT_FOUND.toString('parent loop'));
+            return this._.loops[0];
+        };
+
+        /**
+         * Returns this capsule's protected data associated with the given id (from this[id]), or null if there is no such data.
+         *
+         * @deprecated since version 0.2.0: instead of this.getData('x') write this.x.get()
+         * @protected
          * @since 0.1.0
          * @param {string} id - the id of the data to return
          * @returns {Object} the data associated with the given id, or null if there is no such data
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
         Capsule.prototype.getData = function (id) {
-            checkCapsuleAsOwner_(this);
             if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-            return this._.data[id];
+            var data = this[id];
+            return data != null ? data.get() : null;
         };
 
         /**
-         * Associates the given data to the given id in the (protected) context of this capsule.
+         * Associates the given data to the given id. Overwrites existing data associated with the same id if it exists. Puts new data into this[id].
          *
+         * @deprecated since version 0.2.0: instead of this.setData('x', 'hello!') write this.x = new Data('hello!')
          * @protected
          * @since 0.1.0
          * @param {string} id - the id under which to store the given data in the (protected) context of this capsule
@@ -2005,7 +2097,11 @@ limitations under the License.
             checkCapsuleAsOwner_(this);
             if (!isString_(id))
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure id is a string.'));
-            this._.data[id] = data;
+            var d = this[id];
+            if (d != null)
+                d.set(data);
+            else
+                this[id] = new Data(data);
         };
 
         /**
@@ -2035,7 +2131,7 @@ limitations under the License.
          */
         Capsule.prototype.getPart = function (name) {
             checkCapsuleAsOwner_(this);
-            return getByNameAndType_(this._.parts, name);
+            return getByThisNameAndType_(this, isCapsule, 'parts', name);
         };
 
         /**
@@ -2350,26 +2446,6 @@ limitations under the License.
                 oper1.wire(oper2);
             else if (isOperation(oper2))
                 oper2.wire(oper1);
-            else
-                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure either oper1 or oper2 is an operation.'));
-        }
-
-        /**
-         * Unwires (breaks the wire between) the two given [operations]{@link module:capsula.Operation} (if the wire exists) according to the current context of execution. At least one of the two arguments must be an operation. There is no requirement in terms of ordering of the two arguments.
-         *
-         * @memberof module:capsula
-         * @public
-         * @since 0.1.0
-         * @static
-         * @param oper1 {module:capsula.Operation | Function} - operation or function to be unwired
-         * @param oper2 {module:capsula.Operation | Function} - operation or function to be unwired
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        function unwire(oper1, oper2) {
-            if (isOperation(oper1))
-                oper1.unwire(oper2);
-            else if (isOperation(oper2))
-                oper2.unwire(oper1);
             else
                 throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure either oper1 or oper2 is an operation.'));
         }
@@ -2829,9 +2905,14 @@ limitations under the License.
         Operation.prototype.isTargetOf = function (var_args) {
             checkOperationAsTarget_(this);
             checkOperationsAsSources_.apply(this, arguments);
+            var arr = arguments[0];
+            if (!isArray_(arr))
+                arr = arguments;
+            if (arr.length === 0)
+                return false;
             var result = true;
-            for (var i = 0; i < arguments.length; i++)
-                result = result && arguments[i]._.targets.indexOf(this) !== -1;
+            for (var i = 0; i < arr.length; i++)
+                result = result && arr[i]._.targets.indexOf(this) !== -1;
             return result;
         };
 
@@ -2947,9 +3028,14 @@ limitations under the License.
         Operation.prototype.isSourceOf = function (var_args) {
             checkOperationAsSource_(this);
             checkOperationsFunsAsTargets_.apply(this, arguments);
+            var arr = arguments[0];
+            if (!isArray_(arr))
+                arr = arguments;
+            if (arr.length === 0)
+                return false;
             var result = true;
-            for (var i = 0; i < arguments.length; i++)
-                result = result && this._.targets.indexOf(arguments[i]) !== -1;
+            for (var i = 0; i < arr.length; i++)
+                result = result && this._.targets.indexOf(arr[i]) !== -1;
             return result;
         };
 
@@ -3144,25 +3230,17 @@ limitations under the License.
         /**
          * @private
          */
-        function getFirstLeaveLoopOfLoop_(currLoop) {
-            var down = currLoop._.down;
-            if (down)
-                return getFirstLeaveLoopOfLoop_(down);
-            else if (currLoop._.el)
-                return currLoop;
-            else
-                return null;
-        }
-
-        /**
-         * @private
-         */
-        function getFirstLeaveLoopOfHook_(currHook) {
-            for (var i = 0; i < currHook._.children.length; i++) {
-                var child = currHook._.children[i];
-                var result = getFirstLeaveLoop_(child);
-                if (result)
-                    return result;
+        function getFirstLeaveLoop_(hkLp) {
+            var children = hkLp._.children;
+            if (children.length > 0) {
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
+                    var result = getFirstLeaveLoop_(child);
+                    if (result)
+                        return result;
+                }
+            } else if (hkLp._.el != null) {
+                return hkLp;
             }
             return null;
         }
@@ -3170,44 +3248,21 @@ limitations under the License.
         /**
          * @private
          */
-        function getFirstLeaveLoop_(hkLp) {
-            if (isLoop(hkLp))
-                return getFirstLeaveLoopOfLoop_(hkLp);
-            else
-                return getFirstLeaveLoopOfHook_(hkLp);
-        }
-
-        /**
-         * @private
-         */
-        function getLeaveLoopsOfLoop_(currLoop, loops) {
-            var down = currLoop._.down;
-            if (down)
-                getLeaveLoopsOfLoop_(down, loops);
-            else if (currLoop._.el)
-                loops.push(currLoop);
-            else
-                return;
-        }
-
-        /**
-         * @private
-         */
-        function getLeaveLoopsOfHook_(currHook, loops) {
-            for (var i = 0; i < currHook._.children.length; i++) {
-                var child = currHook._.children[i];
-                getLeaveLoops_(child, loops);
-            }
-        }
-
-        /**
-         * @private
-         */
         function getLeaveLoops_(hkLp, loops) {
-            if (isLoop(hkLp))
-                return getLeaveLoopsOfLoop_(hkLp, loops);
-            else
-                return getLeaveLoopsOfHook_(hkLp, loops);
+            var children = hkLp._.children;
+            if (children.length > 0) {
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
+                    if (isLoop(child) && child._.children.length === 0) {
+                        if (child._.el != null)
+                            loops.push(child);
+                    } else {
+                        getLeaveLoops_(child, loops);
+                    }
+                }
+            } else if (isLoop(hkLp) && hkLp._.el != null) {
+                loops.push(hkLp);
+            }
         }
 
         /**
@@ -3225,8 +3280,7 @@ limitations under the License.
                 }
             }
 
-            return getNextLoop_(top._.up, top, isHook(top._.up) ? top._.up._.children.indexOf(top) + 1
-                 : null);
+            return getNextLoop_(top._.up, top, top._.up != null ? top._.up._.children.indexOf(top) + 1 : null);
         }
 
         /**
@@ -3243,11 +3297,10 @@ limitations under the License.
         /**
          * @private
          */
-        function getClasses_(loop) {
-            var classes = [],
-            hkLp = loop;
+        function getClasses_(hkLp) {
+            var classes = [];
             for (; hkLp._.up; hkLp = hkLp._.up) {
-                if (isHook(hkLp) && isString_(hkLp._.cls))
+                if (isString_(hkLp._.cls))
                     classes.splice(0, 0, hkLp._.cls);
             }
             return classes;
@@ -3259,13 +3312,10 @@ limitations under the License.
         function tieTopBot_(top, bot, at) {
             var nextLoop = getNextLoop_(top, bot, at); // nextLoop must be found before the structure is modified bellow.
 
-            if (isLoop(top) && isLoop(bot)) {
-                top._.down = bot;
-            } else if (isHook(top) && (isLoop(bot) || isHook(bot)) && typeof at === 'number') {
+            if (typeof at === 'number')
                 top._.children.splice(at, 0, bot);
-            } else {
+            else
                 top._.children.push(bot);
-            }
             bot._.up = top;
 
             var loops = [];
@@ -3283,11 +3333,13 @@ limitations under the License.
          * @private
          */
         function untieTopBot_(top, bot) {
-            if (isLoop(top) && isLoop(bot) && top._.down === bot && bot._.up === top) {
-                top._.down = null;
-            } else if (isHook(top) && (isLoop(bot) || isHook(bot)) && top._.children.indexOf(bot) >= 0 && bot._.up === top) {
-                top._.children.splice(top._.children.indexOf(bot), 1);
-            } else
+            if (!top || !bot)
+                return;
+
+            var botIndex = top._.children.indexOf(bot);
+            if (botIndex >= 0 && bot._.up === top)
+                top._.children.splice(botIndex, 1);
+            else
                 return;
             bot._.up = null;
 
@@ -3302,12 +3354,10 @@ limitations under the License.
                 }
             }
 
-            if (isLoop(bot)) {
-                var ref = bot._.ref;
-                if (ref)
-                    ref.detach(); // detaches ElementRef created in render
-                bot._.ref = null;
-            }
+            var parentRef = bot._.parentRef;
+            if (parentRef)
+                parentRef.detach(); // detaches ElementRef created in renderInto
+            bot._.parentRef = null;
         }
 
         /**
@@ -3340,22 +3390,6 @@ limitations under the License.
         function tie(hkLp1, hkLp2) {
             checkHookLoop_(hkLp1);
             hkLp1.tie(hkLp2);
-        }
-
-        /**
-         * Unties (breaks the tie between) the two given [hooks]{@link module:capsula.Hook} or [loops]{@link module:capsula.Loop} according to the current context of execution. There is no requirement in terms of ordering of the two arguments.
-         *
-         * @memberof module:capsula
-         * @public
-         * @since 0.1.0
-         * @static
-         * @param hkLp1 {module:capsula.Hook | module:capsula.Loop} - hook or loop to be untied
-         * @param hkLp2 {module:capsula.Hook | module:capsula.Loop} - hook or loop to be untied
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        function untie(hkLp1, hkLp2) {
-            checkHookLoop_(hkLp1);
-            hkLp1.untie(hkLp2);
         }
 
         /**
@@ -3393,7 +3427,7 @@ limitations under the License.
         };
 
         /**
-         * Sets the class to this hook. When class is set to a hook, each element represented by a loop from a completed path of a subtree of this hook would be flagged by this class. To understand how this flagging works [setDefaultElementHandlers]{@link module:capsula.setDefaultElementHandlers} should be consulted.
+         * Sets a class to this hook. When a class is set to a hook, each element represented by this hook's subtree would be flagged by this class. To understand how this flagging works [setDefaultElementHandlers]{@link module:capsula.setDefaultElementHandlers} should be consulted.
          *
          * @param {string} cls - the class to set to this hook
          * @see [setDefaultElementHandlers]{@link module:capsula.setDefaultElementHandlers}
@@ -3485,28 +3519,55 @@ limitations under the License.
             return doInContext_(true, false, this, arguments);
         };
 
-        /*
-        -----------------------------
-        |                           |
-        |       -----------         |
-        |       |         |         |
-        |       |         |         |
-        |       |     1   |         |
-        |       -----J-----         |
-        |            /\             |
-        |           /  \            |
-        |          /    \           |
-        |         /      \          |
-        |   -----O-----   \         |
-        |   |         |    \        |
-        |   |         |     \       |
-        |   |         |      \      |
-        |   -----------       \     |
-        |                      \ 2  |
-        ------------------------J----
+        /**
+         * <p> Renders this hook (i.e. the DOM elements it represents) into the given DOM element.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {Element} el - the DOM element into which to render this hook
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
+        Hook.prototype.renderInto = function (el) {
+            checkHookAsChild_(this);
+            var parentRef = this._.parentRef;
+            if (parentRef)
+                parentRef.detach();
+            var newRef = new ElementRef(el);
+            this._.parentRef = newRef;
+            newRef.hook.add(this);
+        };
 
-        // 1
+        /**
+         * <p> Returns the parent hook this hook is tied to; or null if it is not tied to a parent hook in the current context of execution.
+         * <p> Assumes this hook belongs to the capsule that represents the current context of execution. Otherwise it throws error.
+         *
+         * @public
+         * @since 0.1.0
+         * @returns {module:capsula.Hook} the parent hook this hook is tied to (in the current context of execution)
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Hook.prototype.getParent = function () {
+            checkHookAsChild_(this);
+            return this._.up;
+        };
+
+        /**
+         * <p> Ties this hook to the given parent hook in the current context of execution.
+         * <p> Assumes this hook belongs to the capsule that represents the current context of execution. Otherwise it throws error.
+         *
+         * @public
+         * @since 0.1.0
+         * @param {module:capsula.Hook} parent - a parent hook to tie this hook to
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Hook.prototype.setParent = function (parent) {
+            checkHookAsChild_(this);
+            if (parent)
+                checkHookAsParent_(parent);
+            untieTopBot_(this._.up, this);
+            if (parent)
+                tieTopBot_(parent, this);
+        };
 
         /**
          * Returns an array of hooks and loops this hook is tied to acting as a parent in the current context of execution; or an empty array if it is not tied to any hook or loop. It is assumed that this hook belongs to a part capsule of the capsule that represents the current context of execution; otherwise it throws error.
@@ -3516,7 +3577,7 @@ limitations under the License.
          * @returns {Array.<module:capsula.Hook | module:capsula.Loop>} an array of hooks and loops this hook is tied to acting as a parent in the current context of execution; or an empty array
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Hook.prototype.getHooks = function () {
+        Hook.prototype.getChildren = function () {
             checkHookAsParent_(this);
             return get_.apply(this._.children);
         };
@@ -3529,9 +3590,9 @@ limitations under the License.
          * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to tie this parent hook to (an array of hooks and loops also accepted)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Hook.prototype.hook = function (var_args) {
+        Hook.prototype.add = function (var_args) {
             checkHook_(this);
-            Hook.prototype.hookAt.apply(this, [this._.children.length].concat(Array.prototype.slice.call(arguments, 0)));
+            Hook.prototype.addAt.apply(this, [this._.children.length].concat(Array.prototype.slice.call(arguments, 0)));
         };
 
         /**
@@ -3543,7 +3604,7 @@ limitations under the License.
          * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to tie this parent hook to (an array of hooks and loops also accepted)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [INDEX_OUT_OF_BOUNDS]{@link module:capsula.Errors.INDEX_OUT_OF_BOUNDS}
          */
-        Hook.prototype.hookAt = function (at, var_args) {
+        Hook.prototype.addAt = function (at, var_args) {
             checkHookAsParent_(this);
             checkBounds_(at, this._.children.length, 'at');
             checkHookLoopAsChildren_.apply(this, Array.prototype.slice.call(arguments, 1));
@@ -3569,11 +3630,13 @@ limitations under the License.
          * @returns {boolean} whether this parent hook is tied to all the given hooks and loops (in the current context of execution)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Hook.prototype.isHookOf = function (var_args) {
+        Hook.prototype.isParentOf = function (var_args) {
             checkHookAsParent_(this);
             var arr = arguments[0];
             if (!isArray_(arr))
                 arr = arguments;
+            if (arr.length === 0)
+                return false;
             var result = true;
             for (var i = 0; i < arr.length; i++) {
                 checkHookLoopAsChild_(arr[i]);
@@ -3589,7 +3652,7 @@ limitations under the License.
          * @since 0.1.0
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Hook.prototype.unhookAll = function () {
+        Hook.prototype.clear = function () {
             checkHookAsParent_(this);
             var children = this._.children.slice(0); // new array
             for (var i = 0; i < children.length; i++)
@@ -3604,7 +3667,7 @@ limitations under the License.
          * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to untie this parent hook from (an array of hooks and loops also accepted)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Hook.prototype.unhook = function (var_args) {
+        Hook.prototype.remove = function (var_args) {
             checkHookAsParent_(this);
             checkHookLoopAsChildren_.apply(this, arguments);
             var arr = arguments[0];
@@ -3619,66 +3682,12 @@ limitations under the License.
          *
          * @public
          * @since 0.1.0
-         * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to retie this parent hook to (an array of hooks and loops also accepted)
+         * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to re-tie this parent hook to (an array of hooks and loops also accepted)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Hook.prototype.rehook = function (var_args) {
-            Hook.prototype.unhookAll.apply(this);
-            Hook.prototype.hook.apply(this, arguments);
-        };
-
-        // 2
-
-        /**
-         * <p> Returns the hook (of a part capsule of this hook's owner capsule) this hook is tied to; or null if it is not tied to such a hook. The tying is checked in the current context of execution only.
-         * <p> Assumes this hook belongs to the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @returns {module:capsula.Hook} the hook this hook is tied to (in the current context of execution)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Hook.prototype.getHook = function () {
-            checkHookAsChild_(this);
-            return this._.up;
-        };
-
-        /**
-         * <p> Ties this hook to the given hook which has to be the hook of a part capsule of this hook's owner capsule (throws error if not).
-         * <p> Assumes this hook belongs to the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {module:capsula.Hook} hook - the hook to tie this hook to
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Hook.prototype.setHook = function (hook) {
-            checkHookAsChild_(this);
-            var oldParent = this._.up;
-            if (oldParent)
-                untieTopBot_(oldParent, this);
-            if (hook) {
-                checkHookAsParent_(hook);
-                tieTopBot_(hook, this);
-            }
-        };
-
-        // 1, 2
-
-        /**
-         * Returns an array of hooks and loops this hook is tied to in the current context of execution; or an empty array if it is not tied to any hook or loop.
-         *
-         * @public
-         * @since 0.1.0
-         * @returns {Array.<module:capsula.Hook | module:capsula.Loop>} an array of hooks and loops this hook is tied to in the current context of execution; or an empty array
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Hook.prototype.getTies = function () {
-            checkHook_(this);
-            var that = this;
-            return doInContext_(function () {
-                return that._.up ? [that._.up] : [];
-            }, Hook.prototype.getHooks, this, arguments);
+        Hook.prototype.set = function (var_args) {
+            Hook.prototype.clear.apply(this);
+            Hook.prototype.add.apply(this, arguments);
         };
 
         /**
@@ -3697,119 +3706,9 @@ limitations under the License.
                 args = arguments;
             doInContext_(function () {
                 var arg = args[0];
-                if (arg != null)
-                    checkHook_(arg);
-                that.setHook(arg);
-            }, Hook.prototype.hook, this, arguments);
-        };
-
-        /**
-         * Ties this hook to the given hooks and loops according to the given <i>at</i> index and the current context of execution. Note that having multiple arguments makes sense only when this hook acts as a parent in the current context of execution i.e. when it belongs to a part capsule of the capsule that represents the current context of execution. The function accepts both comma separated list of hooks and loops and an array of hooks and loops.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {number} at - the index to use when tying this hook to the given hooks and loops
-         * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to tie this hook to (an array of hooks and loops also accepted)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [INDEX_OUT_OF_BOUNDS]{@link module:capsula.Errors.INDEX_OUT_OF_BOUNDS}
-         */
-        Hook.prototype.tieAt = function (at, var_args) {
-            checkHook_(this);
-            var that = this,
-            arg = arguments[1];
-            if (isArray_(arg))
-                arg = arg[0];
-            doInContext_(function () {
                 checkHook_(arg);
-                arg.hookAt(at, that);
-            }, Hook.prototype.hookAt, this, arguments);
-        };
-
-        /**
-         * Checks whether this hook is tied to all the given hooks and loops in the current context of execution. Note that having multiple arguments makes sense only when this hook acts as a parent in the current context of execution i.e. when it belongs to a part capsule of the capsule that represents the current context of execution. The function accepts both comma separated list of hooks and loops and an array of hooks and loops.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to check (an array of hooks and loops also accepted)
-         * @returns {boolean} whether this hook is tied to all the given hooks and loops (in the current context of execution)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Hook.prototype.isTiedTo = function (var_args) {
-            checkHook_(this);
-            var args = arguments[0],
-            that = this;
-            if (!isArray_(args))
-                args = arguments;
-            return doInContext_(function () {
-                var arg = args[0];
-                if (arg != null)
-                    checkHook_(arg);
-                return that._.up === arg;
-            }, function () {
-                var result = true;
-                for (var i = 0; i < args.length; i++) {
-                    checkHookLoop_(args[i]);
-                    result = result && args[i]._.up === that;
-                }
-                return result;
-            }, this, arguments);
-        };
-
-        /**
-         * Unties this hook from all the hooks and loops it is tied to in the current context of execution.
-         *
-         * @public
-         * @since 0.1.0
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Hook.prototype.untieAll = function () {
-            checkHook_(this);
-            doInContext_(Hook.prototype.setHook, Hook.prototype.unhookAll, this, [null]);
-        };
-
-        /**
-         * Unties this hook from the given hooks and loops in the current context of execution. Note that having multiple arguments makes sense only when this hook acts as a parent in the current context of execution i.e. when it belongs to a part capsule of the capsule that represents the current context of execution. The function accepts both comma separated list of hooks and loops and an array of hooks and loops.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to untie this hook from (an array of hooks and loops also accepted)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Hook.prototype.untie = function (var_args) {
-            checkHook_(this);
-            var args = arguments[0],
-            that = this;
-            if (!isArray_(args))
-                args = arguments;
-            doInContext_(function () {
-                var arg = args[0];
-                if (arg != null) {
-                    checkHook_(arg);
-                    if (that._.up === arg)
-                        that.setHook(null);
-                }
-            }, Hook.prototype.unhook, this, arguments);
-        };
-
-        /**
-         * First, unties this hook from all the hooks and loops it is tied to in the current context of execution and then ties this hook to the given hooks and loops in the current context of execution. Note that having multiple arguments makes sense only when this hook acts as a parent in the current context of execution i.e. when it belongs to a part capsule of the capsule that represents the current context of execution. The function accepts both comma separated list of hooks and loops and an array of hooks and loops.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {...(module:capsula.Hook | module:capsula.Loop)} var_args - hooks and loops to retie this hook to (an array of hooks and loops also accepted)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Hook.prototype.retie = function (var_args) {
-            checkHook_(this);
-            var args = arguments[0],
-            that = this;
-            if (!isArray_(args))
-                args = arguments;
-            doInContext_(function () {
-                var arg = args[0];
-                if (arg != null)
-                    checkHook_(arg);
-                that.setHook(arg);
-            }, Hook.prototype.rehook, this, arguments);
+                arg.add(that);
+            }, Hook.prototype.add, this, arguments);
         };
 
         /**
@@ -3824,7 +3723,7 @@ limitations under the License.
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
          */
         Hook.prototype.disclose = function (opt_name) {
-            checkHookAsChild_(this);
+            checkHookAsParent_(this);
             return disclose_(this, opt_name);
         };
 
@@ -3860,6 +3759,30 @@ limitations under the License.
             checkLoopAsParent_(this);
             this._.onHook = onHook;
             this._.offHook = offHook;
+        };
+
+        /**
+         * Sets a class to this loop. When a class is set to a loop, each element represented by this loop's subtree would be flagged by this class. To understand how this flagging works [setDefaultElementHandlers]{@link module:capsula.setDefaultElementHandlers} should be consulted.
+         *
+         * @param {string} cls - the class to set to this loop
+         * @see [setDefaultElementHandlers]{@link module:capsula.setDefaultElementHandlers}
+         * @public
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Loop.prototype.setClass = function (cls) {
+            if (!isNothing_(cls) && (!isString_(cls) || cls.length === 0))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure if not null \'cls\' is a non-empty string.'));
+            checkLoopAsParent_(this);
+
+            this._.cls = cls;
+
+            var topmost = getTopmost_(this);
+            if (isHook(topmost) && topmost._.el) {
+                var loops = [];
+                getLeaveLoops_(this, loops);
+                for (var i = 0; i < loops.length; i++)
+                    setClassesDefault_(loops[i]._.el, getClasses_(loops[i]));
+            }
         };
 
         /**
@@ -3932,156 +3855,23 @@ limitations under the License.
         };
 
         /**
-         * <p> Renders this loop (i.e. the DOM element this loop represents) as a child of the given DOM element.
+         * <p> Renders this loop (i.e. the DOM element this loop represents) into the given DOM element.
          *
          * @public
          * @since 0.1.0
-         * @param {Element} to - the DOM element into which to render this loop
+         * @param {Element} el - the DOM element into which to render this loop
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Loop.prototype.render = function (to) {
+        Loop.prototype.renderInto = function (el) {
             checkLoopAsChild_(this);
-            var ref = this._.ref;
-            if (ref)
-                ref.detach();
-            var newRef = new ElementRef(to);
-            this._.ref = newRef;
-            newRef.hook.hook(this);
+            var parentRef = this._.parentRef;
+            if (parentRef)
+                parentRef.detach();
+            var newRef = new ElementRef(el);
+            this._.parentRef = newRef;
+            newRef.hook.add(this);
         };
 
-        /*
-        -------------------------O---------
-        |                        | 3      |
-        |   -----------          |        |
-        |   |         |          |        |
-        |   |         |          | 2      |
-        |   |         |     -----O-----   |
-        |   -----J-----     |         |   |
-        |        |          |         |   |
-        |        |          |         |   |
-        |        | 1        -----------   |
-        |   -----O-----                   |
-        |   |         |                   |
-        |   |         |                   |
-        |   |         |                   |
-        |   -----------                   |
-        |                                 |
-        -----------------------------------
-         */
-
-        // 1
-
-        /**
-         * <p> Returns the hook (of a sibling capsule of this loop's owner capsule) this loop is tied to; or null if it is not tied to such a hook. The tying is checked in the current context of execution only.
-         * <p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @returns {module:capsula.Hook} the hook this loop is tied to (in the current context of execution)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.getHook = function () {
-            checkLoopAsChild_(this);
-            var up = this._.up;
-            if (isHook(up))
-                return up;
-            return null;
-        };
-
-        /**
-         * <p> Ties this loop to the given hook which has to be the hook of a sibling capsule of this loop's owner capsule (throws error if not).
-         * <p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {module:capsula.Hook} hook - the hook to tie this loop to
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.setHook = function (hook) {
-            checkLoopAsChild_(this);
-            if (hook)
-                checkHookAsParent_(hook);
-            untieTopBot_(this._.up, this);
-            if (hook)
-                tieTopBot_(hook, this);
-        };
-
-        // 2
-
-        /**
-         * <p> Returns the loop (of the owner capsule of this loop's owner capsule) this loop is tied to; or null if it is not tied to such a loop. The tying is checked in the current context of execution only.
-         * <p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @returns {module:capsula.Loop} the public loop this loop is tied to (in the current context of execution)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.getPublicLoop = function () {
-            checkLoopAsChild_(this);
-            var up = this._.up;
-            if (isLoop(up))
-                return up;
-            return null;
-        };
-
-        /**
-         * <p> Ties this loop to the given loop which has to be the loop of the owner capsule of this loop's owner capsule (throws error if not).
-         * <p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {module:capsula.Loop} loop - the public loop to tie this loop to
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.setPublicLoop = function (loop) {
-            checkLoopAsChild_(this);
-            if (loop)
-                checkLoopAsParent_(loop);
-            untieTopBot_(this._.up, this);
-            if (loop) {
-                untieTopBot_(loop, loop._.down);
-                tieTopBot_(loop, this);
-            }
-        };
-
-        // 3
-
-        /**
-         * <p> Returns the loop (of the part capsule of this loop's owner capsule) this loop is tied to; or null if it is not tied to such a loop. The tying is checked in the current context of execution only.
-         * <p> Assumes this loop belongs to the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @returns {module:capsula.Loop} the private loop this loop is tied to (in the current context of execution)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.getPrivateLoop = function () {
-            checkLoopAsParent_(this);
-            return this._.down;
-        };
-
-        /**
-         * <p> Ties this loop to the given loop which has to be the loop of a sibling capsule of this loop's owner capsule (throws error if not).
-         * <p> Assumes this loop belongs to the capsule that represents the current context of execution. Otherwise it throws error.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {module:capsula.Loop} loop - the private loop to tie this loop to
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.setPrivateLoop = function (loop) {
-            checkLoopAsParent_(this);
-            if (loop)
-                checkLoopAsChild_(loop);
-            untieTopBot_(this, this._.down);
-            if (loop) {
-                untieTopBot_(loop._.up, loop);
-                tieTopBot_(this, loop);
-            }
-        };
-
-        // 1, 2
         /**
          * <p> Returns the parent hook or loop this loop is tied to; or null if it is not tied to a parent hook or loop in the current context of execution.
          * <p> Assumes this loop belongs to a part capsule of the capsule that represents the current context of execution. Otherwise it throws error.
@@ -4110,205 +3900,150 @@ limitations under the License.
             if (parent)
                 checkHookLoopAsParent_(parent);
             untieTopBot_(this._.up, this);
-            if (parent) {
-                if (isLoop(parent))
-                    untieTopBot_(parent, parent._.down);
+            if (parent)
                 tieTopBot_(parent, this);
+        };
+
+        /**
+         * Returns an array of loops this loop is tied to acting as a parent in the current context of execution; or an empty array if it is not tied to any loop. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error.
+         *
+         * @public
+         * @since 0.1.0
+         * @returns {Array.<module:capsula.Loop>} an array of loops this loop is tied to acting as the current context of execution; or an empty array
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Loop.prototype.getChildren = function () {
+            checkLoopAsParent_(this);
+            return get_.apply(this._.children);
+        };
+
+        /**
+         * Ties this loop acting as a parent in the current context of execution to the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
+         *
+         * @public
+         * @since 0.1.0
+         * @param {...module:capsula.Loop} var_args - loops to tie this parent loop to (an array of loops also accepted)
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Loop.prototype.add = function (var_args) {
+            checkLoop_(this);
+            Loop.prototype.addAt.apply(this, [this._.children.length].concat(Array.prototype.slice.call(arguments, 0)));
+        };
+
+        /**
+         * Ties this loop acting as a parent in the current context of execution to the given loops according to the given <i>at</i> index. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
+         *
+         * @public
+         * @since 0.1.0
+         * @param {number} at - the index to use when tying this parent loop to the given loops
+         * @param {...module:capsula.Loop} var_args - loops to tie this parent loop to (an array of loops also accepted)
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [INDEX_OUT_OF_BOUNDS]{@link module:capsula.Errors.INDEX_OUT_OF_BOUNDS}
+         */
+        Loop.prototype.addAt = function (at, var_args) {
+            checkLoopAsParent_(this);
+            checkBounds_(at, this._.children.length, 'at');
+            checkHookLoopAsChildren_.apply(this, Array.prototype.slice.call(arguments, 1));
+
+            var skip = 0,
+            arr = arguments[1];
+            if (!isArray_(arr)) {
+                skip = 1;
+                arr = arguments;
+            }
+            for (var i = arr.length - 1; i >= skip; i--) {
+                untieTopBot_(arr[i]._.up, arr[i]);
+                tieTopBot_(this, arr[i], at);
             }
         };
 
-        // 2, 3
         /**
-         * <p> Returns the loop this loop is tied to; or null if it is not tied to a loop in the current context of execution.
+         * Checks whether this loop acting as a parent in the current context of execution is tied to all the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
          *
          * @public
          * @since 0.1.0
-         * @returns {module:capsula.Loop} the loop this loop is tied to (in the current context of execution)
+         * @param {...module:capsula.Loop} var_args - loops to check (an array of loops also accepted)
+         * @returns {boolean} whether this parent loop is tied to all the given loops (in the current context of execution)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Loop.prototype.getLoop = function () {
-            checkLoop_(this);
-            return doInContext_(Loop.prototype.getPrivateLoop, Loop.prototype.getPublicLoop, this, arguments);
+        Loop.prototype.isParentOf = function (var_args) {
+            checkLoopAsParent_(this);
+            var arr = arguments[0];
+            if (!isArray_(arr))
+                arr = arguments;
+            if (arr.length === 0)
+                return false;
+            var result = true;
+            for (var i = 0; i < arr.length; i++) {
+                checkHookLoopAsChild_(arr[i]);
+                result = result && arr[i]._.up === this;
+            }
+            return result;
         };
 
         /**
-         * <p> Ties this loop to the given loop in the current context of execution.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {module:capsula.Loop} loop - the loop to tie this loop to
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.setLoop = function (loop) {
-            checkLoop_(this);
-            doInContext_(Loop.prototype.setPrivateLoop, Loop.prototype.setPublicLoop, this, arguments);
-        };
-
-        // 1, 2, 3
-        /**
-         * Returns (an array with) the hook or the loop this loop is tied to in the current context of execution; or an empty array if it is not tied to any hook or loop. The returned hook or loop is packaged into an array before returning for the compatibility reasons with hook's [getTies]{@link module:capsula.Hook#getTies}.
-         *
-         * @public
-         * @since 0.1.0
-         * @returns {Array.<module:capsula.Hook | module:capsula.Loop>} an array with the hook or the loop this loop is tied to in the current context of execution; or an empty array
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.getTies = function () {
-            checkLoop_(this);
-            var that = this;
-            return doInContext_(function () {
-                return that._.down ? [that._.down] : [];
-            }, function () {
-                return that._.up ? [that._.up] : [];
-            }, this);
-        };
-
-        /**
-         * Ties this loop to the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {module:capsula.Hook | module:capsula.Loop | Array.<module:capsula.Hook | module:capsula.Loop>} hookOrLoop - hook or loop to tie this loop to
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.tie = function (hookOrLoop) {
-            checkLoop_(this);
-            var that = this,
-            arg = arguments[0];
-            if (isArray_(arg))
-                arg = arg[0];
-            doInContext_(function () {
-                if (arg != null)
-                    checkLoop_(arg);
-                that.setPrivateLoop(arg);
-            }, function () {
-                if (arg != null)
-                    checkHookLoop_(arg);
-                that.setParent(arg);
-            }, this, arguments);
-        };
-
-        /**
-         * Ties this loop to the given hook or loop according to the given <i>at</i> index and the current context of execution. The at index is taken into consideration only when tying this loop to a hook since only hooks can have more than one child; otherwise it is ignored. The function accepts the given hook or loop in an array as well.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {number} at - the index to use when tying this loop to the given hook or loop
-         * @param {module:capsula.Hook | module:capsula.Loop | Array.<module:capsula.Hook | module:capsula.Loop>} hookOrLoop - hook or loop to tie this loop to
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [INDEX_OUT_OF_BOUNDS]{@link module:capsula.Errors.INDEX_OUT_OF_BOUNDS}
-         */
-        Loop.prototype.tieAt = function (at, hookOrLoop) {
-            checkLoop_(this);
-            var that = this,
-            arg = arguments[1];
-            if (isArray_(arg))
-                arg = arg[0];
-            doInContext_(function () {
-                if (at !== 0)
-                    throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure \'at\' is zero since you should be tying two loops.'));
-                if (arg != null)
-                    checkLoop_(arg);
-                that.setPrivateLoop(arg);
-            }, function () {
-                if (arg != null)
-                    checkHookLoop_(arg);
-                if (isLoop(arg) && at !== 0)
-                    throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure \'at\' is zero since you are tying two loops.'));
-                if (isHook(arg))
-                    arg.hookAt(at, that);
-                else
-                    that.setPublicLoop(arg);
-            }, this, arguments);
-        };
-
-        /**
-         * Checks whether this loop is tied to the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
-         *
-         * @public
-         * @since 0.1.0
-         * @param {module:capsula.Hook | module:capsula.Loop | Array.<module:capsula.Hook | module:capsula.Loop>} hookOrLoop - hook or loop to check
-         * @returns {boolean} whether this loop is tied to the given hook or loop (in the current context of execution)
-         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
-         */
-        Loop.prototype.isTiedTo = function (hookOrLoop) {
-            checkLoop_(this);
-            var that = this,
-            arg = arguments[0];
-            if (isArray_(arg))
-                arg = arg[0];
-            return doInContext_(function () {
-                if (arg != null)
-                    checkLoop_(arg);
-                return that._.down === arg;
-            }, function () {
-                if (arg != null)
-                    checkHookLoop_(arg);
-                return that._.up === arg;
-            }, this, arguments);
-        };
-
-        /**
-         * Unties this loop from the hook or the loop it is tied to in the current context of execution.
+         * Unties this loop acting as a parent in the current context of execution from all the loops it is tied to. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error.
          *
          * @public
          * @since 0.1.0
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Loop.prototype.untieAll = function () {
-            checkLoop_(this);
-            doInContext_(Loop.prototype.setPrivateLoop, Loop.prototype.setParent, this, [null]);
+        Loop.prototype.clear = function () {
+            checkLoopAsParent_(this);
+            var children = this._.children.slice(0); // new array
+            for (var i = 0; i < children.length; i++)
+                untieTopBot_(this, children[i]);
         };
 
         /**
-         * Unties this loop from the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
+         * Unties this loop acting as a parent in the current context of execution from the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
          *
          * @public
          * @since 0.1.0
-         * @param {module:capsula.Hook | module:capsula.Loop | Array.<module:capsula.Hook | module:capsula.Loop>} hookOrLoop - hook or loop to untie this loop from
+         * @param {...module:capsula.Loop} var_args - loops to untie this parent loop from (an array of loops also accepted)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Loop.prototype.untie = function (hookOrLoop) {
-            checkLoop_(this);
-            var that = this,
-            arg = arguments[0];
-            if (isArray_(arg))
-                arg = arg[0];
-            doInContext_(function () {
-                if (arg != null) {
-                    checkLoop_(arg);
-                    if (that._.down === arg)
-                        that.setPrivateLoop(null);
-                }
-            }, function () {
-                if (arg != null) {
-                    checkHookLoop_(arg);
-                    if (that._.up === arg)
-                        that.setParent(null);
-                }
-            }, this, arguments);
+        Loop.prototype.remove = function (var_args) {
+            checkLoopAsParent_(this);
+            checkHookLoopAsChildren_.apply(this, arguments);
+            var arr = arguments[0];
+            if (!isArray_(arr))
+                arr = arguments;
+            for (var i = 0; i < arr.length; i++)
+                untieTopBot_(this, arr[i]);
         };
 
         /**
-         * First, it unties this loop from any hook or loop it may be tied to in the current context of execution and then ties this loop to the given hook or loop in the current context of execution. The function accepts the given hook or loop in an array as well.
+         * First, unties this loop acting as a parent in the current context of execution from all the loops it is tied to and then ties this loop to the given loops. It is assumed that this loop belongs to the capsule that represents the current context of execution; otherwise it throws error. The function accepts both comma separated list of loops and an array of loops.
          *
          * @public
          * @since 0.1.0
-         * @param {module:capsula.Hook | module:capsula.Loop | Array.<module:capsula.Hook | module:capsula.Loop>} hookOrLoop - hook or loop to tie this loop to
+         * @param {...module:capsula.Loop} var_args - loops to re-tie this parent loop to (an array of loops also accepted)
          * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
          */
-        Loop.prototype.retie = function (hookOrLoop) {
+        Loop.prototype.set = function (var_args) {
+            Loop.prototype.clear.apply(this);
+            Loop.prototype.add.apply(this, arguments);
+        };
+
+        /**
+         * Ties this loop to the given parent hook or loop or the given child loops in the current context of execution. The function accepts loops in an array as well.
+         *
+         * @public
+         * @since 0.1.0
+         * @param {module:capsula.Hook | module:capsula.Loop | Array.<module:capsula.Loop>} var_args - hook, loop, or an array of loops to tie this loop to
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Loop.prototype.tie = function (var_args) {
             checkLoop_(this);
-            var that = this,
-            arg = arguments[0];
-            if (isArray_(arg))
-                arg = arg[0];
-            doInContext_(function () {
-                if (arg != null)
-                    checkLoop_(arg);
-                that.setPrivateLoop(arg);
-            }, function () {
-                if (arg != null)
-                    checkHookLoop_(arg);
+
+            var args = arguments[0],
+            that = this;
+            if (!isArray_(args))
+                args = arguments;
+
+            doInContext_(Loop.prototype.add, function () {
+                var arg = args[0];
+                checkHookLoop_(arg);
                 that.setParent(arg);
             }, this, arguments);
         };
@@ -4327,6 +4062,100 @@ limitations under the License.
         Loop.prototype.disclose = function (opt_name) {
             checkLoopAsChild_(this);
             return disclose_(this, opt_name);
+        };
+
+        /**
+         * Returns the id of this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {number} the id of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getId = function () {
+            checkDataAsThis_(this);
+            return this._.id;
+        };
+
+        /**
+         * Returns the owner capsule of this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {module:capsula.Capsule} the owner capsule of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getOwner = function () {
+            checkDataAsThis_(this);
+            return this._.owner;
+        };
+
+        /**
+         * Returns the name of this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {string} the name of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getName = function () {
+            checkDataAsThis_(this);
+            return this._.name;
+        };
+
+        /**
+         * Sets a new name to this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {string} name - a new name of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}, [FORBIDDEN_NAME]{@link module:capsula.Errors.FORBIDDEN_NAME}
+         */
+        Data.prototype.setName = function (name) {
+            checkDataAsThis_(this);
+            checkName_(name);
+            this._.name = name;
+        };
+
+        /**
+         * <p> Returns the fully qualified name of this data, using the given separator if provided (if not, the :: is used by default).
+         * <p> The fully qualified name comprises the name of this data, the name of the owner capsule of this data, the name of its owner, and so on all the way up the capsule hierarchy.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {string} [opt_sep] the separator to use to separate names in the returned fully qualified name
+         * @returns {string} the fully qualified name of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.getFQName = function (opt_sep) {
+            checkDataAsThis_(this);
+            return getFQName_(this, opt_sep);
+        };
+
+        /**
+         * Returns protected information of this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @returns {Object} protected information (data) of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.get = function () {
+            checkDataAsThis_(this);
+            return this._.data;
+        };
+
+        /**
+         * Sets protected information to this data.
+         *
+         * @public
+         * @since 0.2.0
+         * @param {Object} data - protected information of this data
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:capsula.Errors.ILLEGAL_ARGUMENT}, [OUT_OF_CONTEXT]{@link module:capsula.Errors.OUT_OF_CONTEXT}
+         */
+        Data.prototype.set = function (data) {
+            checkDataAsThis_(this);
+            return this._.data = data;
         };
 
         // *****************************
@@ -4355,7 +4184,7 @@ limitations under the License.
          * Checks whether an object is Array or not.
          *
          * @private
-         * @param {object} subject - the variable that is tested for Array identity check
+         * @param {Object} subject - the variable that is tested for Array identity check
          * @returns weather the variable is an Array or not
          *
          * Attribution: https://shamasis.net/2011/08/infinite-ways-to-detect-array-in-javascript/
@@ -4463,6 +4292,13 @@ limitations under the License.
         }
 
         /**
+         * @private
+         */
+        function isInput_(obj) {
+            return isOperation(obj) && obj.isInput();
+        }
+
+        /**
          * Checks whether the given object is [loop]{@link module:capsula.Loop} or not.
          *
          * @memberof module:capsula
@@ -4474,6 +4310,20 @@ limitations under the License.
          */
         function isLoop(loop) {
             return loop instanceof Loop;
+        }
+
+        /**
+         * Checks whether the given object is [data]{@link module:capsula.Data} or not.
+         *
+         * @memberof module:capsula
+         * @public
+         * @since 0.2.0
+         * @static
+         * @param {Object} obj - object to be checked
+         * @returns {boolean} whether the given object is data or not
+         */
+        function isData(obj) {
+            return obj instanceof Data;
         }
 
         /**
@@ -4509,6 +4359,13 @@ limitations under the License.
          */
         function isOperation(obj) {
             return typeof obj === 'function' && isObject_(obj._);
+        }
+
+        /**
+         * @private
+         */
+        function isOutput_(obj) {
+            return isOperation(obj) && (!obj.isInput());
         }
 
         /**
@@ -4602,6 +4459,22 @@ limitations under the License.
          */
         function checkContextOrSubProperty_(prop) {
             checkContextOrSubCapsule_(getOwner_(prop));
+        }
+
+        /**
+         * @private
+         */
+        function checkData_(obj) {
+            if (!isData(obj))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure you use data here.'));
+        }
+
+        /**
+         * @private
+         */
+        function checkDataAsThis_(obj) {
+            checkData_(obj);
+            checkContextProperty_(obj);
         }
 
         /**
@@ -4706,6 +4579,18 @@ limitations under the License.
         function checkLoopAsChild_(loop) {
             checkLoop_(loop);
             checkContextSubProperty_(loop);
+        }
+
+        /**
+         * @private
+         */
+        function checkLoopsAsChildren_() {
+            var arr = arguments[0];
+            if (!isArray_(arr))
+                arr = arguments;
+            for (var i = 0; i < arr.length; i++) {
+                checkLoopAsChild_(arr[i]);
+            }
         }
 
         /**
@@ -4887,6 +4772,52 @@ limitations under the License.
         /**
          * @private
          */
+        function getByThisNameAndType_(that, isFunction, collectionName, name, typeFn) {
+            var result = that[name];
+            if (!isNothing_(result) && isFunction(result))
+                return result;
+            else
+                return getByNameAndType_(that._[collectionName], name, typeFn);
+        }
+
+        /**
+         * @private
+         */
+        function getChildHoop_(capsule) {
+            if (capsule === ctx_)
+                return capsule.getDefaultChildHook();
+            else
+                return capsule.getDefaultChildLoop();
+        }
+
+        /**
+         * @private
+         */
+        function getChildrenHoops_(var_args) {
+            var children = [];
+            var arr = arguments[0];
+            if (!isArray_(arr))
+                arr = arguments;
+            for (var i = 0; i < arr.length; i++) {
+                var capsule = arr[i],
+                chd;
+                checkCapsule_(capsule);
+                if (this === ctx_) {
+                    chd = capsule.getDefaultChildLoop();
+                } else {
+                    if (arr[i] === ctx_)
+                        chd = capsule.getDefaultChildHook();
+                    else
+                        chd = capsule.getDefaultChildLoop();
+                }
+                children.push(chd);
+            }
+            return children;
+        }
+
+        /**
+         * @private
+         */
         function getDefName_(def) {
             return getPropertyOf_(def, def.substring(0, def.indexOf('.')));
         }
@@ -4920,6 +4851,16 @@ limitations under the License.
         /**
          * @private
          */
+        function getParentHoop_(capsule) {
+            if (capsule === ctx_)
+                return capsule.getDefaultParentLoop();
+            else
+                return capsule.getDefaultParentHook();
+        }
+
+        /**
+         * @private
+         */
         function getPropertyOf_(propStr, owner) {
             owner = owner + '.';
             var i = propStr.indexOf(owner);
@@ -4936,16 +4877,16 @@ limitations under the License.
          * @private
          */
         function getSelf_(self, ownerName) {
-            return ownerName === 'this' ? self : getByNameAndType_(self._.parts, ownerName);
+            return ownerName === 'this' ? self : self[ownerName];
         }
 
         /**
          * @private
          */
         function getSelfHookOrLoop_(self, name) {
-            var result = getByNameAndType_(self._.hooks, name);
+            var result = getByThisNameAndType_(self, isHook, 'hooks', name);
             if (isNothing_(result))
-                return getByNameAndType_(self._.loops, name);
+                return getByThisNameAndType_(self, isLoop, 'loops', name);
             return result;
         }
 
@@ -4961,7 +4902,7 @@ limitations under the License.
          * @private
          */
         function getSelfOperationOrMethod_(self, name) {
-            var result = getByNameAndType_(self._.pins, name);
+            var result = getByThisNameAndType_(self, isOperation, 'pins', name);
             if (isNothing_(result))
                 return getSelfMethod_(self, name);
             return result;
@@ -5239,6 +5180,12 @@ limitations under the License.
             CAPSULE_ALREADY_ATTACHED: new services.ErrorMessage(301, 'Capsule $1 has already been attached in a different context. Make sure you detach it there before attaching it again.'),
 
             /**
+             * Usage: When using capsule that has no default property in place where this is required. Error message (without $1 placeholder replaced and with the error code):
+             * <p><i> 'Oops! Default $1 could not be found. (#302)' </i>
+             */
+            DEFAULT_NOT_FOUND: new services.ErrorMessage(302, 'Default $1 could not be found.'),
+
+            /**
              * Usage: when input operation is used in context where output is expected or vice versa. Error message (without $1 and $2 placeholders replaced and with the error code):
              * <p><i> 'Oops! Operation $1 cannot act as a $2 in this context. Make sure you pick the one that can. (#400)' </i>
              */
@@ -5359,10 +5306,10 @@ limitations under the License.
                  * @since 0.1.0
                  */
                 '+ getElement': function () {
-                    return this.getData('element');
+                    return this.element.get();
                 },
                 setElement_: function (el) {
-                    this.setData('element', el);
+                    this.element = new Data(el);
                     this.hook._.el = el;
                     this.loop._.el = el;
                 }
@@ -5398,7 +5345,7 @@ limitations under the License.
             OPERATION: 'OPERATION'
         };
 
-        services.registerType(ServiceType.OPERATION, function (requests, config) {
+        services.registerType(ServiceType.OPERATION, function (requests, config, serviceName) {
             var packed = [];
             for (var i = 0; i < requests.length; i++)
                 packed.push(requests[i].body);
@@ -5409,8 +5356,10 @@ limitations under the License.
                         services.rejectAll(requests, new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString()));
                     else
                         services.resolveAllSuccessful(requests, responses);
+                    services.setServiceStatus(serviceName, 'online');
                 }, function (err) {
                     services.rejectAll(requests, err);
+                    services.setServiceStatus(serviceName, 'offline');
                 });
             } else {
                 var responses;
@@ -5418,8 +5367,10 @@ limitations under the License.
                     responses = config.operation._.call(packed);
                     if (!isArray_(responses) || responses.length !== requests.length)
                         throw new Error(services.Errors.ILLEGAL_RESPONSE_SIZE.toString());
+                    services.setServiceStatus(serviceName, 'online');
                 } catch (err) {
                     services.rejectAll(requests, err);
+                    services.setServiceStatus(serviceName, 'offline');
                     return;
 
                 }
@@ -5442,9 +5393,8 @@ limitations under the License.
         // *****************************
 
         /**
-         * <p> Capsula.js is the core module of Capsula library. The base concept of Capsula library is the <i>Capsule</i>, a class similar to an OO class with different encapsulation model and many new and powerful concepts. Start learning by reading the documentation for [the Capsule class]{@link module:capsula.Capsule}. Then carefully cover the concepts of [Operations]{@link module:capsula.Operation}, [Hooks]{@link module:capsula.Hook}, and [Loops]{@link module:capsula.Loop}.
+         * <p> Capsula.js is the core module of Capsula library. The base concept of Capsula library is the [Capsule class]{@link module:capsula.Capsule}, a class similar to an OO class with different encapsulation model and many new and powerful concepts like [operations]{@link module:capsula.Operation}, [hooks]{@link module:capsula.Hook}, [loops]{@link module:capsula.Loop}, and many more.
          * <p> To create new Capsule class, use [defCapsule]{@link module:capsula.defCapsule} method.
-         * <p> To wrap any external element and use it as a capsule instance, check out [ElementRef]{@link module:capsula.ElementRef} capsule.
          * @exports capsula
          * @requires module:services
          * @version 0.1.0
@@ -5458,6 +5408,7 @@ limitations under the License.
             Output: Output,
             Hook: Hook,
             Loop: Loop,
+            Data: Data,
 
             // capsules
             Capsule: Capsule,
@@ -5468,13 +5419,12 @@ limitations under the License.
             isOperation: isOperation,
             isHook: isHook,
             isLoop: isLoop,
+            isData: isData,
             isCapsuleConstructor: isCapsuleConstructor,
 
             // API
             wire: wire,
-            unwire: unwire,
             tie: tie,
-            untie: untie,
 
             // context
             contextualize: contextualize,
