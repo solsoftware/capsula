@@ -10,7 +10,9 @@ From our own experience and developers' opinions we believe developers are not r
 
 > Handle Complexity Better
 
-To address complexity we need a concept or mechanism for hierarchical organization of UI code. The concept that could be recursively re-applied starting from high architectural levels down to the lowest levels of simple UI components.
+To address structural complexity we need a concept or mechanism for hierarchical organization of our system. The concept that could be recursively re-applied starting from high architectural levels down to the lowest levels of simple components.
+
+Similarly, we need powerful concepts for handling behavioral aspects of our system. State machines are well-known tool that helps in that; so the goal would be to provide full-featured support for state machines.
 
 > Set Up a Balance Between Declarative and Imperative
 

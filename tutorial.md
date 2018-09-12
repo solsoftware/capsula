@@ -24,7 +24,9 @@ nav: true
 	- [Inheritance](#inheritance)
 - [Implementing Behavior](#implementing-behavior)
 	- [Methods](#methods)
+	- [Contextualization](#contextualization)
 	- [Operations](#operations)
+	- [State Machines](#state-machines)
 	- [Error Handling](#error-handling)
 - [Protected State](#protected-state)
 - [Building User Interfaces](#building-user-interfaces)
@@ -33,7 +35,7 @@ nav: true
 - [Asynchronous RPC Communication](#asynchronous-rpc-communication)
 	- [Performing AJAX Calls](#performing-ajax-calls)
 	- [Other Types Of RPC](#other-types-of-rpc)
-	- [Custom RPC Types](#custom-rpc-types)
+	- [Creating Custom RPC Types](#creating-custom-rpc-types)
 
 ## About This Tutorial
 
@@ -86,13 +88,14 @@ Please let us know of any issue you run into while reading the tutorial. We woul
 
 - create your application out of **encapsulated components** - capsules.
 - have **multi-level architectural views** of your application and **handle complexity better**.
+- easily implement complex behavioral lifecycles using **state machines**.
 - be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
 - **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
 - **handle asynchronous communication** focusing only on what's essential.
 - exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
-- expect even more, according to our [goals]({{ "/the-goals-of-capsula" | relative_url }}).
+- expect even more, according to our [goals]({{ "/the-goals-of-capsula" | relative_url }}){:target="_blank"}.
 
-Capsula is a sort of dynamic, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming) "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It is especially suitable for applications that exploit composite design pattern, i.e. for applications that could be built by recursively composing encapsulated modules into larger modules all the way up to the whole application.
+Capsula is a sort of dynamic, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming){:target="_blank"} "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It is especially suitable for applications that exploit composite design pattern, i.e. for applications that could be built by recursively composing encapsulated modules into larger modules all the way up to the whole application.
 
 Capsula addresses communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with essential matters only, as well as to easily mock server-side part of communication.
 
@@ -106,7 +109,7 @@ This section explains the main concepts behind Capsula library as well as specif
 
 ### Introducing Capsules
 
-The base concept of Capsula library is the concept of *Capsule*. Capsules encapsulate pieces of application logic. Capsules are usually built out of other (child) capsules. Hence, capsules form a hierarchy which serves as a backbone of your application.
+The base concept of Capsula library is the concept of *Capsule*. Capsules encapsulate pieces of application logic. Capsules are usually built out of other (child) capsules. Hence, capsules form a hierarchy which serves as a backbone (or architecture) of your application.
 
 Capsule class is a simple OO class with special features / properties. Capsules support single inheritance model and polymorphism the way OO classes do. At the same time they are dynamic the way JavaScript language is. They employ rather novel encapsulation model that relies on the above-mentioned hierarchy of capsules.
 
@@ -117,25 +120,35 @@ Capsule class is a simple OO class with special features / properties. Capsules 
 <tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
 </tbody></table>
 
-There are multiple types of capsule's properties: methods, operations, parts, hooks, loops, and data.
+There are multiple types of capsule's properties: methods, operations, parts, hooks, loops, and data. Access to capsule's properties is always checked by the encapsulation model as you will see.
 
-*Method* is (as anyone would imagine) a simple JavaScript method. *Operation* acts like a method, however it is more powerful. Operations add support for asynchronous calls, declarative wiring to other operations and methods (to specify propagation of calls), etc. *Part* of a capsule represents its child capsule, that is, a capsule instantiated in its context (i.e. constructor, method, or operation). *Hooks* and *loops* provide capsules with a special support for managing widgets and layout in a flexible way. In accordance with the principle of information hiding, capsules also store *protected data*; the data they work with or operate on.
+*Method* is (as anyone would imagine) a simple JavaScript method. *Operation* acts like a method, however it is more powerful. Operations add support for asynchronous calls, declarative wiring to other operations and methods (to specify propagation of calls), etc. *Part* of a capsule represents its child capsule, that is, a capsule instantiated in its context (i.e. constructor or method). *Hooks* and *loops* provide capsules with a special support for managing widgets and layout in a flexible way. In accordance with the principle of information hiding, capsules are also able to store *data* they work with or operate on.
 
 In the following section we define access rules to the above-mentioned properties i.e. how our encapsulation model works.
 
 ### Encapsulation Model
 
-In a typical OO encapsulation model accessing fields and methods depends solely on their visibility. Hence, all public fields and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we still have to carefully manage references to avoid our code becoming "spaghetti". In many cases this encapsulation policy seems not efficient enough.
+In a typical OO encapsulation model accessing fields and methods depends solely on their visibility (public, protected, private, etc.). All public fields and methods of all living objects are accessible from anywhere in the code, only a reference to an object is needed. Since everything public is accessible, we still have to carefully manage references to avoid our code becoming "spaghetti". In many cases this encapsulation policy seems not efficient enough.
 
-Capsula proposes stricter policy. The policy relies on both visibility of properties and on the runtime relationship of capsule instances (the relationship between instance whose property is being accessed and the instance from whose context the property is being accessed).
+Capsula proposes stricter policy. The policy relies on both visibility of capsule's properties and on the runtime relationship of capsule instances. Capsula neither supports packages nor the *private* visibility. Capsula supports two types of visibility: *public* and *protected* in the following way:
 
-> The code executing a method of a capsule is only allowed to use, access, or call a) public properties of all its child (part) capsules and b) public and protected properties of the capsule itself. "Out of context" error is thrown when trying to access properties against the rules.
+> The code executing capsule's method or constructor is only allowed to use, access, or call a) public properties of its direct child capsules (i.e. parts) and b) public and protected properties of the capsule itself.
+
+In other words, you can only access what's in your current context. We will use the phrase *current context* many times throughout this tutorial. So let's define it:
+
+> The *current context* is defined as a capsule instance who owns method or constructor currently being executed (deepest in the call stack).
+
+In single-threaded environments there is always a single current context. It is either a capsule instance whose method or constructor is currently being executed or the so called "main" context (sometimes referred to as the top-level context). Obviously, the current context changes many times as the execution goes from one method or constructor to another.
+
+When accessing capsule's properties, the current context is always checked and compared to the capsule that owns the property being accessed.
+
+> "Out of context" error is thrown when trying to access capsule's properties against the rules, suggesting that the current context is not the one from which the access to the property is allowed.
 
 Let's elaborate on that using a figure given bellow. Figure shows three nested capsule instances: the ```outer```, the ```middle``` (being part of the ```outer``` capsule), and the ```inner``` (being part of the ```middle``` capsule). Each of them has two properties (one public (+) and one protected (#)) that can be anything from operations, methods, hooks, loops, or data. Now let's see what's accessible from where.
 
 <img src="{{ "/assets/img/encapsulation-capsula.png" | relative_url }}" style="">
 
-From the context (method) of the ```outer``` capsule we are allowed to access property ```p3``` of the ```middle``` capsule (green arrow) since it's public and belongs to its part (i.e. belongs to a capsule instantiated in its context). However, we are disallowed to access the ```middle```'s ```p4``` property (red arrow) since it's protected. From the same context of the ```outer``` capsule, we freely access properties ```p1``` and ```p2``` since they belong to the ```outer``` capsule itself (so it doesn't really matter whether they are public or protected). Then, from the same context, we are disallowed to access any property of the ```inner``` capsule (either ```p5``` or ```p6```), since by doing that we are actually breaking encapsulation of the ```middle``` capsule. Finally, if in the context of the ```middle``` capsule we can access neither property ```p1``` nor ```p2``` since we are not allowed to "look" outside.
+From the context of the ```outer``` capsule we are allowed to access property ```p3``` of the ```middle``` capsule (green arrow) since it's public and belongs to its part (i.e. belongs to a capsule instantiated in its context). However, we are disallowed to access the ```middle```'s ```p4``` property (red arrow) since it's protected. From the same context of the ```outer``` capsule, we freely access properties ```p1``` and ```p2``` since they belong to the ```outer``` capsule itself (so it doesn't really matter whether they are public or protected). Then, from the same context, we are disallowed to access any property of the ```inner``` capsule (either ```p5``` or ```p6```), since by doing that we are actually breaking encapsulation of the ```middle``` capsule. Finally, if in the context of the ```middle``` capsule we can access neither property ```p1``` nor ```p2``` since we are not allowed to "look" outside.
 
 On the other hand, the typical encapsulation policy wouldn't mind about context and runtime relationship of the three capsules (i.e. the hierarchy they form). The policy would allow access to ```p1```, ```p3```, and ```p5``` from anywhere in the code since they are public. The access to protected properties (```p2```, ```p4```, and ```p6```) would depend on relationship of packages to which classes of the three capsule instances belong. This is why the arrows are orange, meaning "it depends" (see figure bellow).
 
@@ -150,8 +163,9 @@ It's essential to understand the encapsulation model since it interweaves with e
 Capsula library is executable both within the browser and Node.js. At this point it comprises three modules:
 
 - capsula,
-- services, and
-- html.
+- services,
+- html, and
+- sm.
 
 <table class="module">
 <thead><tr><th colspan="2">[module] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">capsula</a></th></tr></thead>
@@ -171,6 +185,12 @@ Capsula library is executable both within the browser and Node.js. At this point
 <tr><td>Description</td><td>Enables and eases building web pages using capsules.</td></tr>
 </tbody></table>
 
+<table class="module">
+<thead><tr><th colspan="2">[module] <a href="{{ "/api-reference/module-sm.html" | relative_url }}" target="_blank">sm</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Provides support for implementing behavior using state machines.</td></tr>
+</tbody></table>
+
 In the following lines we explain how to install Capsula in both of the two environments.
 
 ### Node.js
@@ -187,6 +207,7 @@ Require Capsula modules:
 var capsula = require('@solsoftware/capsula');
 var services = require('@solsoftware/capsula/dist/services');
 var html = require('@solsoftware/capsula/dist/html');
+var sm = require('@solsoftware/capsula/dist/sm');
 ```
 
 Have in mind that html module depends on the DOM API.
@@ -205,12 +226,15 @@ require(['html'], function (html) {
 require(['services'], function (services) {
     ...
 });
+require(['sm'], function (sm) {
+    ...
+});
 ```
 
 or all in one:
 
 ```js
-requirejs(['services', 'capsula', 'html'], function (services, capsula, html) {
+requirejs(['services','capsula','html','sm'], function (services, capsula, html, sm) {
     ...
 });
 ```
@@ -223,6 +247,7 @@ To start in a rather trivial way just take the following lines and put them into
 <script src="yourPathToCapsula/services.js"></script>
 <script src="yourPathToCapsula/capsula.js"></script>
 <script src="yourPathToCapsula/html.js"></script>
+<script src="yourPathToCapsula/sm.js"></script>
 ```
 
 ### Hello World
@@ -240,7 +265,7 @@ var example = new HelloWorld(); // new capsule instance, console: Hello world!
 
 ---
 
-In all the code used throughout this tutorial, we use references ```capsula```, ```services```, and ```html``` to refer to root (exported) objects of *capsula*, *services*, and *html* modules, respectively.
+In all the code used throughout this tutorial, we use references ```capsula```, ```services```, ```html```, and ```sm``` to refer to root (exported) objects of *capsula*, *services*, *html*, and *sm* modules, respectively.
 
 ---
 
@@ -257,7 +282,7 @@ var MessageArchive = capsula.defCapsule({}); // {} is the capsule definition obj
 ```
 
 <table class="method">
-<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}#.defCapsule" target="_blank">defCapsule</a></th></tr></thead>
+<thead><tr><th colspan="2">[static method] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}#.defCapsule" target="_blank">defCapsule</a></th></tr></thead>
 <tbody>
 <tr><td>Description</td><td>Creates and returns a capsule constructor function based on the given capsule (class) definition object.</td></tr>
 <tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
@@ -328,7 +353,7 @@ var Application = capsula.defCapsule({
 });
 ```
 
-Here we underline that the ```archive``` becomes part of the ```app``` capsule not because of placing it into ```this.archive```, but because of the fact that it has been instantiated in the context (i.e. constructor) of the ```app``` capsule.
+Here we underline that the ```archive``` becomes part of the ```app``` capsule not because of placing it into ```this.archive```, but because of the fact that it has been instantiated in the context (in this case in the constructor) of the ```app``` capsule.
 
 At this point, every application would have an archive module using encryption. Let's make that configurable:
 
@@ -431,7 +456,7 @@ Let's create a MessageArchive capsule with a couple of methods:
 
 ```js
 var MessageArchive = capsula.defCapsule({
-    init: function(useEncryption){ // init is the keyword for constructor
+    init: function(useEncryption){
         this.useEncryption = useEncryption;
     },
     persist: function(message){
@@ -470,17 +495,142 @@ archive.encrypt({body: 'Hello World!'}); // Error: Out of context...
 
 the error is raised since we are calling protected method from the outer context.
 
+#### Fake Methods
+
+Now, let's elaborate a little bit more on methods. Imagine the *MessageArchive* capsule with the ```process``` method declared differently (in the constructor):
+
+```js
+var MessageArchive = capsula.defCapsule({
+    init: function(useEncryption){
+        this.useEncryption = useEncryption;
+        this.process = function(message){ // <--- fake method
+            message.archivingTime = new Date();
+            if (this.useEncryption)
+                message = this.encrypt(message);
+            this.persist(message);
+        }
+    },
+    persist: function(message){
+        // TODO persist the message
+        console.log('persisted ' + JSON.stringify(message));
+    },
+    encrypt: function(message){
+        // TODO encrypt the message
+        return message;
+    }
+});
+```
+
+Now let's try to execute the following:
+
+```js
+var archive = new MessageArchive(true);
+archive.process({body: 'Hello World!'});
+```
+
+Yes, it fails. This is because the fake ```process``` method is not treated as a regular capsule's method and does not switch context to *MessageArchive* capsule when being called. It's code is actually being executed in the context from where the fake method was called (i.e. the outer context). Hence any inner attempt to access a property of *MessageArchive* capsule would fail with *out of context* error. In this case the line ```message = this.encrypt(message);``` would be the place where it fails, since this is the place where a *MessageArchive's* property is first being used. Had no property access occurred inside the process method, it would have completed without an error.
+
+One could ask why it didn't fail at the ```if (this.useEncryption)``` line? Well, this is because ```useEncryption``` datum is not special property of *MessageArchive* capsule. It is a simple JavaScript property (similarly to a fake method, we could name it a *fake property*). It could be regarded as public property accessible from anywhere in your code. To learn how to declare datum or data as capsule's property (having usual access protection), check [Protected State]({{ "/tutorial#protected-state" | relative_url }}) or just keep reading.
+
+### Contextualization
+
+As already explained, when accessing capsule's properties, the current context is always checked and compared to the capsule that owns the property being accessed. Once you get used to our encapsulation model this is usually fine, however in some cases you still might get surprised when *out of context* error pops up. Let's reach out for an example.
+
+Let's discuss what would happen if the ```persist``` method of the *MessageArchive* capsule persisted messages asynchronously (using some data source) and then called ```incNumPersisted``` method on success to increment internal counter of successfully persisted messages:
+
+```js
+// this mocks asynchronous persistence and returns after one second
+var dataSourceMock = {};
+dataSourceMock.save = function(){
+    var p = new Promise();
+    setTimeout(1000, function(){
+        p.resolve();
+    });
+    return p;
+}
+
+var MessageArchive = capsula.defCapsule({
+    init: function(useEncryption){
+        this.useEncryption = useEncryption;
+    },
+    incNumPersisted: function(){
+        if (this.numPersisted != null)
+            this.numPersisted++;
+        else
+            this.numPersisted = 1;
+    },
+    persist: function(message){ // asynchronous persistence
+        var that = this;
+        dataSourceMock.save(message).then(function (){ // callback
+            that.incNumPersisted();
+        });
+    },
+    encrypt: function(message){
+        // TODO encrypt the message
+        return message;
+    },
+    '+ process': function(message){
+        message.archivingTime = new Date();
+        if (this.useEncryption)
+            message = this.encrypt(message);
+        this.persist(message);
+    }
+});
+
+var archive = new MessageArchive(true);
+archive.process({body: 'Hello world!'});
+```
+
+Let's try to follow the context of execution of the code above. Calls to ```defCapsule```, ```new MessageArchive(true)```, and ```archive.process(...)``` all get executed within the top-level (main) context. The code inside the ```process``` method gets executed within the context of ```archive``` capsule. The code inside the ```persist``` method also gets executed within the same context. This code calls the ```save``` method of the mock data source asynchronously and immediately returns. The ```process``` also returns and the current context is now switched back to the top-level context. Everything settles down until the mock data source finishes its job after one second. When that happens, the callback method (see ```then```) is called from the current context, which is at this point the top-level context. The callback method fails on ```this.incNumPersisted``` with the *out of context* error because ```this.incNumPersisted``` is protected method of the ```archive``` capsule and the callback is trying to call it from the top-level context. So, how do we handle this?
+
+Basically, the problem occurs when capsule's property is being accessed from the context where this is not allowed. Usually, this is the case after asynchronous calls get resolved (or rejected) or a when event-handlers' callback functions get called.
+
+The solution lies down in the ```contextualize``` method. Use it to contextualize another method, i.e. to wrap it so it gets executed within the context from which the ```contextualize``` method is called. For example, the ```persist``` method implemented like this would fix the problem:
+
+```js
+persist: function(message){
+    var that = this;
+    dataSourceMock.persist(message).then(capsula.contextualize(function (){ // <---
+        that.incNumPersisted();
+    }));
+}
+```
+
+The only difference is in the fact that the callback method has been contextualized to the context in which contextualize is called, and that is the context of the ```archive``` capsule itself since the ```contextualize``` method is being called from the (```persist``` method of the) ```archive``` capsule.
+
+Note that the ```contextualize``` method does not have a context parameter. It is not meant to be a silver bullet that lets you access anything you like by just providing an arbitrary context. No; it only allows you to contextualize from within the context you contextualize to. In other words, you cannot break into someone else's context just like that. You need to be there to let others in.
+
+<table class="method">
+<thead><tr><th colspan="2">[static method] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}#.contextualize" target="_blank">contextualize</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called. When called, the returned function executes the function being an argument of contextualize within that "remembered" context.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
+</tbody></table>
+
 ### Operations
 
-Now let's go one step further and explain operations. They are like methods but more powerful. Operations are always public.
+Now let's go one step further and explain operations. They are like methods but more powerful. The following facts hold for operations and make distinction between operations and methods:
 
-Firstly, operations can be bound (both declaratively and imperatively) to one another and to methods, to specify propagation of calls. Binding operations is called wiring; bindings are called wires.
+- Operations are always public.
+- Operations can be bound (both declaratively and imperatively) to one another and to methods, to specify propagation of calls. Binding operations is called wiring; bindings are called wires.
+- Operation can either be input or output. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its owner capsule.
+- Operations can be called both in synchronous and in asynchronous way.
+- Operations can be created dynamically, in runtime.
+- There are other features that are specific to operations like enabling / disabling them, filtering operations' arguments, etc.
 
-Secondly, operation can either be input or output. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation. Output operation does the opposite, it serves as a propagator of calls from the inside towards the outside of its owner capsule.
+<table class="class">
+<thead><tr><th colspan="2">[class] <a href="{{ "/api-reference/module-capsula.Input.html" | relative_url }}" target="_blank">Input</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Input operation is a specific public property of a capsule. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
+</tbody></table>
 
-Thirdly, operations can be called both in synchronous and in asynchronous way.
-
-Also, there are other features that are specific to operations like enabling / disabling them, filtering operations' arguments, etc.
+<table class="class">
+<thead><tr><th colspan="2">[class] <a href="{{ "/api-reference/module-capsula.Output.html" | relative_url }}" target="_blank">Output</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Output operation is a specific public property of a capsule. Output operation serves as a propagator of calls from the inside towards the outside of its owner capsule.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
+</tbody></table>
 
 Let's go back to our example. Let's imagine our application receives messages from the outside world:
 
@@ -501,7 +651,7 @@ Looking from the outside, the ```newMessage``` operation looks the same and is b
 
 > Input operations are declared with > sign.
 
-Now the same thing could be done imperatively using the ```wire``` method:
+The same wiring of operations could be done imperatively using the ```wire``` method:
 
 ```js
 var Application = capsula.defCapsule({
@@ -515,6 +665,37 @@ var Application = capsula.defCapsule({
     }
 });
 ```
+
+Moreover, we could even create the ```newMessage``` operation imperatively:
+
+```js
+var Application = capsula.defCapsule({
+    init: function(){
+        this.newMessage = new capsula.Input(); // imperative creating
+        this.newMessage.wire(this.archive.process);
+    },
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
+    }
+});
+```
+
+and even wire it on spot:
+
+```js
+var Application = capsula.defCapsule({
+    init: function(){
+        this.newMessage = new capsula.Input(this.archive.process);
+    },
+    archive: {
+        capsule: MessageArchive,
+        args: 'this.args'
+    }
+});
+```
+
+Imperative way of creating operations is particularly useful with capsules that have unknown number of operations at the moment of creating their capsule classes. For example, for capsules whose number of operations depends on the constructor argument or arguments.
 
 <table class="method">
 <thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#wire" target="_blank">wire</a></th></tr></thead>
@@ -530,7 +711,7 @@ var MessageDelivery = capsula.defCapsule({
     '< onDelivered': null, // < means output operation
     '> process': function(message){ // wiring of input operation to a method
         // TODO delivery
-		message.delivered = true;
+        message.delivered = true;
         if (message.delivered)
             this.onDelivered(message);
     }
@@ -538,6 +719,22 @@ var MessageDelivery = capsula.defCapsule({
 ```
 
 > Output operations are declared with < sign.
+
+Instead of declaratively, the same could be achieved by creating output operation imperatively. Have in mind that unlike input operations, output operations' constructor doesn't have optional function argument, since the behavior triggered by the output operation is always unknown in the context where output operation gets created:
+
+```js
+var MessageDelivery = capsula.defCapsule({
+    init: function(){
+        this.onDelivered = new capsula.Output(); // imperative creating
+    },
+    '> process': function(message){ // wiring of input operation to a method
+        // TODO delivery
+        message.delivered = true;
+        if (message.delivered)
+            this.onDelivered(message);
+    }
+});
+```
 
 Delivery module works this way: accepts the message through the ```process``` input operation, tries to deliver it, and signals that to the outside world by calling the output operation ```onDelivered``` in case of successful delivery. We follow the convention of naming output operations using the pattern ```on...```.
 
@@ -662,9 +859,228 @@ Call to send returns Promise object which allows for handling the results in bot
 <tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
 </tbody></table>
 
+### State Machines
+
+Capsula provides support for handling complex behavioral aspects of your system using the well-known conceptual tool: [state machines](https://en.wikipedia.org/wiki/Finite-state_machine){:target="_blank"}.
+
+State machine models the lifecycle of an object, usually called *the host object*. During its lifecycle, the host object moves from one state to another according to transitions that connect states and events that trigger these moves. At any point in time, the state machine keeps track of the host object's state. What's more, by running the host object's lifecycle the state machine orchestrates execution of pieces of behavior that reside in host object's methods and functions of the state machine itself.
+
+The ```sm``` module doesn't really depend on other modules, so you can use it in isolation to model lifecycle of any JavaScript object, i.e. it is not exclusively built for capsules.
+
+A simple scenario of using state machines is given bellow:
+
+```js
+// create the state machine (class, constructor) 
+// out of the state machine definition object
+var ApplicationLifecycle = sm.defSM({
+    // state machine definition object
+});
+
+// take the object (in this case application) 
+// whose lifecycle is to be modeled by the state machine
+// (it doesn't have to be a capsule)
+var application = ...;
+
+// create state machine instance that handles the application (host) object
+var applicationLifecycle = new ApplicationLifecycle(application);
+
+// start the application's lifecycle
+applicationLifecycle.init();
+
+// read the application's state
+console.log(applicationLifecycle.getState());
+
+// move the lifecycle forward according to the event that happened
+applicationLifecycle.process('eventName');
+
+// read the application's state again
+console.log(applicationLifecycle.getState());
+```
+
+To create a state machine according to the given state machine definition the ```defSM``` method of the ```sm``` module is used. In our case, the state machine class is represented by the ```ApplicationLifecycle``` object which is actually a constructor function. We can have as many state machine classes as we want, according to the number of lifecycle types that we recognize in our system.
+
+<table class="method">
+<thead><tr><th colspan="2">[static method] <a href="{{ "/api-reference/module-sm.html" | relative_url }}#.defSM" target="_blank">defSM</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Creates and returns a state machine constructor function based on the given state machine definition object.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-sm.html" | relative_url }}" target="_blank">sm</a></td></tr>
+</tbody></table>
+
+In our case, the host object is the ```application``` object. As already stated, the host object can be any JavaScript object.
+
+To handle lifecycle of the host object we instantiate state machine class with the host object as an argument; the result is the ```applicationLifecycle``` object. This object we use to:
+- start the host object's lifecycle (using the ```init``` method),
+- trigger the host object's lifecycle with events (using the ```process``` method), and
+- read the host object's state (using the ```getState``` method).
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}#init" target="_blank">init</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Starts the lifecycle of the host object, i.e. "pushes" the host object into the initial state of this state machine (and further from there).</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}" target="_blank">StateMachine</a></td></tr>
+</tbody></table>
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}#process" target="_blank">process</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Triggers the lifecycle of the host object according to the given event (trigger).</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}" target="_blank">StateMachine</a></td></tr>
+</tbody></table>
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}#getState" target="_blank">getState</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Returns the state of the host object.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}" target="_blank">StateMachine</a></td></tr>
+</tbody></table>
+
+Now, let's create one simple state machine and explain all the supported concepts.
+
+```js
+var ApplicationLifecycle = sm.defSM({
+    initial: { // initial state (keyword)
+        next: { // triggerless transition; fires immediately (keyword)
+            target: 'TOP.working' // target state: 'working' (keyword)
+        }
+    },
+    working: { // composite state
+        initial: {
+            next: {
+                target: 'TOP.working.running'
+            }
+        },
+        running: { // simple steady state
+            entry: function(){ // executed when entering this state (keyword)
+                console.log('start running');
+            },
+            pause: { // transition, fires on 'pause' trigger i.e. event
+                target: 'TOP.working.pausing', // target state: 'pausing'
+                guard: function(){ // guards this transition (keyword)
+                    return true; // returns true to continue unconditionally
+                },
+                effect: function(){ // executed along with this transition (keyword)
+                    console.log('Taking a break...');
+                }
+            }
+        },
+        pausing: { // simple steady state
+            resume: { // transition, fires on 'resume' trigger (event)
+                target: 'TOP.working.running' // target state: 'running'
+            },
+            exit: function(){ // executed when leaving this state (keyword)
+                console.log('Let`s get back to work');
+            }
+        },
+        stop: { // transition, fires on 'stop' trigger (event)
+            target: 'TOP.final'
+        }
+    },
+    final: { // final state (keyword)
+        entry: function(){
+            console.log('application stopped');
+        }
+    }
+});
+```
+
+#### States
+
+State machine definition object is a collection of objects that represent states.
+
+State can either be steady or not. Steady state means the host object may reside in it for a longer period of time. If not steady, once entered the host object immediately tries to resume to another state by following the transition given in state's ```next``` property. If no such a transition is given, or if it cannot be fired due to a guard (guards are explained later), an error is thrown.
+
+Several types of states exist:
+- simple states,
+- composite states,
+- initial states, and
+- final states.
+
+> Simple states don't have sub-states. 
+
+Simple states are steady by default. To make them not steady set the ```steady``` property to false and make sure you provide the ```next``` property with transition that points to another state.
+
+> Composite states comprise other states. The hierarchy of states can be arbitrarily deep.
+
+The host object cannot reside in a composite state without residing in one of its direct or indirect steady sub-states. In that sense we say that composite state is not steady, although the host object can indirectly reside in it for a longer period of time.
+
+The state machine definition object is also considered a composite state.
+
+> Initial state is a starting point of a lifecycle of its parent composite state. Initial states are designated with the *initial* keyword. Composite state must have an initial state in it.
+
+Initial states are like a simple states: they must not have inner states. Initial states are never steady, i.e. they always have the ```next``` transition pointing to another state.
+
+> Final state is an ending point of a lifecycle of its parent composite state. Composite state may have zero or one final state in it.
+
+Final state has neither inner states nor transitions. Final state is always steady.
+
+Even though it doesn't have transitions of its own, it does inherit transitions from its parent states, so the host object may continue its lifecycle, but not inside the final state's context i.e. its direct parent state.
+
+A state can have an entry and / or exit action.
+
+Entry and exit actions are designated with ```entry``` and ```exit``` properties inside the state object. 
+
+> Entry action is a function that gets executed once the host object enters the state in which the entry action is declared. Exit action is a function that gets executed once the host object leaves the state in which the exit action is declared.
+
+Entry or exit action can either be a JavaScript function (as in our example above) or a string designating a method of the host object.
+
+Inside entry or exit function the ```this``` reference points to the host object (```application``` object in our example). At the same time, the single argument of entry or exit function points to the state machine object (the ```applicationLifecycle``` object in our example).
+
+If not final, a state can have any number of transitions to other states.
+
+The lifecycle of our application object starts at the ```initial``` state. The ```running``` and the ```pausing``` states are both simple and steady. The ```working``` state is a composite state. Apart from the initial state, it comprises the ```running``` and ```pausing``` states. By entering the ```final``` state, our application object terminates its lifecycle.
+
+#### Transitions
+
+Transitions are moves that host object makes from the current, source state to a target, destination state. Along the way, the host object exits the source state and all its parent states up to (and excluding) the closest common owner of the source and destination states. After exiting those states, it enters all the parent states of the destination state starting from the the closest common owner of the source and destination states (excluding it) to the destination state itself.
+
+> Transitions are represented by JavaScript objects. Transition resides inside its owner state to declare possible destination state for it. They differentiate from states by having a ```target``` attribute which points to a destination state using its fully qualified name.
+
+The fully qualified name starts with the ```TOP``` prefix which denotes the top (root) state of our state machine. It then continues with dot-separated list of names of all parent states (in the top-down order) and finally ends with the target state name. For example: ```TOP.working.pausing``` would be a fully qualified name for the ```pausing``` state.
+
+Apart from the ```target``` property which is transition's required property, there are other two (optional) properties: ```guard``` and ```effect```.
+
+Before making a transition, the state machine would check the guard associated to the transition (if it exists).
+
+> The guard is either a string designating the host object's method name or a simple function. In any case, the guard should return true or false to tell the state machine to move down this transition or not.
+
+If the guard allows for making a transition to a target state, an effect of a transition would be executed.
+
+> An effect is either a string designating the host object's method name or a simple function.
+
+Inside guard or effect function the ```this``` reference points to the host object. At the same time, the single argument of guard or effect function points to the state machine object.
+
+If a transition's guard allows for making a transition, three steps are executed in the following order:
+- exit actions of all exited states (in bottom-up order),
+- effect of the transition, and
+- entry actions of the entered states (in top-down order).
+
+There are two types of transitions:
+- regular transitions that fire explicitly on a specific event (given as an argument to the ```process``` method) and
+- transitions that fire implicitly when their owner state is entered; let's call them triggerless.
+
+Regular transitions fire on event that matches their name. For example, the ```resume``` transition would fire only when the ```process``` method is called with the *resume* string argument. Of course, the precondition is that the host object is in the ```pausing``` state at that moment.
+
+Sometimes it happens that parent state's transition matches the event name as well. In those cases the transition to fire is chosen by going from the host object's current steady state upwards the state hierarchy searching for the first transition that matches the event name. When found, it fires if its guard allows for that, otherwise the host object stays in the the same steady state.
+
+In our state machine there are three regular transitions: ```pause```, ```resume```, and ```stop```.
+
+On the other hand, triggerless transitions try to fire immediately after the host object enters the state they reside in. Actually, immediately after execution of entry actions.
+
+> Triggerless transitions are always listed in the ```next``` property of the owner state.
+
+The ```next``` property can have one or more triggerless transitions listed in it. JavaScript array should be used in case of multiple triggerless transitions.
+
+A state may have multiple triggerless transitions, either directly in it or indirectly through parent states. When a state is entered, all the triggerless transitions that belong to states that just got entered are guard-tested and only the first one whose guard returns true is fired. It makes sense to ensure that exactly one guard returns true for any state at any point in time.
+
+In our example, after calling the ```init``` method of the ```applicationLifecycle``` object the host object (```application```) starts from the initial state of our state machine. Since that state is not steady, the lifecycle immediately moves forward to the ```working``` state. The ```working``` state is composite so we continue from its initial state and immediately move to the ```TOP.working.running``` state executing its entry action before settling down in it. This is where the host object stays for a while and waits for the new event.
+
+If the ```pause``` event happens (i.e. if we call ```process('pause')```), the transition with that name is selected for firing. Before firing its guard is tested and it returns true; so the lifecycle continues to the ```TOP.working.pausing``` state executing the transitions's effect along the way. Now, the host object settles down in the ```pausing``` state. Again, the host object waits for the new event.
+
+If the ```stop``` event happens at this point, the host object would react since the ```stop``` event is declared for the parent (```working```) state which means it is relevant for all its child states (```running``` and ```pausing```). The guard does not exit, so we immediately move to the ```final``` state, executing the exit action of the ```pausing``` state and entry action of the ```final``` state in this order.
+
 ### Error Handling
 
-Support for error handling in capsules comes down to this. The handle method in capsule class would be called each time an error is thrown in the context of that capsule:
+Support for error handling in capsules comes down to this. The ```handle``` method in capsule class would be called each time an error is thrown in the context of that capsule:
 
 ```js
 var Application = capsula.defCapsule({
@@ -680,7 +1096,7 @@ var app = new Application();
 app.newMessage({body: 'Hello!'}); // console: failed
 ```
 
-Make sure you don't have errors popping out of handle method, since that would produce an endless recursion.
+Make sure you don't have errors popping out of the ```handle``` method, since that would produce an endless recursion.
 
 ## Protected State
 
@@ -692,7 +1108,7 @@ To create protected object simply do the following:
 var protectedObject = new capsula.Data({name: 'Hello world!'});
 ```
 
-The ```protectedObject``` would only allow access to its inner object from the context of capsule that created it, i.e. from the capsule whose method (or operation) executed ```capsula.Data``` constructor.
+The ```protectedObject``` would only allow access to the object it protects from the context that created it.
 
 An argument of ```capsula.Data``` constructor can be just about anything, from simple values to objects and arrays. Whatever you put inside would later be available to you if you ask from the right context.
 
@@ -1243,7 +1659,7 @@ Finally, capsula module provides its own service type for operations:
 
 Remember, whatever the service type you choose to use, the client code remains the same.
 
-### Custom RPC Types
+### Creating Custom RPC Types
 
 When neither one of the provided service types is suitable for your async RPC, a new service type could easily be created by calling registerType function of the services module:
 

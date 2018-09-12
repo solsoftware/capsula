@@ -46,9 +46,9 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-capsula.html">capsula</a>.</span>Input<span class="signature">(opt_name<span class="signature-attributes">opt</span>, opt_function<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+            <span class="ancestors"><a href="module-capsula.html">capsula</a>.</span>Input<span class="signature">(opt_function<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><ul><li> <a href="module-capsula.Operation.html">Operation</a><ul><li> Input</ul></ul><p> Input operation is a specific public property of a <a href="module-capsula.Capsule.html">capsule</a>. Input operations go along with output operations; they are complementary concepts.</div>
+            <div class="class-description"><ul><li> <a href="module-capsula.Operation.html">Operation</a><ul><li> Input</ul></ul><p> Input operation is a specific public property of a <a href="module-capsula.Capsule.html">capsule</a>. Input operation serves as a propagator of calls from the outside towards the inside of the capsule that owns the operation. Input operations go along with output operations; they are complementary concepts.</div>
         
     
 </header>
@@ -63,7 +63,7 @@
     
 
     
-    <h4 class="name" id="Input"><span class="type-signature"></span>new Input<span class="signature">(opt_name<span class="signature-attributes">opt</span>, opt_function<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Input"><span class="type-signature"></span>new Input<span class="signature">(opt_function<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -71,7 +71,7 @@
 
 
 <div class="description">
-    Creates new input operation as a property of the capsule that represents the current context of execution, with the given name and implementation function (if provided). The given name can later be used to obtain a reference to this operation from its owner capsule using <a href="module-capsula.Capsule.html#getInput">getInput</a> or <a href="module-capsula.Capsule.html#getOperation">getOperation</a>.
+    Creates new input operation as a property of the capsule that represents the current context of execution.
 </div>
 
 
@@ -105,39 +105,6 @@
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>opt_name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">optional name of input operation to create</td>
-        </tr>
-
     
 
         <tr>
@@ -212,7 +179,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line415">line 415</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line396">line 396</a>
     </li></ul></dd>
     
 
@@ -247,7 +214,7 @@
 <dl>
     <dt>
         <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>, <a href="module-capsula.Errors.html#.FORBIDDEN_NAME">FORBIDDEN_NAME</a>
+        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
         </div>
     </dt>
     <dd></dd>
@@ -308,13 +275,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li><li><a href="module-sm.html">sm</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li><li><a href="module-sm.StateMachine.html">StateMachine</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li><li><a href="module-sm.Errors.html">Errors</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Aug 07 2018 10:40:47 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Sep 12 2018 16:47:01 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

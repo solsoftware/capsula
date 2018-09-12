@@ -247,13 +247,14 @@ limitations under the License.
                         outputName = eventName;
                     }
 
-                    var output = new cps.Output(outputName);
+                    var output = new cps.Output();
+					output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
                             output(e);
                         });
-					this.listeners.get()[eventName] = listener;
+                    this.listeners.get()[eventName] = listener;
                     this.getTextNode().addEventListener(eventName, listener);
                 },
 
@@ -261,7 +262,7 @@ limitations under the License.
                     var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getTextNode().removeEventListener(i, listeners[i]);
-					this.listeners = new cps.Data({});
+                    this.listeners = new cps.Data({});
                 },
 
                 'this.loop': 'myText.loop'
@@ -685,7 +686,8 @@ limitations under the License.
                         outputName = eventName;
                     }
 
-                    var output = new cps.Output(outputName);
+                    var output = new cps.Output();
+					output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
@@ -699,7 +701,7 @@ limitations under the License.
                     var listeners = this.listeners.get();
                     for (var i in listeners)
                         this.getElement().removeEventListener(i, listeners[i]);
-					this.listeners = new cps.Data({});
+                    this.listeners = new cps.Data({});
                 },
 
                 root: {
@@ -772,7 +774,7 @@ limitations under the License.
                         loopName = el.getAttribute(T_LOOP),
                         part = new cps.ElementRef(el);
                         el.removeAttribute(T_LOOP);
-                        this[loopName] = new cps.Loop(loopName);
+                        this[loopName] = new cps.Loop();
                         this[loopName].tie(part.loop);
                     }
 
@@ -783,7 +785,7 @@ limitations under the License.
                         hookRef = new cps.ElementRef(hookElement),
                         hookName = hookElement.getAttribute(T_HOOK);
                         hookElement.removeAttribute(T_HOOK);
-                        this[hookName] = new cps.Hook(hookName);
+                        this[hookName] = new cps.Hook();
                         hookRef.hook.tie(this[hookName]);
                     }
 
@@ -827,7 +829,7 @@ limitations under the License.
                         eventName = outputElement.getAttribute(T_ON),
                         output = this.getOutput(outputName);
                         if (output == null) {
-                            output = new cps.Output(outputName);
+                            output = new cps.Output();
                             this[outputName] = output;
                         }
                         var listener = cps.contextualize(wrapper_(output));
@@ -849,7 +851,7 @@ limitations under the License.
                         inputName = el.getAttribute(attrName),
                         input = this.getInput(inputName);
                         if (input == null) {
-                            input = new cps.Input(inputName);
+                            input = new cps.Input();
                             this[inputName] = input;
                         }
                         input.wire(inputTargetFunction.bind(el));
@@ -863,7 +865,7 @@ limitations under the License.
                         var listener = listeners[i];
                         listener.element.removeEventListener(listener.event, listener.handler);
                     }
-					this.listeners = new cps.Data([]);
+                    this.listeners = new cps.Data([]);
                 }
             });
 
@@ -1122,7 +1124,7 @@ limitations under the License.
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
                     }
                     if (this.readyState == 4) {
-                        if (this.status == 408) // timeout
+                        if (this.status == 0) // timeout
                             services.setServiceStatus(serviceName, 'offline');
                         else
                             services.setServiceStatus(serviceName, 'online');
@@ -1148,7 +1150,7 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
-                if (xhttp.status == 408) // timeout
+                if (xhttp.status == 0) // timeout
                     services.setServiceStatus(serviceName, 'offline');
                 else
                     services.setServiceStatus(serviceName, 'online');
@@ -1176,7 +1178,7 @@ limitations under the License.
                         services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + this.status + '.')));
                     }
                     if (this.readyState == 4) {
-                        if (this.status == 408) // timeout
+                        if (this.status == 0) // timeout
                             services.setServiceStatus(serviceName, 'offline');
                         else
                             services.setServiceStatus(serviceName, 'online');
@@ -1211,7 +1213,7 @@ limitations under the License.
                 } else {
                     services.rejectAll(requests, new Error(services.Errors.ERRONEOUS_RESPONSE.toString('Response status code: ' + xhttp.status + '.')));
                 }
-                if (xhttp.status == 408) // timeout
+                if (xhttp.status == 0) // timeout
                     services.setServiceStatus(serviceName, 'offline');
                 else
                     services.setServiceStatus(serviceName, 'online');
@@ -1238,7 +1240,7 @@ limitations under the License.
             });
             jQueryRequest.fail(function (jqXHR, textStatus, errorThrown) {
                 services.rejectAll(requests, errorThrown);
-                if (jqXHR.status == 408) // timeout
+                if (jqXHR.status == 0) // timeout
                     services.setServiceStatus(serviceName, 'offline');
                 else
                     services.setServiceStatus(serviceName, 'online');
@@ -1330,13 +1332,13 @@ limitations under the License.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-capsula.html">capsula</a></li><li><a href="module-html.html">html</a></li><li><a href="module-services.html">services</a></li><li><a href="module-sm.html">sm</a></li></ul><h3>Classes</h3><ul><li><a href="module-capsula.Capsule.html">Capsule</a></li><li><a href="module-capsula.Data.html">Data</a></li><li><a href="module-capsula.ElementRef.html">ElementRef</a></li><li><a href="module-capsula.Hook.html">Hook</a></li><li><a href="module-capsula.Input.html">Input</a></li><li><a href="module-capsula.Loop.html">Loop</a></li><li><a href="module-capsula.Operation.html">Operation</a></li><li><a href="module-capsula.Output.html">Output</a></li><li><a href="module-html.Element.html">Element</a></li><li><a href="module-html.HasRootHTML.html">HasRootHTML</a></li><li><a href="module-html.Template.html">Template</a></li><li><a href="module-html.Text.html">Text</a></li><li><a href="module-services.ErrorMessage.html">ErrorMessage</a></li><li><a href="module-services.Request.html">Request</a></li><li><a href="module-sm.StateMachine.html">StateMachine</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-capsula.Errors.html">Errors</a></li><li><a href="module-capsula.ServiceType.html">ServiceType</a></li><li><a href="module-html.Errors.html">Errors</a></li><li><a href="module-html.ServiceType.html">ServiceType</a></li><li><a href="module-services.Errors.html">Errors</a></li><li><a href="module-services.ServiceType.html">ServiceType</a></li><li><a href="module-sm.Errors.html">Errors</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Tue Aug 07 2018 10:40:47 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Sep 12 2018 16:47:01 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>

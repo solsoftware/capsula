@@ -18,7 +18,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Output</title>
+    <title>JSDoc: Namespace: Errors</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -34,7 +34,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Output</h1>
+    <h1 class="page-title">Namespace: Errors</h1>
 
     
 
@@ -45,10 +45,8 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-capsula.html">capsula</a>.</span>Output<span class="signature">()</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><ul><li> <a href="module-capsula.Operation.html">Operation</a><ul><li> Output</ul></ul><p> Output operation is a specific public property of a <a href="module-capsula.Capsule.html">capsule</a>. Output operation serves as a propagator of calls from the inside towards the outside of its owner capsule. Output operations go along with input operations; they are complementary concepts.</div>
+        <h2>
+            <span class="ancestors"><a href="module-sm.html">sm</a>.</span>Errors</h2>
         
     
 </header>
@@ -57,33 +55,10 @@
     <div class="container-overview">
     
         
+            <div class="description">A collection of messages to use in appropriate erroneous situations.</div>
+        
 
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="Output"><span class="type-signature"></span>new Output<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Creates new output operation as a property of the capsule that represents the current context of execution.
-</div>
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 <dl class="details">
@@ -92,7 +67,7 @@
 
     
     <dt class="tag-since">Since:</dt>
-    <dd class="tag-since"><ul class="dummy"><li>0.1.0</li></ul></dd>
+    <dd class="tag-since"><ul class="dummy"><li>0.2.0</li></ul></dd>
     
 
     
@@ -118,70 +93,19 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line419">line 419</a>
+        <a href="sm.js.html">sm.js</a>, <a href="sm.js.html#line468">line 468</a>
     </li></ul></dd>
     
 
     
 
     
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="module-capsula.Operation.html">module:capsula.Operation</a></li>
-        </ul>
-    </dd>
-    
 
     
 </dl>
 
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
 
         
-
-<dl>
-    <dt>
-        <div class="param-desc">
-        <a href="module-capsula.Errors.html#.ILLEGAL_ARGUMENT">ILLEGAL_ARGUMENT</a>
-        </div>
-    </dt>
-    <dd></dd>
-    <dt>
-        <dl>
-            <dt>
-                Type
-            </dt>
-            <dd>
-                
-<span class="param-type">Error</span>
-
-
-            </dd>
-        </dl>
-    </dt>
-    <dd></dd>
-</dl>
-
-
-    
-
-
-
-
-
-
-
     
     </div>
 
@@ -197,6 +121,196 @@
 
     
 
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".ILLEGAL_ARGUMENT"><span class="type-signature">(static) </span>ILLEGAL_ARGUMENT<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Usage: when function argument is not according to expectations. Error message (without $1 placeholder replaced and with the error code):<p><i> 'Oops! Illegal argument(s). $1 (#3000)' </i>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="sm.js.html">sm.js</a>, <a href="sm.js.html#line473">line 473</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".ILLEGAL_DESIGN"><span class="type-signature">(static) </span>ILLEGAL_DESIGN<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Usage: when state machine has obvious problem visible in the design-time. Error message (without $1 placeholder replaced and with the error code):<p><i> 'Oops! Illegal design of state machine. $1 (#3001)' </i>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="sm.js.html">sm.js</a>, <a href="sm.js.html#line478">line 478</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id=".RUNTIME_ERROR"><span class="type-signature">(static) </span>RUNTIME_ERROR<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Usage: when runtime error occurs during the execution of state machine. Error message (without $1 placeholder replaced and with the error code):<p><i> 'Oops! Runtime error. $1 (#3002)' </i>
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="sm.js.html">sm.js</a>, <a href="sm.js.html#line483">line 483</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
     
 
     
