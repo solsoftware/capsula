@@ -107,7 +107,7 @@ describe('HTML', function () {
         it('should verify Text could be tied', function () {
             var txt = new html.Text('Hello world!'),
             el = new html.Element('div');
-            el.hook.hook(txt.loop);
+            el.hook.add(txt.loop);
 
             expect(el.getInnerHTML()).toEqual('Hello world!');
             expect(el.getElement().outerHTML).toEqual('<div>Hello world!</div>');
@@ -264,7 +264,7 @@ describe('HTML', function () {
             it('should verify getInnerHTML is working', function () {
                 var template = new html.Template('<div loop="myLoop"><div>Hello World!</div></div>'),
                 el = new html.Element('div');
-                el.hook.hook(template.myLoop);
+                el.hook.add(template.myLoop);
                 expect(el.getInnerHTML()).toEqual('<div><div>Hello World!</div></div>'); // loop="myLoop" should be removed
             });
         });
@@ -502,7 +502,7 @@ describe('HTML', function () {
 
             it('should verify creted loops are working as expected', function () {
                 var el = new html.Element('div');
-                el.hook.hook(t.myLoop3, t.myLoop2, t.myLoop1);
+                el.hook.add(t.myLoop3, t.myLoop2, t.myLoop1);
                 expect(el.getInnerHTML()).toEqual('<div>3</div><div>2</div><div>1</div>');
             });
         });
@@ -524,10 +524,10 @@ describe('HTML', function () {
                 el1.setInnerHTML('1');
                 el2.setInnerHTML('2');
                 el3.setInnerHTML('3');
-                t.myHook1.hook(el1.loop);
-                t.myHook2.hook(el2.loop);
-                t.myHook3.hook(el3.loop);
-                container.hook.hook(t.myLoop1, t.myLoop2, t.myLoop3);
+                t.myHook1.add(el1.loop);
+                t.myHook2.add(el2.loop);
+                t.myHook3.add(el3.loop);
+                container.hook.add(t.myLoop1, t.myLoop2, t.myLoop3);
                 expect(container.getInnerHTML()).toEqual('<div><div>1</div></div><div><div><div>2</div></div></div><div><div>3</div></div>');
             });
         });
@@ -592,7 +592,7 @@ describe('HTML', function () {
 
                 it('should verify creted operations are working as expected', function (done) {
                     var el = new html.Element('div');
-                    el.hook.hook(t.yesLoop, t.noLoop);
+                    el.hook.add(t.yesLoop, t.noLoop);
                     t.onClickNo.wire(function (e) {
                         el.getElement().children[0].dispatchEvent(new CustomEvent('click')); // click YES
                     });

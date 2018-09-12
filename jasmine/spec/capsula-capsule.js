@@ -163,6 +163,19 @@ describe('capsule methods', function () {
                 sol.isOperation(yCapsule.getInput('doThis')) &&
                 sol.isOperation(yCapsule.getInput('doX'))).toBeTruthy();
         });
+		
+		it('should verify unnamed input in this is returned by the getInput', function () {
+			var C = sol.defCapsule({
+				init: function(){
+					this.myInput = new sol.Input();
+				}
+			});
+			
+			var c = new C();
+			
+			 expect(
+                sol.isOperation(c.getInput('myInput'))).toBeTruthy();
+		});
     });
 
     describe('getOutput(name)', function () {
@@ -182,6 +195,19 @@ describe('capsule methods', function () {
                 sol.isOperation(yCapsule.getOutput('onA')) &&
                 sol.isOperation(yCapsule.getOutput('onB'))).toBeTruthy();
         });
+		
+		it('should verify unnamed output in this is returned by the getOutput', function () {
+			var C = sol.defCapsule({
+				init: function(){
+					this.myOutput = new sol.Output();
+				}
+			});
+			
+			var c = new C();
+			
+			expect(
+                sol.isOperation(c.getOutput('myOutput'))).toBeTruthy();
+		});
     });
 
     describe('getHooks()', function () {
@@ -225,6 +251,19 @@ describe('capsule methods', function () {
                 sol.isHook(yCapsule.getHook('h1')) &&
                 sol.isHook(yCapsule.getHook('h2'))).toBeTruthy();
         });
+		
+		it('should verify unnamed hook in this is returned by the getHook', function () {
+			var C = sol.defCapsule({
+				init: function(){
+					this.myHook = new sol.Hook();
+				}
+			});
+			
+			var c = new C();
+			
+			 expect(
+                sol.isHook(c.getHook('myHook'))).toBeTruthy();
+		});
     });
 
     describe('getLoop(name)', function () {
@@ -243,6 +282,19 @@ describe('capsule methods', function () {
                 sol.isLoop(yCapsule.getLoop('l2')) &&
                 sol.isLoop(yCapsule.getLoop('l3'))).toBeTruthy();
         });
+		
+		it('should verify unnamed loop in this is returned by the getLoop', function () {
+			var C = sol.defCapsule({
+				init: function(){
+					this.myLoop = new sol.Loop();
+				}
+			});
+			
+			var c = new C();
+			
+			 expect(
+                sol.isLoop(c.getLoop('myLoop'))).toBeTruthy();
+		});
     });
 
     describe('unwire(var_args)', function () {
@@ -435,8 +487,8 @@ describe('capsule methods', function () {
 
                         return this.onQ.getWires().indexOf(this.p.onThat) !== -1 ||
                         this.doP.getWires().indexOf(this.p.doThis) !== -1 ||
-                        this.myHook.getHook() === this.p.hook ||
-                        this.myLoop.getPrivateLoop() === this.p.loop;
+                        this.myHook.getParent() === this.p.hook ||
+                        this.myLoop.getChildren()[0] === this.p.loop;
                     },
                     '< onQ': function () {},
                     hooks: 'myHook',
@@ -589,6 +641,23 @@ describe('capsule methods', function () {
             expect(
                 sol.isCapsule(cSub.getResult_('p')) && sol.isCapsule(cSub.getResult_('myPart'))).toBeTruthy();
         });
+		
+		it('should verify unnamed part in this is returned by the getPart', function () {
+			var P = sol.defCapsule({});
+			var C = sol.defCapsule({
+				init: function(){
+					this.myPart = new P();
+				},
+				'+ getResult': function(){
+					return sol.isCapsule(this.getPart('myPart'));
+				}
+			});
+			
+			var c = new C();
+			
+			expect(
+                c.getResult()).toBeTruthy();
+		});
     });
 
     describe('detachAll()', function () {
@@ -647,12 +716,12 @@ describe('capsule methods', function () {
 
                         return this.onQ.getWires().indexOf(this.p.onThat) !== -1 ||
                         this.doP.getWires().indexOf(this.p.doThis) !== -1 ||
-                        this.myHook.getHook() === this.p.hook ||
-                        this.myLoop.getPrivateLoop() === this.p.loop ||
+                        this.myHook.getParent() === this.p.hook ||
+                        this.myLoop.getChildren()[0] === this.p.loop ||
                         this.onQ2.getWires().indexOf(this.p2.onThat) !== -1 ||
                         this.doP2.getWires().indexOf(this.p2.doThis) !== -1 ||
-                        this.myHook2.getHook() === this.p2.hook ||
-                        this.myLoop2.getPrivateLoop() === this.p2.loop;
+                        this.myHook2.getParent() === this.p2.hook ||
+                        this.myLoop2.getChildren()[0] === this.p2.loop;
                     },
                     '< onQ': function () {},
                     '< onQ2': function () {},

@@ -17,10 +17,9 @@ limitations under the License.
 describe('hooks & loops', function () {
     var sol = window.capsula,
     XCapsule_,
+	Element,
     sandboxDiv = document.createElement('div'),
     sandbox;
-
-    sandboxDiv.setAttribute('id', 'hooks-and-loops-sandbox');
 
     function errorToRegExp(error) {
         return new RegExp(error.desc.replace(/\$\d/g, ".+").replace('(', '\\(').replace(')', '\\)'));
@@ -35,6 +34,21 @@ describe('hooks & loops', function () {
                 '<onThat': function () {},
                 hooks: 'hook',
                 loops: 'loop',
+            });
+		
+		Element = sol.defCapsule({
+				hooks: 'h',
+				loops: 'l',
+				p: {
+					capsule: sol.ElementRef,
+					deferredArgs: function(txt){
+						var div = document.createElement('div');
+						div.innerHTML = txt;
+						return div;
+					}
+				},
+				'this.h': 'p.hook',
+				'this.l': 'p.loop'
             });
     });
 
@@ -59,7 +73,7 @@ describe('hooks & loops', function () {
         });
 
         it('should verify ordering of children is correct', function () {
-            sandbox.hook.unhookAll();
+            sandbox.hook.clear();
 
             var c = new C();
             sandbox.hook.tie(c.loop);
@@ -80,7 +94,7 @@ describe('hooks & loops', function () {
         });
 
         it('should verify ordering of children is correct', function () {
-            sandbox.hook.unhookAll();
+            sandbox.hook.clear();
 
             var c = new C();
             sandbox.hook.tie(c.loop);
@@ -101,7 +115,7 @@ describe('hooks & loops', function () {
         });
 
         it('should throw error when containment is cyclical', function () {
-            sandbox.hook.unhookAll();
+            sandbox.hook.clear();
 
             var divRef = new sol.ElementRef(document.createElement('div'));
 
@@ -109,19 +123,13 @@ describe('hooks & loops', function () {
                 divRef.hook.tie(divRef.loop);
             }).toThrowError();
             expect(function () {
-                divRef.hook.hook(divRef.loop);
+                divRef.hook.add(divRef.loop);
             }).toThrowError();
             expect(function () {
-                divRef.hook.hookAt(0, divRef.loop);
-            }).toThrowError();
-            expect(function () {
-                divRef.loop.setHook(divRef.hook);
+                divRef.hook.addAt(0, divRef.loop);
             }).toThrowError();
             expect(function () {
                 divRef.loop.setParent(divRef.hook);
-            }).toThrowError();
-            expect(function () {
-                divRef.loop.tie(divRef.hook);
             }).toThrowError();
 
             var divRef2 = new sol.ElementRef(document.createElement('div'));
@@ -177,7 +185,7 @@ describe('hooks & loops', function () {
 
             expect(checkOnHook).toBe('on hook called');
 
-            c.h.untieAll();
+            c.h.clear();
             expect(checkOffHook).toBe('off hook called');
 
             c.setEventHandlers_();
@@ -186,7 +194,7 @@ describe('hooks & loops', function () {
 
             expect(checkOnHook).toBe('on hook called again');
 
-            c.h.untieAll();
+            c.h.clear();
             expect(checkOffHook).toBe('off hook called again');
         });
 
@@ -219,7 +227,7 @@ describe('hooks & loops', function () {
             expect(
                 innerDiv.getElement().outerHTML).toBe('<div class="x y"></div>');
 
-            c2.hook.unhook(innerDiv.loop);
+            c2.hook.remove(innerDiv.loop);
 
             expect(
                 innerDiv.getElement().outerHTML === '<div class=""></div>' ||
@@ -228,12 +236,22 @@ describe('hooks & loops', function () {
     });
 
     describe('Hook', function () {
-        describe('getHooks()', function () {
+		beforeAll(function () {
+			sandboxDiv = document.createElement('div');
+			document.body.appendChild(sandboxDiv);
+			sandbox = new sol.ElementRef(sandboxDiv);
+		});
+		
+		beforeAll(function () {
+			sandbox.hook.clear();
+		});
+		
+        describe('getChildren()', function () {
             it('should verify a number of hooks', function () {
                 var C = sol.defCapsule({
                         hooks: ['h1', 'h2'],
                         '> getResult_': function () {
-                            return this.p1.hook.getHooks().length;
+                            return this.p1.hook.getChildren().length;
                         },
                         p1: XCapsule_,
                         p2: XCapsule_,
@@ -256,43 +274,43 @@ describe('hooks & loops', function () {
             });
         });
 
-        describe('hook(var_args)', function () {
+        describe('add(var_args)', function () {
             it('should throw error when there are non-hook or non-loop parameters', function () {
                 var c = new XCapsule_();
                 expect(function () {
-                    c.hook.hook(undefined);
+                    c.hook.add(undefined);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hook(null);
+                    c.hook.add(null);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hook('neither a hook nor a loop');
+                    c.hook.add('neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hook({});
+                    c.hook.add({});
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hook(4);
+                    c.hook.add(4);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hook(c.loop, 'neither a hook nor a loop');
+                    c.hook.add(c.loop, 'neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hook(c.doThis);
+                    c.hook.add(c.doThis);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
             it('should verify hooks and loops are added', function () {
-                sandbox.hook.unhookAll();
+                sandbox.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
                         hooks: ['h1', 'h2'],
-                        '> hook_': function (var_args) {
-                            this.p1.hook.hook.apply(this.p1.hook, arguments);
+                        '> add_': function (var_args) {
+                            this.p1.hook.add.apply(this.p1.hook, arguments);
                         },
-                        '> unhookAll_': function () {
-                            this.p1.hook.unhookAll();
+                        '> removeAll_': function () {
+                            this.p1.hook.clear();
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -329,127 +347,127 @@ describe('hooks & loops', function () {
                 div3.setAttribute('id', '3');
                 div4.setAttribute('id', '4');
 
-                c.h1.hook(e3.loop);
-                c.h2.hook(e4.loop);
-                sandbox.hook.hook(c.l);
+                c.h1.add(e3.loop);
+                c.h2.add(e4.loop);
+                sandbox.hook.add(c.l);
 
-                c.hook_(c.p2.loop);
+                c.add_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.hook_(c.h2);
+                c.add_(c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div></div>');
 
-                c.hook_(c.p3.loop);
+                c.add_(c.p3.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div></div>');
 
-                c.hook_(c.h1);
+                c.add_(c.h1);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div><div id="3"></div></div>');
 
-                c.unhookAll_();
+                c.removeAll_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.hook_(c.h1, c.h2);
+                c.add_(c.h1, c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div></div>');
 
-                c.unhookAll_();
+                c.removeAll_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.hook_([c.h1, c.h2, c.p2.loop, c.p3.loop]);
+                c.add_([c.h1, c.h2, c.p2.loop, c.p3.loop]);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div><div id="1"></div><div id="2"></div></div>');
 
-                c.hook_();
+                c.add_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div><div id="1"></div><div id="2"></div></div>');
 
-                c.hook_([]);
+                c.add_([]);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div><div id="1"></div><div id="2"></div></div>');
             });
         });
 
-        describe('hookAt(at, var_args)', function () {
+        describe('addAt(at, var_args)', function () {
             it('should throw error when at is out of bounds or not even a number', function () {
                 var c = new XCapsule_();
                 expect(function () {
-                    c.hook.hookAt(1, c.loop);
+                    c.hook.addAt(1, c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.INDEX_OUT_OF_BOUNDS));
                 expect(function () {
-                    c.hook.hookAt(-1, c.loop);
+                    c.hook.addAt(-1, c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.INDEX_OUT_OF_BOUNDS));
                 expect(function () {
-                    c.hook.hookAt(c.loop);
+                    c.hook.addAt(c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(null, c.loop);
+                    c.hook.addAt(null, c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(undefined, c.loop);
+                    c.hook.addAt(undefined, c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt('not a number', c.loop);
+                    c.hook.addAt('not a number', c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt({}, c.loop);
+                    c.hook.addAt({}, c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(function () {}, c.loop);
+                    c.hook.addAt(function () {}, c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
             it('should throw error when there are non-hook or non-loop parameters', function () {
                 var c = new XCapsule_();
                 expect(function () {
-                    c.hook.hookAt(0, undefined);
+                    c.hook.addAt(0, undefined);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(0, null);
+                    c.hook.addAt(0, null);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(0, 'neither a hook nor a loop');
+                    c.hook.addAt(0, 'neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(0, {});
+                    c.hook.addAt(0, {});
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(0, 4);
+                    c.hook.addAt(0, 4);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(0, c.loop, 'neither a hook nor a loop');
+                    c.hook.addAt(0, c.loop, 'neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.hookAt(0, c.doThis);
+                    c.hook.addAt(0, c.doThis);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
             it('should verify hooks and loops are added at the correct position', function () {
-                sandbox.hook.unhookAll();
+                sandbox.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
                         hooks: ['h1', 'h2'],
-                        '> hookAt_': function (at, var_args) {
-                            this.p1.hook.hookAt.apply(this.p1.hook, arguments);
+                        '> addAt_': function (at, var_args) {
+                            this.p1.hook.addAt.apply(this.p1.hook, arguments);
                         },
-                        '> unhookAll_': function () {
-                            this.p1.hook.unhookAll();
+                        '> removeAll_': function () {
+                            this.p1.hook.clear();
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -486,85 +504,186 @@ describe('hooks & loops', function () {
                 div3.setAttribute('id', '3');
                 div4.setAttribute('id', '4');
 
-                c.h1.hook(e3.loop);
-                c.h2.hook(e4.loop);
-                sandbox.hook.hook(c.l);
+                c.h1.add(e3.loop);
+                c.h2.add(e4.loop);
+                sandbox.hook.add(c.l);
 
-                c.hookAt_(0, c.p2.loop);
+                c.addAt_(0, c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.hookAt_(0, c.h2);
+                c.addAt_(0, c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="4"></div><div id="1"></div></div>');
 
-                c.hookAt_(1, c.p3.loop);
+                c.addAt_(1, c.p3.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="4"></div><div id="2"></div><div id="1"></div></div>');
 
-                c.hookAt_(3, c.h1);
+                c.addAt_(3, c.h1);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="4"></div><div id="2"></div><div id="1"></div><div id="3"></div></div>');
 
-                c.unhookAll_();
+                c.removeAll_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.hookAt_(0, c.h1, c.h2);
+                c.addAt_(0, c.h1, c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div></div>');
 
-                c.unhookAll_();
+                c.removeAll_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.hookAt_(0, c.p2.loop);
+                c.addAt_(0, c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.hookAt_(1, [c.h1, c.h2]);
+                c.addAt_(1, [c.h1, c.h2]);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="3"></div><div id="4"></div></div>');
 
-                c.unhookAll_();
+                c.removeAll_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.hookAt_(0, [c.h1, c.h2, c.p2.loop, c.p3.loop]);
+                c.addAt_(0, [c.h1, c.h2, c.p2.loop, c.p3.loop]);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div><div id="1"></div><div id="2"></div></div>');
 
-                c.hookAt_(0);
+                c.addAt_(0);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div><div id="1"></div><div id="2"></div></div>');
 
-                c.hookAt_(0, []);
+                c.addAt_(0, []);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="3"></div><div id="4"></div><div id="1"></div><div id="2"></div></div>');
             });
         });
 
-        describe('unhookAll()', function () {
+		describe('isParentOf(var_args)', function () {
+			var Testable, t;
+			beforeAll(function () {
+				Testable = sol.defCapsule({
+					parent: {
+						capsule: Element,
+						args: ''
+					},
+					child0: {
+						capsule: Element,
+						args: 'zero'
+					},
+					child1: {
+						capsule: Element,
+						args: 'one'
+					},
+					child2: {
+						capsule: Element,
+						args: 'two'
+					},
+					child3: {
+						capsule: Element,
+						args: 'three'
+					},
+					child4: {
+						capsule: Element,
+						args: 'four'
+					},
+					loops: 'myLoop',
+					hooks: 'myHook',
+					'this.myLoop' : 'parent.l',
+					'+ isParentOf_': function(){
+						return capsula.Hook.prototype.isParentOf.apply(this.parent.h, arguments);
+					},
+					'+ add_': function(){
+						return capsula.Hook.prototype.add.apply(this.parent.h, arguments);
+					}
+				});
+				
+				t = new Testable();
+				sandbox.hook.add(t.myLoop);
+				var hookedElement = new Element('hooked');
+				t.myHook.add(hookedElement.l);
+			});
+		
+			it('should throw error when there are non-loop parameters', function () {
+				expect(function () {
+                    t.isParentOf_(null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_({});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works', function () {
+				t.add_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l/*, t*/);
+				
+				expect(
+					t.isParentOf_()).toBeFalsy();
+				expect(
+					t.isParentOf_([])).toBeFalsy();
+				
+				expect(
+					t.isParentOf_(t.child0.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child1.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child2.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child3.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child4.l)).toBeTruthy();
+				/*expect(
+					t.isParentOf_(t)).toBeTruthy();*/
+					
+				expect(
+					t.isParentOf_(t.child0.l, t.child1.l)).toBeTruthy();
+				expect(
+					t.isParentOf_([t.child2.l, t.child3.l])).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l/*, t*/)).toBeTruthy();
+			});
+		});
+		
+        describe('clear()', function () {
             it('should verify all ties are removed', function () {
-                sandbox.hook.unhookAll();
+                sandbox.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
-                        '> unhookAll_': function () {
-                            this.p1.hook.unhookAll();
+                        '> removeAll_': function () {
+                            this.p1.hook.clear();
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -595,62 +714,62 @@ describe('hooks & loops', function () {
                     });
 
                 var c = new C();
-                sandbox.hook.hook(c.l);
+                sandbox.hook.add(c.l);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div></div>');
 
-                c.unhookAll_();
+                c.removeAll_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
             });
         });
 
-        describe('unhook(var_args)', function () {
+        describe('remove(var_args)', function () {
             it('should throw error when there are non-hook or non-loop parameters', function () {
                 var c = new XCapsule_();
                 expect(function () {
-                    c.hook.unhook(undefined);
+                    c.hook.remove(undefined);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.unhook(null);
+                    c.hook.remove(null);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.unhook('neither a hook nor a loop');
+                    c.hook.remove('neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.unhook({});
+                    c.hook.remove({});
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.unhook(4);
+                    c.hook.remove(4);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.unhook(c.loop, 'neither a hook nor a loop');
+                    c.hook.remove(c.loop, 'neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.unhook(c.doThis);
+                    c.hook.remove(c.doThis);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
             it('shouldn\'t throw error when trying to remove ties that don\'t really exist', function () {
                 var c = new XCapsule_();
                 expect(function () {
-                    c.hook.unhook(c.loop);
+                    c.hook.remove(c.loop);
                 }).not.toThrowError();
             });
 
             it('should verify ties to hooks and loops are removed', function () {
-                sandbox.hook.unhookAll();
+                sandbox.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
                         hooks: ['h1', 'h2'],
-                        '> hook_': function (var_args) {
-                            this.p1.hook.hook.apply(this.p1.hook, arguments);
+                        '> add_': function (var_args) {
+                            this.p1.hook.add.apply(this.p1.hook, arguments);
                         },
-                        '> unhook_': function (var_args) {
-                            this.p1.hook.unhook.apply(this.p1.hook, arguments);
+                        '> remove_': function (var_args) {
+                            this.p1.hook.remove.apply(this.p1.hook, arguments);
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -687,86 +806,86 @@ describe('hooks & loops', function () {
                 div3.setAttribute('id', '3');
                 div4.setAttribute('id', '4');
 
-                c.h1.hook(e3.loop);
-                c.h2.hook(e4.loop);
-                sandbox.hook.hook(c.l);
+                c.h1.add(e3.loop);
+                c.h2.add(e4.loop);
+                sandbox.hook.add(c.l);
 
-                c.hook_(c.p2.loop);
+                c.add_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.unhook_(c.p2.loop);
+                c.remove_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.hook_(c.p2.loop, c.p3.loop, c.h1, c.h2);
+                c.add_(c.p2.loop, c.p3.loop, c.h1, c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div><div id="3"></div><div id="4"></div></div>');
 
-                c.unhook_(c.p3.loop, c.h1);
+                c.remove_(c.p3.loop, c.h1);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div></div>');
 
-                c.unhook_([c.p2.loop, c.h2]);
+                c.remove_([c.p2.loop, c.h2]);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.hook_(c.p2.loop, c.p3.loop, c.h1, c.h2);
+                c.add_(c.p2.loop, c.p3.loop, c.h1, c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div><div id="3"></div><div id="4"></div></div>');
 
-                c.unhook_();
+                c.remove_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div><div id="3"></div><div id="4"></div></div>');
 
-                c.unhook_([]);
+                c.remove_([]);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div><div id="3"></div><div id="4"></div></div>');
             });
         });
 
-        describe('rehook(var_args)', function () {
+        describe('set(var_args)', function () {
             it('should throw error when there are non-hook or non-loop parameters', function () {
                 var c = new XCapsule_();
                 expect(function () {
-                    c.hook.rehook(undefined);
+                    c.hook.set(undefined);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.rehook(null);
+                    c.hook.set(null);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.rehook('neither a hook nor a loop');
+                    c.hook.set('neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.rehook({});
+                    c.hook.set({});
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.rehook(4);
+                    c.hook.set(4);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.rehook(c.loop, 'neither a hook nor a loop');
+                    c.hook.set(c.loop, 'neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.hook.rehook(c.doThis);
+                    c.hook.set(c.doThis);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
             it('should verify ties to hooks and loops are re-set', function () {
-                sandbox.hook.unhookAll();
+                sandbox.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
                         hooks: ['h1', 'h2'],
-                        '> rehook_': function (var_args) {
-                            this.p1.hook.rehook.apply(this.p1.hook, arguments);
+                        '> set_': function (var_args) {
+                            this.p1.hook.set.apply(this.p1.hook, arguments);
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -803,54 +922,54 @@ describe('hooks & loops', function () {
                 div3.setAttribute('id', '3');
                 div4.setAttribute('id', '4');
 
-                c.h1.hook(e3.loop);
-                c.h2.hook(e4.loop);
-                sandbox.hook.hook(c.l);
+                c.h1.add(e3.loop);
+                c.h2.add(e4.loop);
+                sandbox.hook.add(c.l);
 
-                c.rehook_(c.p2.loop);
+                c.set_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.rehook_(c.p2.loop, c.p3.loop, c.h1, c.h2);
+                c.set_(c.p2.loop, c.p3.loop, c.h1, c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div><div id="3"></div><div id="4"></div></div>');
 
-                c.rehook_(c.p3.loop, c.h1);
+                c.set_(c.p3.loop, c.h1);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="2"></div><div id="3"></div></div>');
 
-                c.rehook_();
+                c.set_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
 
-                c.rehook_(c.p2.loop);
+                c.set_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.rehook_([]);
+                c.set_([]);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
             });
         });
 
-        describe('getHook()', function () {
+        describe('getParent()', function () {
             it('should verify parent hook is returned when used on child hook or exception thrown when used on parent hook', function () {
                 var C = sol.defCapsule({
                         hooks: 'h',
                         '> getResult1_': function () {
-                            var res = this.h.getHook() == null;
-                            this.h.setHook(this.p.hook);
-                            res = res && this.h.getHook() === this.p.hook;
+                            var res = this.h.getParent() == null;
+                            this.h.setParent(this.p.hook);
+                            res = res && this.h.getParent() === this.p.hook;
                             return res;
                         },
                         '> getResult2_': function () {
-                            this.p.hook.getHook();
+                            this.p.hook.getParent();
                         },
                         p: XCapsule_,
                     });
@@ -865,38 +984,38 @@ describe('hooks & loops', function () {
             });
         });
 
-        describe('setHook(hook)', function () {
+        describe('setParent(hook)', function () {
             it('should throw error when there is a non-hook parameter', function () {
                 var c = new XCapsule_();
                 var h = new sol.Hook('h');
                 expect(function () {
-                    h.setHook('neither a hook nor a loop');
+                    h.setParent('neither a hook nor a loop');
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    h.setHook({});
+                    h.setParent({});
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    h.setHook(4);
+                    h.setParent(4);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    h.setHook(c.loop);
+                    h.setParent(c.loop);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    h.setHook(c.doThis);
+                    h.setParent(c.doThis);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
             it('should verify hooks are tied', function () {
-                sandbox.hook.unhookAll();
+                sandbox.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
                         hooks: ['h1', 'h2'],
-                        '> setHook_': function (hook) {
-                            hook.setHook(this.p1.hook);
+                        '> setParent_': function (hook) {
+                            hook.setParent(this.p1.hook);
                         },
                         '> setNullToHook_': function (hook) {
-                            hook.setHook(null);
+                            hook.setParent(null);
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -933,26 +1052,26 @@ describe('hooks & loops', function () {
                 div3.setAttribute('id', '3');
                 div4.setAttribute('id', '4');
 
-                c.h1.hook(e3.loop);
-                c.h2.hook(e4.loop);
-                sandbox.hook.hook(c.l);
+                c.h1.add(e3.loop);
+                c.h2.add(e4.loop);
+                sandbox.hook.add(c.l);
 
-                c.setHook_(c.p2.loop);
+                c.setParent_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.setHook_(c.h2);
+                c.setParent_(c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div></div>');
 
-                c.setHook_(c.p3.loop);
+                c.setParent_(c.p3.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div></div>');
 
-                c.setHook_(c.h1);
+                c.setParent_(c.h1);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div><div id="3"></div></div>');
@@ -1019,23 +1138,20 @@ describe('hooks & loops', function () {
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
-            it('should verify a tie is created (or set to null)', function () {
-                sandbox.hook.unhookAll();
+            it('should verify a tie is created', function () {
+                sandbox.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
                         hooks: ['h1', 'h2'],
-                        '> setHook_': function (hook) {
+                        '> setParent_': function (hook) {
                             hook.tie(this.p1.hook);
                         },
-                        '> setNullToHook_': function (hook) {
-                            hook.tie(null);
-                        },
-                        '> hook_': function (to) {
+                        '> add_': function (to) {
                             this.p1.hook.tie(to);
                         },
-                        '> unhookAll_': function () {
-                            this.p1.hook.unhookAll();
+                        '> removeAll_': function () {
+                            this.p1.hook.clear();
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -1072,237 +1188,53 @@ describe('hooks & loops', function () {
                 div3.setAttribute('id', '3');
                 div4.setAttribute('id', '4');
 
-                c.h1.hook(e3.loop);
-                c.h2.hook(e4.loop);
-                sandbox.hook.hook(c.l);
+                c.h1.add(e3.loop);
+                c.h2.add(e4.loop);
+                sandbox.hook.add(c.l);
 
-                c.setHook_(c.p2.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
-
-                c.setHook_(c.h2);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div></div>');
-
-                c.setHook_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div></div>');
-
-                c.setHook_(c.h1);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div><div id="3"></div></div>');
-
-                c.setNullToHook_(c.h2);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div><div id="3"></div></div>');
-
-                c.setNullToHook_(c.h1);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div></div>');
-
-                c.setNullToHook_(c.p2.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="2"></div></div>');
-
-                c.setNullToHook_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"></div>');
-
-                c.hook_(c.p2.loop);
+                c.setParent_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.hook_(c.h2);
+                c.setParent_(c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div></div>');
 
-                c.hook_(c.p3.loop);
+                c.setParent_(c.p3.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div></div>');
 
-                c.hook_(c.h1);
+                c.setParent_(c.h1);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div><div id="3"></div></div>');
 
-                c.unhookAll_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"></div>');
-            });
-        });
-
-        describe('tieAt(at, var_args)', function () {
-            // TODO
-        });
-
-        describe('isTiedTo(var_args)', function () {
-            it('should throw error when there are non-loop or non-hook parameters', function () {
-                var h = new sol.Loop('h4'),
-                c = new XCapsule_();
-                expect(function () {
-                    h.isTiedTo('neither a hook nor a loop');
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    h.isTiedTo({});
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    h.isTiedTo(4);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    h.isTiedTo(c.doThis);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-
-                expect(function () {
-                    c.hook.isTiedTo('neither a hook nor a loop');
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.hook.isTiedTo({});
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.hook.isTiedTo(4);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.hook.isTiedTo(c.doThis);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-            });
-
-            it('should verify correct information is returned', function () {
-                var C = sol.defCapsule({
-                        hooks: 'h',
-                        '> getResult_': function () {
-                            var res = this.h.isTiedTo(this.p.hook) === false;
-                            res = res && this.p.hook.isTiedTo(this.h) === false;
-                            this.h.tie(this.p.hook);
-                            res = res && this.h.isTiedTo(this.p.hook) === true;
-                            res = res && this.p.hook.isTiedTo(this.h) === true;
-                            return res;
-                        },
-                        p: XCapsule_,
-                    });
-
-                var c = new C();
-
-                expect(
-                    c.getResult_()).toBeTruthy();
-            });
-        });
-
-        describe('untieAll()', function () {
-            it('should verify hooks are untied', function () {
-                sandbox.hook.unhookAll();
-
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        hooks: ['h1', 'h2'],
-                        '> untieParent_': function () {
-                            this.p1.hook.untieAll();
-                        },
-                        '> setHook_': function (hook) {
-                            hook.tie(this.p1.hook);
-                        },
-                        '> untieChild_': function (hook) {
-                            hook.untieAll();
-                        },
-                        p1: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '0');
-                                return div;
-                            }
-                        },
-                        p2: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '1');
-                                return div;
-                            }
-                        },
-                        p3: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '2');
-                                return div;
-                            }
-                        },
-                        'this.l': 'p1.loop'
-                    });
-
-                var c = new C(),
-                div3 = document.createElement('div'),
-                div4 = document.createElement('div'),
-                e3 = new sol.ElementRef(div3),
-                e4 = new sol.ElementRef(div4);
-                div3.setAttribute('id', '3');
-                div4.setAttribute('id', '4');
-
-                c.h1.hook(e3.loop);
-                c.h2.hook(e4.loop);
-                sandbox.hook.hook(c.l);
-
-                c.setHook_(c.p2.loop);
+				c.removeAll_();
+				
+                c.add_(c.p2.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
-                c.setHook_(c.h2);
+                c.add_(c.h2);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div></div>');
 
-                c.setHook_(c.p3.loop);
+                c.add_(c.p3.loop);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div></div>');
 
-                c.setHook_(c.h1);
+                c.add_(c.h1);
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div><div id="3"></div></div>');
 
-                c.untieChild_(c.h2);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div><div id="3"></div></div>');
-
-                c.untieChild_(c.h1);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="2"></div></div>');
-
-                c.untieChild_(c.p2.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="2"></div></div>');
-
-                c.untieChild_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"></div>');
-
-                c.setHook_(c.p2.loop);
-                c.setHook_(c.h2);
-                c.setHook_(c.p3.loop);
-                c.setHook_(c.h1);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div><div id="4"></div><div id="2"></div><div id="3"></div></div>');
-
-                c.untieParent_();
+                c.removeAll_();
 
                 expect(
                     sandboxDiv.innerHTML).toBe('<div id="0"></div>');
@@ -1311,310 +1243,387 @@ describe('hooks & loops', function () {
     });
 
     describe('Loop', function () {
-        describe('getHook()', function () {
-            it('should verify parent hook or null is returned', function () {
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> getResult_': function () {
-                            var res = this.p1.loop.getHook() == null;
-                            res = res && this.p2.loop.getHook() == null;
-                            this.l.tie(this.p2.loop);
-                            res = res && this.p2.loop.getHook() == null;
-                            this.p2.hook.tie(this.p1.loop);
-                            res = res && this.p1.loop.getHook() === this.p2.hook;
-                            return res;
-                        },
-                        p1: XCapsule_,
-                        p2: XCapsule_,
-                    });
-
-                var c = new C();
-
-                expect(
-                    c.getResult_()).toBeTruthy();
-            });
+		var Testable, t, sandboxDiv1, sandbox1;
+        beforeAll(function () {
+			sandboxDiv1 = document.createElement('div');
+			document.body.appendChild(sandboxDiv1);
+			sandbox1 = new sol.ElementRef(sandboxDiv1);
+			
+			Testable = sol.defCapsule({
+				child0: {
+					capsule: Element,
+					args: 'zero'
+				},
+				child1: {
+					capsule: Element,
+					args: 'one'
+				},
+				child2: {
+					capsule: Element,
+					args: 'two'
+				},
+				child3: {
+					capsule: Element,
+					args: 'three'
+				},
+				child4: {
+					capsule: Element,
+					args: 'four'
+				},
+				loops: 'myLoop',
+				hooks: 'myHook',
+				'+ getChildren_': function(){
+					return capsula.Loop.prototype.getChildren.apply(this.myLoop, arguments);
+				},
+				'+ add_': function(){
+					return capsula.Loop.prototype.add.apply(this.myLoop, arguments);
+				},
+				'+ addAt_': function(){
+					return capsula.Loop.prototype.addAt.apply(this.myLoop, arguments);
+				},
+				'+ isParentOf_': function(){
+					return capsula.Loop.prototype.isParentOf.apply(this.myLoop, arguments);
+				},
+				'+ clear_': function(){
+					return capsula.Loop.prototype.clear.apply(this.myLoop, arguments);
+				},
+				'+ remove_': function(){
+					return capsula.Loop.prototype.remove.apply(this.myLoop, arguments);
+				},
+				'+ set_': function(){
+					return capsula.Loop.prototype.set.apply(this.myLoop, arguments);
+				}
+			});
+			
+			
         });
+		
+		beforeEach(function () {
+			sandbox1.hook.clear();
+			
+			t = new Testable();
+			sandbox1.hook.add(t.myLoop);
+			var hookedElement = new Element('hooked');
+			t.myHook.add(hookedElement.l);
+		});
+		
+		describe('getChildren()', function () {
+			it('should verify it works ', function () {
+				t.add_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l);
 
-        describe('setHook(hook)', function () {
-            it('should throw error when there is a non-hook parameter', function () {
-                var c = new XCapsule_();
+				expect(
+					t.getChildren_().indexOf(t.child0.l) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_().indexOf(t.child1.l) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_().indexOf(t.child2.l) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_().indexOf(t.child3.l) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_().indexOf(t.child4.l) !== -1).toBeTruthy();
+					
+				/*t.add_(t, t.myHook);
+				expect(
+					t.getChildren_().indexOf(t.myHook) !== -1).toBeTruthy();*/
+			});
+		});
+		
+		describe('add(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.add_(null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_({});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works', function () {
+				t.add_();
+				t.add_([]);
+				t.add_(t.child0.l);
+				t.add_(t.child1.l, t.child2.l);
+				t.add_([t.child3.l, t.child4.l]);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div>');
+					
+				/*t.add_(t, t);
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div><div>hooked</div>');*/
+			});
+		});
+		
+		describe('addAt(at, var_args)', function () {
+			it('should throw error when at is out of bounds or not even a number', function () {
                 expect(function () {
-                    c.loop.setHook('neither a hook nor a loop');
+                    t.addAt_(1, t.child0.l);
+                }).toThrowError(errorToRegExp(sol.Errors.INDEX_OUT_OF_BOUNDS));
+                expect(function () {
+                    t.addAt_(-1, t.child0.l);
+                }).toThrowError(errorToRegExp(sol.Errors.INDEX_OUT_OF_BOUNDS));
+                expect(function () {
+                    t.addAt_(t.child0.l);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.loop.setHook({});
+                    t.addAt_(null, t.child0.l);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.loop.setHook(4);
+                    t.addAt_(undefined, t.child0.l);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.loop.setHook(c.loop);
+                    t.addAt_('not a number', t.child0.l);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.loop.setHook(c.doThis);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-            });
-
-            it('should verify a tie is created', function () {
-                sandbox.hook.unhookAll();
-
-                var div1 = document.createElement('div'),
-                div2 = document.createElement('div'),
-                div3 = document.createElement('div'),
-                e1 = new sol.ElementRef(div1),
-                e2 = new sol.ElementRef(div2),
-                e3 = new sol.ElementRef(div3);
-                div1.setAttribute('id', '1');
-                div2.setAttribute('id', '2');
-                div3.setAttribute('id', '3');
-
-                e1.loop.setHook(sandbox.hook);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
-
-                e2.loop.setHook(sandbox.hook);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div><div id="2"></div>');
-
-                e3.loop.setHook(sandbox.hook);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div><div id="2"></div><div id="3"></div>');
-
-                e2.loop.setHook(null);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div><div id="3"></div>');
-
-                e3.loop.setHook(null);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
-
-                e1.loop.setHook(null);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('');
-            });
-        });
-
-        describe('getPublicLoop()', function () {
-            it('should verify public loop or null is returned', function () {
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> getResult_': function () {
-                            var res = this.p1.loop.getPublicLoop() == null;
-                            res = res && this.p2.loop.getPublicLoop() == null;
-                            this.p2.hook.tie(this.p1.loop);
-                            res = this.p1.loop.getPublicLoop() == null;
-                            this.l.tie(this.p2.loop);
-                            res = res && this.p2.loop.getPublicLoop() == this.l;
-                            return res;
-                        },
-                        p1: XCapsule_,
-                        p2: XCapsule_,
-                    });
-
-                var c = new C();
-
-                expect(
-                    c.getResult_()).toBeTruthy();
-            });
-        });
-
-        describe('setPublicLoop(loop)', function () {
-            it('should throw error when there is a non-loop parameter', function () {
-                var c = new XCapsule_();
-                expect(function () {
-                    c.loop.setPublicLoop('neither a hook nor a loop');
+                    t.addAt_({}, t.child0.l);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    c.loop.setPublicLoop({});
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.setPublicLoop(4);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.setPublicLoop(c.hook);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.setPublicLoop(c.doThis);
+                    t.addAt_(function () {}, t.child0.l);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
-
-            it('should verify a tie is created', function () {
-                sandbox.hook.unhookAll();
-
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> setPublicLoop_': function (privateLoop) {
-                            privateLoop.setPublicLoop(this.l);
-                        },
-                        '> setNullToLoop_': function (privateLoop) {
-                            privateLoop.setPublicLoop(null);
-                        },
-                        p1: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '1');
-                                return div;
-                            }
-                        },
-                        p2: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '2');
-                                return div;
-                            }
-                        },
-                        p3: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '3');
-                                return div;
-                            }
-                        },
-                    });
-
-                var c = new C();
-                sandbox.hook.tie(c.l);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('');
-
-                c.setPublicLoop_(c.p1.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
-
-                c.setPublicLoop_(c.p2.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="2"></div>');
-
-                c.setPublicLoop_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="3"></div>');
-
-                c.setNullToLoop_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('');
-            });
-        });
-
-        describe('getPrivateLoop()', function () {
-            it('should verify private loop or null is returned', function () {
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> getResult_': function () {
-                            var res = this.l.getPrivateLoop() == null;
-                            this.p1.loop.tie(this.l);
-                            res = res && this.l.getPrivateLoop() === this.p1.loop;
-                            return res;
-                        },
-                        p1: XCapsule_,
-                    });
-
-                var c = new C();
-
-                expect(
-                    c.getResult_()).toBeTruthy();
-            });
-        });
-
-        describe('setPrivateLoop(loop)', function () {
-            it('should throw error when there is a non-loop parameter', function () {
-                var l3 = new sol.Loop('l3'),
-                c = new XCapsule_();
-                expect(function () {
-                    l3.setPrivateLoop('neither a hook nor a loop');
+			
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.addAt_(0, null);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l3.setPrivateLoop({});
+				
+				expect(function () {
+                    t.addAt_(0, undefined);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l3.setPrivateLoop(4);
+				
+				expect(function () {
+                    t.addAt_({});
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l3.setPrivateLoop(c.hook);
+				
+				expect(function () {
+                    t.addAt_(function(){});
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l3.setPrivateLoop(c.doThis);
+				
+				expect(function () {
+                    t.addAt_(0, 1);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-            });
-
-            it('should verify a tie is created', function () {
-                sandbox.hook.unhookAll();
-
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> setPrivateLoop_': function (privateLoop) {
-                            this.l.setPrivateLoop(privateLoop);
-                        },
-                        '> setNullToLoop_': function () {
-                            this.l.setPrivateLoop(null);
-                        },
-                        p1: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '1');
-                                return div;
-                            }
-                        },
-                        p2: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '2');
-                                return div;
-                            }
-                        },
-                        p3: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '3');
-                                return div;
-                            }
-                        },
-                    });
-
-                var c = new C();
-                sandbox.hook.tie(c.l);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('');
-
-                c.setPrivateLoop_(c.p1.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
-
-                c.setPrivateLoop_(c.p2.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="2"></div>');
-
-                c.setPrivateLoop_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="3"></div>');
-
-                c.setNullToLoop_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('');
-            });
-        });
-
+				
+				expect(function () {
+                    t.addAt_(0, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.addAt_(0);
+				t.addAt_(0, []);
+				t.addAt_(0, t.child0.l);
+				t.addAt_(0, t.child1.l, t.child2.l);
+				t.addAt_(1, [t.child3.l, t.child4.l]);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>one</div><div>three</div><div>four</div><div>two</div><div>zero</div>');
+					
+				/*t.addAt_(t, 0, t);
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>hooked</div><div>one</div><div>three</div><div>four</div><div>two</div><div>zero</div>');*/
+			});
+		});
+		
+		describe('isParentOf(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.isParentOf_(null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_({});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.child0); // loop
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works', function () {
+				t.add_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l/*, t*/);
+				
+				expect(
+					t.isParentOf_()).toBeFalsy();
+				expect(
+					t.isParentOf_([])).toBeFalsy();
+				
+				expect(
+					t.isParentOf_(t.child0.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child1.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child2.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child3.l)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child4.l)).toBeTruthy();
+					
+				/*expect(
+					t.isParentOf_(t, t)).toBeTruthy();*/
+					
+				expect(
+					t.isParentOf_(t.child0.l, t.child1.l)).toBeTruthy();
+				expect(
+					t.isParentOf_([t.child2.l, t.child3.l])).toBeTruthy();
+				expect(
+					t.isParentOf_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l/*, t*/)).toBeTruthy();
+			});
+		});
+		
+		describe('clear()', function () {
+			it('should verify it works', function () {
+				t.add_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l/*, t*/);
+				t.clear_();
+				
+				expect(
+					t.getChildren_().length).toEqual(0);
+			});
+		});
+		
+		describe('remove(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.remove_(null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_({});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works', function () {
+				t.add_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l/*, t*/);
+				
+				t.remove_();
+				t.remove_([]);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div>');
+					
+				t.remove_(t.child0.l);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>one</div><div>two</div><div>three</div><div>four</div>');
+				
+				t.remove_(t.child1.l, t.child2.l);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>three</div><div>four</div>');
+				
+				t.remove_([t.child3.l, t.child4.l/*, t*/]);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('');
+			});
+		});
+		
+		describe('set(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.set_(null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_({});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.add_(t.child0.l, t.child1.l, t.child2.l, t.child3.l, t.child4.l);
+				
+				t.set_();
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('');
+					
+				t.set_([t.child3.l, t.child4.l]);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>three</div><div>four</div>');
+				
+				t.set_([]);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('');
+				
+				t.set_(t.child0.l);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>zero</div>');
+				
+				t.set_(t.child1.l, t.child2.l);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div>one</div><div>two</div>');
+				
+				/*t.set_(t, t);
+				
+				expect(
+                    sandboxDiv1.innerHTML).toBe('<div><div>hooked</div></div>');*/
+			});
+		});
+		
         describe('getParent()', function () {
             it('should verify parent hook or loop or null is returned', function () {
                 var C = sol.defCapsule({
@@ -1657,7 +1666,7 @@ describe('hooks & loops', function () {
             });
 
             it('should verify a tie is created', function () {
-                sandbox.hook.unhookAll();
+                sandbox1.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: 'l',
@@ -1679,260 +1688,35 @@ describe('hooks & loops', function () {
 
                 var c = new C();
 
-                c.l.setParent(sandbox.hook);
+                c.l.setParent(sandbox1.hook);
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('');
+                    sandboxDiv1.innerHTML).toBe('');
 
                 c.setParent_(c.p1.loop);
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
+                    sandboxDiv1.innerHTML).toBe('<div id="1"></div>');
 
                 c.setNullParent_(c.p1.loop);
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('');
+                    sandboxDiv1.innerHTML).toBe('');
 
                 c.setParent_(c.p1.loop);
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
+                    sandboxDiv1.innerHTML).toBe('<div id="1"></div>');
 
                 c.l.setParent(null);
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('');
+                    sandboxDiv1.innerHTML).toBe('');
 
-                c.l.setParent(sandbox.hook);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
-            });
-        });
-
-        describe('getLoop()', function () {
-            it('should verify tied loop or null is returned', function () {
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> getResult_': function () {
-                            var res = this.p1.loop.getLoop() == null;
-                            res = res && this.p2.loop.getLoop() == null;
-                            res = res && this.l.getLoop() == null;
-                            this.l.tie(this.p2.loop);
-                            res = res && this.p2.loop.getLoop() === this.l;
-                            res = res && this.l.getLoop() === this.p2.loop;
-                            this.p2.hook.tie(this.p1.loop);
-                            res = res && this.p1.loop.getLoop() == null;
-                            return res;
-                        },
-                        p1: XCapsule_,
-                        p2: XCapsule_,
-                    });
-
-                var c = new C();
+                c.l.setParent(sandbox1.hook);
 
                 expect(
-                    c.getResult_()).toBeTruthy();
-            });
-        });
-
-        describe('setLoop(loop)', function () {
-            it('should throw error when there is a non-loop parameter', function () {
-                var l = new sol.Loop('l5'),
-                c = new XCapsule_();
-                expect(function () {
-                    l.setLoop('neither a hook nor a loop');
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l.setLoop({});
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l.setLoop(4);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l.setLoop(c.hook);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l.setLoop(c.doThis);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-
-                expect(function () {
-                    c.loop.setLoop('neither a hook nor a loop');
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.setLoop({});
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.setLoop(4);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.setLoop(c.hook);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.setLoop(c.doThis);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-            });
-
-            it('should verify a tie is created', function () {
-                sandbox.hook.unhookAll();
-
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> setLoop1_': function (loop) {
-                            this.l.setLoop(loop);
-                        },
-                        '> setLoop2_': function (loop) {
-                            loop.setLoop(this.l);
-                        },
-                        p1: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '1');
-                                return div;
-                            }
-                        },
-                        p2: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '2');
-                                return div;
-                            }
-                        },
-                        p3: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '3');
-                                return div;
-                            }
-                        },
-                    });
-
-                var c = new C();
-                sandbox.hook.tie(c.l);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('');
-
-                c.setLoop1_(c.p1.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
-
-                c.setLoop1_(c.p2.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="2"></div>');
-
-                c.setLoop1_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="3"></div>');
-
-                c.setLoop1_(null);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('');
-
-                c.setLoop2_(c.p1.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="1"></div>');
-
-                c.setLoop2_(c.p2.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="2"></div>');
-
-                c.setLoop2_(c.p3.loop);
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="3"></div>');
-            });
-        });
-
-        describe('getTies()', function () {
-            it('should verify tied loop or null is returned', function () {
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> getResult_': function () {
-                            var res = this.p1.loop.getTies().length === 0;
-                            res = res && this.p2.loop.getTies().length === 0;
-                            res = res && this.l.getTies().length === 0;
-                            this.l.tie(this.p2.loop);
-                            res = res && this.p2.loop.getTies()[0] === this.l;
-                            res = res && this.l.getTies()[0] === this.p2.loop;
-                            this.p2.hook.tie(this.p1.loop);
-                            res = res && this.p1.loop.getTies()[0] === this.p2.hook;
-                            return res;
-                        },
-                        p1: XCapsule_,
-                        p2: XCapsule_,
-                    });
-
-                var c = new C();
-
-                expect(
-                    c.getResult_()).toBeTruthy();
-            });
-        });
-
-        describe('isTiedTo(var_args)', function () {
-            it('should throw error when there are non-loop or non-hook parameters', function () {
-                var l = new sol.Loop('l6'),
-                c = new XCapsule_();
-                expect(function () {
-                    l.isTiedTo('neither a hook nor a loop');
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l.isTiedTo({});
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l.isTiedTo(4);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    l.isTiedTo(c.doThis);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-
-                expect(function () {
-                    c.loop.isTiedTo('neither a hook nor a loop');
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.isTiedTo({});
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.isTiedTo(4);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
-                    c.loop.isTiedTo(c.doThis);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-            });
-
-            it('should verify correct information is returned', function () {
-                var C = sol.defCapsule({
-                        loops: 'l',
-                        '> getResult_': function () {
-                            var res = this.l.isTiedTo(this.p.loop) === false;
-                            res = res && this.p.loop.isTiedTo(this.l) === false;
-                            this.l.tie(this.p.loop);
-                            res = res && this.l.isTiedTo(this.p.loop) === true;
-                            res = res && this.p.loop.isTiedTo(this.l) === true;
-                            res = res && this.p2.loop.isTiedTo(this.p2.hook) === false;
-                            this.p2.hook.tie(this.p2.loop);
-                            res = res && this.p2.loop.isTiedTo(this.p2.hook) === true;
-                            return res;
-                        },
-                        p: XCapsule_,
-                        p2: XCapsule_,
-                    });
-
-                var c = new C();
-
-                expect(
-                    c.getResult_()).toBeTruthy();
+                    sandboxDiv1.innerHTML).toBe('<div id="1"></div>');
             });
         });
 
@@ -1950,14 +1734,14 @@ describe('hooks & loops', function () {
                     l.tie(4);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
-                    l.tie(c.hook);
-                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
-                expect(function () {
                     l.tie(c.doThis);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
 
                 expect(function () {
                     c.loop.tie('neither a hook nor a loop');
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				expect(function () {
+                    c.loop.tie(null);
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
                 expect(function () {
                     c.loop.tie({});
@@ -1970,8 +1754,8 @@ describe('hooks & loops', function () {
                 }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
             });
 
-            it('should verify a tie is created (or set to null)', function () {
-                sandbox.hook.unhookAll();
+            it('should verify a tie is created', function () {
+                sandbox1.hook.clear();
 
                 var C = sol.defCapsule({
                         loops: ['l1', 'l2'],
@@ -1983,15 +1767,6 @@ describe('hooks & loops', function () {
                         },
                         '> tieL2P3_': function () {
                             this.l2.tie(this.p3.loop);
-                        },
-                        '> tieNullP2P1_': function () {
-                            this.p2.loop.tie(null);
-                        },
-                        '> tieNullP3L2_': function () {
-                            this.p3.loop.tie(null);
-                        },
-                        '> tieNullL2P3_': function () {
-                            this.l2.tie(null);
                         },
                         p1: {
                             capsule: sol.ElementRef,
@@ -2021,124 +1796,816 @@ describe('hooks & loops', function () {
                     });
 
                 var c = new C();
-                sandbox.hook.hook(c.l1, c.l2);
+                sandbox1.hook.add(c.l1, c.l2);
 
                 c.tieP2P1_();
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
+                    sandboxDiv1.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
 
                 c.tieP3L2_();
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div><div id="2"></div>');
-
-                c.tieNullP3L2_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
+                    sandboxDiv1.innerHTML).toBe('<div id="0"><div id="1"></div></div><div id="2"></div>');
 
                 c.tieL2P3_();
 
                 expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div><div id="2"></div>');
-
-                c.tieNullP2P1_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"></div><div id="2"></div>');
-
-                c.tieNullL2P3_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"></div>');
-            });
-        });
-
-        describe('untieAll()', function () {
-            it('should verify a tie is removed', function () {
-                sandbox.hook.unhookAll();
-
-                var C = sol.defCapsule({
-                        loops: ['l1', 'l2'],
-                        '> tieP2P1_': function () {
-                            this.p2.loop.tie(this.p1.hook);
-                        },
-                        '> tieP3L2_': function () {
-                            this.p3.loop.tie(this.l2);
-                        },
-                        '> tieL2P3_': function () {
-                            this.l2.tie(this.p3.loop);
-                        },
-                        '> untieP2P1_': function () {
-                            this.p2.loop.untieAll();
-                        },
-                        '> untieP3L2_': function () {
-                            this.p3.loop.untieAll();
-                        },
-                        '> untieL2P3_': function () {
-                            this.l2.untieAll();
-                        },
-                        p1: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '0');
-                                return div;
-                            }
-                        },
-                        p2: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '1');
-                                return div;
-                            }
-                        },
-                        p3: {
-                            capsule: sol.ElementRef,
-                            deferredArgs: function () {
-                                var div = document.createElement('div');
-                                div.setAttribute('id', '2');
-                                return div;
-                            }
-                        },
-                        'this.l1': 'p1.loop'
-                    });
-
-                var c = new C();
-                sandbox.hook.hook(c.l1, c.l2);
-
-                c.tieP2P1_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
-
-                c.tieP3L2_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div><div id="2"></div>');
-
-                c.untieP3L2_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div>');
-
-                c.tieL2P3_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"><div id="1"></div></div><div id="2"></div>');
-
-                c.untieP2P1_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"></div><div id="2"></div>');
-
-                c.untieL2P3_();
-
-                expect(
-                    sandboxDiv.innerHTML).toBe('<div id="0"></div>');
+                    sandboxDiv1.innerHTML).toBe('<div id="0"><div id="1"></div></div><div id="2"></div>');
             });
         });
     });
-});
+	
+	// TODO za oba slucaja, i kad je parent === ctx i kada je parent === part
+	describe('Capsule', function () {
+		var Testable, t, sandboxDiv2, sandbox2;
+        beforeAll(function () {
+			sandboxDiv2 = document.createElement('div');
+			document.body.appendChild(sandboxDiv2);
+			sandbox2 = new sol.ElementRef(sandboxDiv2);
+			
+			Testable = sol.defCapsule({
+				parent: {
+					capsule: Element,
+					args: ''
+				},
+				child0: {
+					capsule: Element,
+					args: 'zero'
+				},
+				child1: {
+					capsule: Element,
+					args: 'one'
+				},
+				child2: {
+					capsule: Element,
+					args: 'two'
+				},
+				child3: {
+					capsule: Element,
+					args: 'three'
+				},
+				child4: {
+					capsule: Element,
+					args: 'four'
+				},
+				loops: 'myLoop',
+				hooks: 'myHook',
+				'this.myLoop' : 'parent.l',
+				'+ getChildren_': function(parent){
+					return capsula.Capsule.prototype.getChildren.apply(parent, Array.prototype.slice.call(arguments, 1));
+				},
+				'+ add_': function(parent){
+					return capsula.Capsule.prototype.add.apply(parent, Array.prototype.slice.call(arguments, 1));
+				},
+				'+ addAt_': function(parent){
+					return capsula.Capsule.prototype.addAt.apply(parent, Array.prototype.slice.call(arguments, 1));
+				},
+				'+ isParentOf_': function(parent){
+					return capsula.Capsule.prototype.isParentOf.apply(parent, Array.prototype.slice.call(arguments, 1));
+				},
+				'+ clear_': function(parent){
+					return capsula.Capsule.prototype.clear.apply(parent, Array.prototype.slice.call(arguments, 1));
+				},
+				'+ remove_': function(parent){
+					return capsula.Capsule.prototype.remove.apply(parent, Array.prototype.slice.call(arguments, 1));
+				},
+				'+ set_': function(parent){
+					return capsula.Capsule.prototype.set.apply(parent, Array.prototype.slice.call(arguments, 1));
+				},
+				'+ getParent_': function(child){
+					return capsula.Capsule.prototype.getParent.apply(child);
+				},
+				'+ setParent_': function(child, parent){
+					return capsula.Capsule.prototype.setParent.call(child, parent);
+				}
+			});
+        });
+		
+		beforeEach(function () {
+			sandbox2.hook.clear();
+			
+			t = new Testable();
+			sandbox2.hook.add(t.myLoop);
+			var hookedElement = new Element('hooked');
+			t.myHook.add(hookedElement.l);
+			
+		});
+		
+		describe('getChildren()', function () {
+			it('should verify it works when parent is part (hook)', function () {
+				t.add_(t.parent, t.child0, t.child1, t.child2, t.child3, t.child4);
+				
+				expect(
+					t.getChildren_(t.parent).length).toEqual(5);
+				expect(
+					t.getChildren_(t.parent)[0] === t.child0).toBeTruthy();
+				expect(
+					t.getChildren_(t.parent)[1] === t.child1).toBeTruthy();
+				expect(
+					t.getChildren_(t.parent)[2] === t.child2).toBeTruthy();
+				expect(
+					t.getChildren_(t.parent)[3] === t.child3).toBeTruthy();
+				expect(
+					t.getChildren_(t.parent)[4] === t.child4).toBeTruthy();
+					
+				t.add_(t.parent, t);
+				expect(
+					t.getChildren_(t.parent).length).toEqual(6);
+				expect(
+					t.getChildren_(t.parent)[5] === t).toBeTruthy();
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.add_(t, t.child0, t.child1, t.child2, t.child3, t.child4);
+
+				expect(
+					t.getChildren_(t).indexOf(t.child0) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_(t).indexOf(t.child1) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_(t).indexOf(t.child2) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_(t).indexOf(t.child3) !== -1).toBeTruthy();
+				expect(
+					t.getChildren_(t).indexOf(t.child4) !== -1).toBeTruthy();
+					
+				/*t.add_(t, t);
+				expect(
+					t.getChildren_(t)[5] === t).toBeTruthy();*/
+			});
+		});
+		
+		describe('add(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.add_(t.parent, null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(t.parent, undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(t.parent, {});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(t.parent, function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(t.parent, 1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(t.parent, t.child0.l); // loop
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.add_(t.parent, t.child0.h); // hook
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is part (hook)', function () {
+				t.add_(t.parent, );
+				t.add_(t.parent, []);
+				t.add_(t.parent, t.child0);
+				t.add_(t.parent, t.child1, t.child2);
+				t.add_(t.parent, [t.child3, t.child4]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div></div>');
+					
+				t.add_(t.parent, t);
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div><div>hooked</div></div>');
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.add_(t, );
+				t.add_(t, []);
+				t.add_(t, t.child0);
+				t.add_(t, t.child1, t.child2);
+				t.add_(t, [t.child3, t.child4]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div>');
+					
+				/*t.add_(t, t);
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div><div>hooked</div>');*/
+			});
+		});
+		
+		describe('addAt(at, var_args)', function () {
+			it('should throw error when at is out of bounds or not even a number', function () {
+
+                expect(function () {
+                    t.addAt_(t.parent, 1, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.INDEX_OUT_OF_BOUNDS));
+                expect(function () {
+                    t.addAt_(t.parent, -1, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.INDEX_OUT_OF_BOUNDS));
+                expect(function () {
+                    t.addAt_(t.parent, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+                expect(function () {
+                    t.addAt_(t.parent, null, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+                expect(function () {
+                    t.addAt_(t.parent, undefined, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+                expect(function () {
+                    t.addAt_(t.parent, 'not a number', t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+                expect(function () {
+                    t.addAt_(t.parent, {}, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+                expect(function () {
+                    t.addAt_(t.parent, function () {}, t.child0);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+            });
+			
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.addAt_(t.parent, 0, null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.addAt_(t.parent, 0, undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.addAt_(t.parent, {});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.addAt_(t.parent, function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.addAt_(t.parent, 0, 1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.addAt_(t.parent, 0, t.child0.l); // loop
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.addAt_(t.parent, 0, t.child0.h); // hook
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is part (hook)', function () {
+				t.addAt_(t.parent, 0);
+				t.addAt_(t.parent, 0, []);
+				t.addAt_(t.parent, 0, t.child0);
+				t.addAt_(t.parent, 0, t.child1, t.child2);
+				t.addAt_(t.parent, 1, [t.child3, t.child4]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>one</div><div>three</div><div>four</div><div>two</div><div>zero</div></div>');
+					
+				t.addAt_(t.parent, 0, t);
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>hooked</div><div>one</div><div>three</div><div>four</div><div>two</div><div>zero</div></div>');
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.addAt_(t, 0);
+				t.addAt_(t, 0, []);
+				t.addAt_(t, 0, t.child0);
+				t.addAt_(t, 0, t.child1, t.child2);
+				t.addAt_(t, 1, [t.child3, t.child4]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div>one</div><div>three</div><div>four</div><div>two</div><div>zero</div><div></div>');
+					
+				/*t.addAt_(t, 0, t);
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div>hooked</div><div>one</div><div>three</div><div>four</div><div>two</div><div>zero</div>');*/
+			});
+		});
+		
+		describe('isParentOf(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.isParentOf_(t.parent, null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.parent, undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.parent, {});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.parent, function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.parent, 1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.parent, t.child0.l); // loop
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.isParentOf_(t.parent, t.child0.h); // hook
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is part (hook)', function () {
+				t.add_(t.parent, t.child0, t.child1, t.child2, t.child3, t.child4, t);
+				
+				expect(
+					t.isParentOf_(t.parent, )).toBeFalsy();
+				expect(
+					t.isParentOf_(t.parent, [])).toBeFalsy();
+				
+				expect(
+					t.isParentOf_(t.parent, t.child0)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.parent, t.child1)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.parent, t.child2)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.parent, t.child3)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.parent, t.child4)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.parent, t)).toBeTruthy();
+					
+				expect(
+					t.isParentOf_(t.parent, t.child0, t.child1)).toBeTruthy();
+				expect(
+					t.isParentOf_(t.parent, [t.child2, t.child3])).toBeTruthy();
+				expect(
+					t.isParentOf_(t.parent, t.child0, t.child1, t.child2, t.child3, t.child4, t)).toBeTruthy();
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.add_(t, t.child0, t.child1, t.child2, t.child3, t.child4 /*, t*/);
+				
+				expect(
+					t.isParentOf_(t, )).toBeFalsy();
+				expect(
+					t.isParentOf_(t, [])).toBeFalsy();
+				
+				expect(
+					t.isParentOf_(t, t.child0)).toBeTruthy();
+				expect(
+					t.isParentOf_(t, t.child1)).toBeTruthy();
+				expect(
+					t.isParentOf_(t, t.child2)).toBeTruthy();
+				expect(
+					t.isParentOf_(t, t.child3)).toBeTruthy();
+				expect(
+					t.isParentOf_(t, t.child4)).toBeTruthy();
+					
+				/*expect(
+					t.isParentOf_(t, t)).toBeTruthy();*/
+					
+				expect(
+					t.isParentOf_(t, t.child0, t.child1)).toBeTruthy();
+				expect(
+					t.isParentOf_(t, [t.child2, t.child3])).toBeTruthy();
+				expect(
+					t.isParentOf_(t, t.child0, t.child1, t.child2, t.child3, t.child4/*, t*/)).toBeTruthy();
+			});
+		});
+		
+		describe('clear()', function () {
+			it('should verify it works when parent is part (hook)', function () {
+				t.add_(t.parent, t.child0, t.child1, t.child2, t.child3, t.child4, t);
+				t.clear_(t.parent);
+				
+				expect(
+					t.getChildren_(t.parent).length).toEqual(0);
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.add_(t, t.child0, t.child1, t.child2, t.child3, t.child4/*, t*/);
+				t.clear_(t);
+				
+				expect(
+					t.getChildren_(t).length).toEqual(0);
+				
+				t.add_(t, t.parent); // this must be here to recreate the tie cleared in this test.
+			});
+		});
+		
+		describe('remove(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.remove_(t.parent, null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(t.parent, undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(t.parent, {});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(t.parent, function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(t.parent, 1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(t.parent, t.child0.l); // loop
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.remove_(t.parent, t.child0.h); // hook
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is part (hook)', function () {
+				t.add_(t.parent, t.child0, t.child1, t.child2, t.child3, t.child4, t);
+				
+				t.remove_(t.parent);
+				t.remove_(t.parent, []);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div><div>hooked</div></div>');
+					
+				t.remove_(t.parent, t.child0);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>one</div><div>two</div><div>three</div><div>four</div><div>hooked</div></div>');
+				
+				t.remove_(t.parent, t.child1, t.child2);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>three</div><div>four</div><div>hooked</div></div>');
+				
+				t.remove_(t.parent, [t.child3, t.child4, t]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.add_(t, t.child0, t.child1, t.child2, t.child3, t.child4/*, t*/);
+				
+				t.remove_(t);
+				t.remove_(t, []);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div>');
+					
+				t.remove_(t, t.child0);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>one</div><div>two</div><div>three</div><div>four</div>');
+				
+				t.remove_(t, t.child1, t.child2);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>three</div><div>four</div>');
+				
+				t.remove_(t, [t.child3, t.child4/*, t*/]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');
+			});
+		});
+		
+		describe('set(var_args)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.set_(t.parent, null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(t.parent, undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(t.parent, {});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(t.parent, function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(t.parent, 1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(t.parent, t.child0.l); // loop
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.set_(t.parent, t.child0.h); // hook
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is part (hook)', function () {
+				t.add_(t.parent, t.child0, t.child1, t.child2, t.child3, t.child4);
+				
+				t.set_(t.parent);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');
+					
+				t.set_(t.parent, [t.child3, t.child4]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>three</div><div>four</div></div>');
+				
+				t.set_(t.parent, []);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');
+				
+				t.set_(t.parent, t.child0);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div></div>');
+				
+				t.set_(t.parent, t.child1, t.child2);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>one</div><div>two</div></div>');
+					
+				t.set_(t.parent, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>hooked</div></div>');
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.add_(t, t.child0, t.child1, t.child2, t.child3, t.child4);
+				
+				t.set_(t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('');
+					
+				t.set_(t, [t.child3, t.child4]);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div>three</div><div>four</div>');
+				
+				t.set_(t, []);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('');
+				
+				t.set_(t, t.child0);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div>zero</div>');
+				
+				t.set_(t, t.child1, t.child2);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div>one</div><div>two</div>');
+				
+				t.set_(t, t.parent); // this is to recreate a tie removed in this test
+				
+				/*t.set_(t, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>hooked</div></div>');*/
+			});
+		});
+		
+		describe('getParent()', function () {
+			it('should verify it works when parent is part (hook)', function () {
+				expect(
+					t.getParent_(t.child0) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child1) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child2) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child3) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child4) == null).toBeTruthy();
+				expect(
+					t.getParent_(t) == null).toBeTruthy();
+					
+				t.add_(t.parent, t.child0, t.child1, t.child2, t.child3, t.child4, t);
+				
+				expect(
+					t.getParent_(t.child0) === t.parent).toBeTruthy();
+				expect(
+					t.getParent_(t.child1) === t.parent).toBeTruthy();
+				expect(
+					t.getParent_(t.child2) === t.parent).toBeTruthy();
+				expect(
+					t.getParent_(t.child3) === t.parent).toBeTruthy();
+				expect(
+					t.getParent_(t.child4) === t.parent).toBeTruthy();
+				expect(
+					t.getParent_(t) === t.parent).toBeTruthy();
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				expect(
+					t.getParent_(t.child0) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child1) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child2) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child3) == null).toBeTruthy();
+				expect(
+					t.getParent_(t.child4) == null).toBeTruthy();
+				/*expect(
+					t.getParent_(t) == null).toBeTruthy();*/
+					
+				t.add_(t, t.child0, t.child1, t.child2, t.child3, t.child4/*, t*/);
+				
+				expect(
+					t.getParent_(t.child0) === t).toBeTruthy();
+				expect(
+					t.getParent_(t.child1) === t).toBeTruthy();
+				expect(
+					t.getParent_(t.child2) === t).toBeTruthy();
+				expect(
+					t.getParent_(t.child3) === t).toBeTruthy();
+				expect(
+					t.getParent_(t.child4) === t).toBeTruthy();
+				/*expect(
+					t.getParent_(t) === t.parent).toBeTruthy();*/
+					
+				t.remove_(t, t.child0, t.child1, t.child2, t.child3, t.child4/*, t*/); // this is to fix what was modified in this test
+			});
+		});
+		
+		describe('setParent(capsule)', function () {
+			it('should throw error when not provided with the right types of arguments', function () {
+				expect(function () {
+                    t.setParent_(null);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.setParent_(undefined);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.setParent_({});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.setParent_(function(){});
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.setParent_(1);
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.setParent_(t.child0.l); // loop
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+				
+				expect(function () {
+                    t.setParent_(t.child0.h); // hook
+                }).toThrowError(errorToRegExp(sol.Errors.ILLEGAL_ARGUMENT));
+			});
+			
+			it('should verify it works when parent is part (hook)', function () {
+				t.setParent_(t.child0, t.parent);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div></div>');
+				
+				t.setParent_(t.child1, t.parent);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div></div>');
+					
+				t.setParent_(t.child2, t.parent);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div></div>');
+					
+				t.setParent_(t.child3, t.parent);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div><div>three</div></div>');
+					
+				t.setParent_(t.child4, t.parent);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div></div>');
+					
+				t.setParent_(t.child4, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div><div>three</div></div>');
+					
+				t.setParent_(t.child3, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div><div>two</div></div>');
+					
+				t.setParent_(t.child2, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div><div>one</div></div>');
+					
+				t.setParent_(t.child1, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>zero</div></div>');
+				
+				t.setParent_(t.child0, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');
+					
+				t.setParent_(t, t.parent);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>hooked</div></div>');
+					
+				t.setParent_(t, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');
+			});
+			
+			it('should verify it works when parent is owner (loop)', function () {
+				t.setParent_(t.child0, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div>');
+				
+				t.setParent_(t.child1, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div>');
+					
+				t.setParent_(t.child2, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div>');
+					
+				t.setParent_(t.child3, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div><div>three</div>');
+					
+				t.setParent_(t.child4, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div><div>three</div><div>four</div>');
+					
+				t.setParent_(t.child4, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div><div>three</div>');
+					
+				t.setParent_(t.child3, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div><div>two</div>');
+					
+				t.setParent_(t.child2, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div><div>one</div>');
+					
+				t.setParent_(t.child1, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div><div>zero</div>');
+				
+				t.setParent_(t.child0, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');
+					
+				/*t.setParent_(t, t);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div><div>hooked</div></div>');
+					
+				t.setParent_(t, null);
+				
+				expect(
+                    sandboxDiv2.innerHTML).toBe('<div></div>');*/
+			});
+		});
+		
+		// TODO getDefault Parent/Child Hook/Loop
+		
+		
+	});
+
+	});

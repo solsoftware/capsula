@@ -735,6 +735,11 @@ describe('operations', function () {
                     c2.getResult1_()).toBeFalsy();
                 expect(
                     c2.getResult2_()).toBeTruthy();
+					
+				expect(
+					c2.getResult1_.isTargetOf()).toBeFalsy();
+				expect(
+					c2.getResult1_.isTargetOf([])).toBeFalsy();
             });
         });
     });
@@ -1287,6 +1292,11 @@ describe('operations', function () {
                     c2.getResult1_()).toBeTruthy();
                 expect(
                     c2.getResult2_()).toBeFalsy();
+					
+				expect(
+					c2.out1.isSourceOf()).toBeFalsy();
+				expect(
+					c2.out1.isSourceOf([])).toBeFalsy();
             });
         });
     });
