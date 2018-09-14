@@ -55,7 +55,7 @@ When a module is introduced, you will see the table that directs you to the API 
 <tr><td>Description</td><td>Module description goes here.</td></tr>
 </tbody></table>
 
-The same is when a class is introduced:
+When a class is introduced we use:
 
 <table class="class">
 <thead><tr><th colspan="2">[class] <a style="cursor:pointer">MyClass</a></th></tr></thead>
@@ -73,13 +73,6 @@ For methods we follow a similar style:
 <tr><td>Class or Module</td><td> <a style="cursor:pointer">MyClass</a></td></tr>
 </tbody></table>
 
-Instructions related to tutorial usage are presented for example like this:
-
----
-Now it's good time to take a 5-minute break.
-
----
-
 Please let us know of any issue you run into while reading the tutorial. We would be more than happy to improve the tutorial according to that and help you overcome the problems.
 
 ## What Is Capsula?
@@ -87,17 +80,19 @@ Please let us know of any issue you run into while reading the tutorial. We woul
 **Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". With Capsula you can:
 
 - create your application out of **encapsulated components** - capsules.
-- have **multi-level architectural views** of your application and **handle complexity better**.
-- easily implement complex behavioral lifecycles using **state machines**.
-- be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
-- **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
+- have **multi-level architectural views** of your application which helps handle complexity better.
+- easily implement complex lifecycles using **state machines**.
+- **build user interfaces flexibly** by leveraging quite a unique way of managing layout.
 - **handle asynchronous communication** focusing only on what's essential.
+- be **both declarative and imperative** having the best of both worlds.
 - exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
 - expect even more, according to our [goals]({{ "/the-goals-of-capsula" | relative_url }}){:target="_blank"}.
 
-Capsula is a sort of dynamic, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming){:target="_blank"} "language" that accommodates many new and powerful concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It is especially suitable for applications that exploit composite design pattern, i.e. for applications that could be built by recursively composing encapsulated modules into larger modules all the way up to the whole application.
+Capsula is a sort of dynamic, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming){:target="_blank"} "language" that accommodates many new and concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It is especially suitable for applications that exploit composite design pattern, i.e. for applications that could be built by recursively composing encapsulated modules into larger modules all the way up to the whole application.
 
-Capsula addresses communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with essential matters only, as well as to easily mock server-side part of communication.
+Capsula provides state machines as mechanism for handling complex lifecycles, i.e. objects that have many different states and move from one to another during their lifetime. 
+
+Capsula also addresses communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with essential matters only, as well as to easily mock server-side part of communication.
 
 Capsula is quite suitable for building user interfaces since they are usually built by using composition. Capsula provides both for templates and object-oriented way of widget manipulation. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
 
@@ -122,7 +117,7 @@ Capsule class is a simple OO class with special features / properties. Capsules 
 
 There are multiple types of capsule's properties: methods, operations, parts, hooks, loops, and data. Access to capsule's properties is always checked by the encapsulation model as you will see.
 
-*Method* is (as anyone would imagine) a simple JavaScript method. *Operation* acts like a method, however it is more powerful. Operations add support for asynchronous calls, declarative wiring to other operations and methods (to specify propagation of calls), etc. *Part* of a capsule represents its child capsule, that is, a capsule instantiated in its context (i.e. constructor or method). *Hooks* and *loops* provide capsules with a special support for managing widgets and layout in a flexible way. In accordance with the principle of information hiding, capsules are also able to store *data* they work with or operate on.
+*Method* is (as anyone would imagine) a simple JavaScript method. *Operation* acts like a method, however it is more powerful. Operations add support for asynchronous calls, declarative wiring to other operations and methods (to specify propagation of calls), and more. *Part* of a capsule represents its child capsule, that is, a capsule instantiated in its context (i.e. in its constructor or method). *Hooks* and *loops* provide capsules with a special support for managing widgets and layout in a flexible way. In accordance with the principle of information hiding, capsules are also able to store protected *data*. Finally, state machines support of Capsula library helps managing lifecycle of a capsule or any other JavaScript object.
 
 In the following section we define access rules to the above-mentioned properties i.e. how our encapsulation model works.
 
@@ -188,7 +183,7 @@ Capsula library is executable both within the browser and Node.js. At this point
 <table class="module">
 <thead><tr><th colspan="2">[module] <a href="{{ "/api-reference/module-sm.html" | relative_url }}" target="_blank">sm</a></th></tr></thead>
 <tbody>
-<tr><td>Description</td><td>Provides support for implementing behavior using state machines.</td></tr>
+<tr><td>Description</td><td>Provides support for implementing complex lifecycles using state machines.</td></tr>
 </tbody></table>
 
 In the following lines we explain how to install Capsula in both of the two environments.
@@ -263,22 +258,18 @@ var HelloWorld = capsula.defCapsule({ // new capsule class
 var example = new HelloWorld(); // new capsule instance, console: Hello world!
 ```
 
----
-
 In all the code used throughout this tutorial, we use references ```capsula```, ```services```, ```html```, and ```sm``` to refer to root (exported) objects of *capsula*, *services*, *html*, and *sm* modules, respectively.
-
----
 
 ## Working With Capsules
 
-Once we have Capsula set up, we can start coding things. Let's try to cut into building a messaging application engine that delivers messages and persists successfully delivered ones.
+Once we have everything set up, we can start coding things. Let's try to cut into building a messaging application that delivers messages and archives successfully delivered ones.
 
 ### Creating Capsule Class
 
-To create an empty capsule class try:
+Let's start with creating our application capsule:
 
 ```js
-var MessageArchive = capsula.defCapsule({}); // {} is the capsule definition object
+var Application = capsula.defCapsule({}); // {} is the capsule definition object
 ```
 
 <table class="method">
@@ -293,28 +284,32 @@ var MessageArchive = capsula.defCapsule({}); // {} is the capsule definition obj
 To instantiate capsule use the ```new``` operator and function returned from the call to ```defCapsule```:
 
 ```js
-var archive = new MessageArchive();
+var application = new Application();
 ```
 
 ### Parts
 
-Now, let's create *Application* capsule with a message archive inside (that is, with message archive being part of it):
+Now, let's extend our application with message archiving module. First, we create a capsule (class) for message archive:
+
+```js
+var MessageArchive = capsula.defCapsule({});
+```
+
+and then we rewrite the application capsule and instantiate it:
 
 ```js
 var Application = capsula.defCapsule({
     archive: MessageArchive
 });
 
-var app = new Application(); // creates both the application and the archive
+var app = new Application(); // creates both the application and the archive instance
 ```
 
-Here, the ```archive``` capsule is *part* of the ```app``` capsule which is therefore the *owner* of the ```archive``` capsule.
-
-From the inside of the application capsule we can access the archive capsule simply using reference ```this.archive```.
+Here, the message archive instance is part of the application instance. The latter is therefore the *owner* of the former.
 
 ### Constructor And Arguments
 
-Now, let's rewrite the *MessageArchive* capsule (class) to add constructor that sets flag for using encryption in the archiving process.
+Now, let's rewrite the ```MessageArchive``` capsule (class) to add constructor that sets flag for using encryption in the archiving process.
 
 ```js
 var MessageArchive = capsula.defCapsule({
@@ -326,7 +321,7 @@ var MessageArchive = capsula.defCapsule({
 
 > Use ```init``` keyword in the capsule definition object to specify constructor function.
 
-Now, since *MessageArchive* requires an argument during construction, the *Application* capsule should follow with:
+Now, since the ```MessageArchive``` requires an argument during construction, the ```Application``` capsule should follow with:
 
 ```js
 var Application = capsula.defCapsule({
@@ -337,13 +332,15 @@ var Application = capsula.defCapsule({
 });
 ```
 
-> To specify part's type (i.e. constructor function) use the ```capsule``` keyword.
+Here, the second form of part declaration is given. A form where part is declared using object with two properties: ```capsule``` and ```args```.
 
-Here, instead of just specifying archive's type, we also specify the arguments using the 'args' keyword.
+> To specify part's type use the ```capsule``` keyword.
 
-> To specify arguments use ```args``` and ```arguments``` keywords interchangeably. The arguments can either be a single value or an array of values in cases when part's constructor requires multiple arguments.
+Here, instead of just specifying archive's type, we also specify the arguments using the ```args``` keyword.
 
-The same could be achieved this way as well:
+> To specify arguments use ```args``` or ```arguments``` keywords interchangeably. Arguments can either be specified as a single value or as an array of values in cases when part's constructor requires multiple arguments.
+
+In addition to declarative way, parts could be created in an imperative way as well:
 
 ```js
 var Application = capsula.defCapsule({
@@ -353,7 +350,7 @@ var Application = capsula.defCapsule({
 });
 ```
 
-Here we underline that the ```archive``` becomes part of the ```app``` capsule not because of placing it into ```this.archive```, but because of the fact that it has been instantiated in the context (in this case in the constructor) of the ```app``` capsule.
+Here we underline that the ```archive``` becomes part of the ```app``` capsule not because of placing it into ```this.archive```, but because of the fact that it has been instantiated in the context of the ```app``` capsule.
 
 At this point, every application would have an archive module using encryption. Let's make that configurable:
 
@@ -390,7 +387,7 @@ var Application = capsula.defCapsule({
 });
 ```
 
-> Use ```deferredArgs``` keyword to specify function that gets called just before part's instantiation to return arguments for part's instantiation. The function would be called with the same arguments as arguments used to instantiate the owner capsule. The function should return either a single value or an array of values in cases when part's constructor requires multiple arguments.
+> Use ```deferredArgs``` keyword to specify function that gets called just before part's instantiation to return arguments for part's instantiation. The function would be called with the same arguments as the ones used to instantiate the owner capsule. The function should return either a single value or an array of values in cases when part's constructor requires multiple arguments.
 
 Now, this:
 
@@ -400,7 +397,7 @@ var app = new Application('My application', true);
 
 would create inner archive that uses encryption.
 
-> When it comes to ordering of execution, it should be noted that parts are instantiated first and afterwards the owner's constructor (```init```) is called.
+> When it comes to ordering of execution, parts get instantiated before the owner's constructor (```init```) is called.
 
 ### Inheritance
 
@@ -428,6 +425,13 @@ var MongoDbMessageArchive = capsula.defCapsule({
 
 > Super-type's constructor doesn't get called implicitly, so if you need it, make sure you call it explicitly (as shown above).
 
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}#superior" target="_blank">superior</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Returns the super prototype object to enable calls to methods of the super capsule.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></td></tr>
+</tbody></table>
+
 It is also possible to create an abstract capsule:
 
 ```js
@@ -440,15 +444,11 @@ var archive = new Archive(); // Error: Abstract capsules cannot be instantiated
 
 > Abstract capsules that cannot be instantiated.
 
----
-
-So far we have covered the very basic stuff plus parts. Let's continue and add a bit of dynamic with methods and operations.
-
----
+So far we have covered the very basic stuff. Let's continue and add a bit of dynamic with methods and operations.
 
 ## Implementing Behavior
 
-Dynamic parts of your application are implemented using methods and operations. Let's start with methods, being the concept you already know of.
+Dynamic parts of your application are implemented using methods, operations, and state machines. Let's start with methods, being a concept you already know of.
 
 ### Methods
 
@@ -465,7 +465,8 @@ var MessageArchive = capsula.defCapsule({
     },
     encrypt: function(message){
         // TODO encrypt the message
-        return message;
+        console.log('encrypted ' + JSON.stringify(message));
+        return message; // encrypted message
     },
     '+ process': function(message){
         message.archivingTime = new Date();
@@ -480,11 +481,14 @@ Protected are the ```persist``` and the ```encrypt``` methods, while the ```proc
 
 > Public methods should have a + sign prefix to distinguish them from protected ones.
 
-Now, to archive a message try the following:
+Now, to archive some messages try the following:
 
 ```js
-var archive = new MessageArchive(true);
-archive.process({body: 'Hello World!'}); // console: persisted {"body":"Hello World!"}
+var encryptionArchive = new MessageArchive(true); // encryption
+encryptionArchive.process({body: 'Hello World!'}); // console: encrypted + persisted
+
+var archive = new MessageArchive(false); // no encryption
+archive.process({body: 'Hello World!'}); // console: persisted
 ```
 
 Great, it works. If however we try:
@@ -516,6 +520,7 @@ var MessageArchive = capsula.defCapsule({
     },
     encrypt: function(message){
         // TODO encrypt the message
+        console.log('encrypted ' + JSON.stringify(message));
         return message;
     }
 });
@@ -542,12 +547,13 @@ Let's discuss what would happen if the ```persist``` method of the *MessageArchi
 // this mocks asynchronous persistence and returns after one second
 var dataSourceMock = {};
 dataSourceMock.save = function(){
-    var p = new Promise();
-    setTimeout(1000, function(){
-        p.resolve();
+    var p = new Promise(function(resolve, reject){
+        setTimeout(function(){
+            resolve();
+        }, 1000); // one second delay
     });
     return p;
-}
+};
 
 var MessageArchive = capsula.defCapsule({
     init: function(useEncryption){
@@ -581,24 +587,24 @@ var archive = new MessageArchive(true);
 archive.process({body: 'Hello world!'});
 ```
 
-Let's try to follow the context of execution of the code above. Calls to ```defCapsule```, ```new MessageArchive(true)```, and ```archive.process(...)``` all get executed within the top-level (main) context. The code inside the ```process``` method gets executed within the context of ```archive``` capsule. The code inside the ```persist``` method also gets executed within the same context. This code calls the ```save``` method of the mock data source asynchronously and immediately returns. The ```process``` also returns and the current context is now switched back to the top-level context. Everything settles down until the mock data source finishes its job after one second. When that happens, the callback method (see ```then```) is called from the current context, which is at this point the top-level context. The callback method fails on ```this.incNumPersisted``` with the *out of context* error because ```this.incNumPersisted``` is protected method of the ```archive``` capsule and the callback is trying to call it from the top-level context. So, how do we handle this?
+Let's try to follow the context of execution of the code above. Calls to ```defCapsule```, ```new MessageArchive(true)```, and ```archive.process(...)``` all get executed from the top-level (main) context. The code inside the ```process``` method gets executed within the context of the ```archive``` capsule. The code inside the ```persist``` method also gets executed within the same context. This code calls the ```save``` method of the mock data source and immediately returns (because of the asynchronous nature of the ```save``` method). The ```process``` also returns and we leave the context of the ```archive``` capsule back to the top-level context. Everything settles down until the mock data source finishes its job after one second. When that happens, the callback method (see ```then```) is called from the current context, which is at this point in time the top-level context. The callback method fails on ```this.incNumPersisted``` with the *out of context* error because ```that.incNumPersisted``` is protected method of the ```archive``` capsule and the callback is trying to call it from the top-level context. In other words, we didn't switch to archive's context while trying to execute its protected method. So, how do we handle this?
 
-Basically, the problem occurs when capsule's property is being accessed from the context where this is not allowed. Usually, this is the case after asynchronous calls get resolved (or rejected) or a when event-handlers' callback functions get called.
+Basically, the problem occurs when capsule's property is being accessed from the context where this is not allowed. Usually, this happens after asynchronous calls get resolved (or rejected) or a when event-handlers' callbacks get called.
 
-The solution lies down in the ```contextualize``` method. Use it to contextualize another method, i.e. to wrap it so it gets executed within the context from which the ```contextualize``` method is called. For example, the ```persist``` method implemented like this would fix the problem:
+The solution lies down in the ```contextualize``` method. Use it to contextualize another method, i.e. to wrap it so it gets executed within the context from where the ```contextualize``` method is called. For example, the ```persist``` method implemented like this would fix the problem:
 
 ```js
 persist: function(message){
     var that = this;
-    dataSourceMock.persist(message).then(capsula.contextualize(function (){ // <---
+    dataSourceMock.save(message).then(capsula.contextualize(function (){ // <---
         that.incNumPersisted();
     }));
 }
 ```
 
-The only difference is in the fact that the callback method has been contextualized to the context in which contextualize is called, and that is the context of the ```archive``` capsule itself since the ```contextualize``` method is being called from the (```persist``` method of the) ```archive``` capsule.
+The only difference is in the callback method being contextualized. It has been contextualized to the context in which the ```contextualize``` method is called. And that would be the context of the ```archive``` capsule itself.
 
-Note that the ```contextualize``` method does not have a context parameter. It is not meant to be a silver bullet that lets you access anything you like by just providing an arbitrary context. No; it only allows you to contextualize from within the context you contextualize to. In other words, you cannot break into someone else's context just like that. You need to be there to let others in.
+Note that the ```contextualize``` method does not have a context parameter. It is not meant to be a silver bullet that lets you access any context you like. No; it only allows you to contextualize to the context you are in, i.e. to the context you own. In other words, you cannot break into someone else's context just like that. You need to be there to let others in.
 
 <table class="method">
 <thead><tr><th colspan="2">[static method] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}#.contextualize" target="_blank">contextualize</a></th></tr></thead>
