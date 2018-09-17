@@ -24,9 +24,9 @@ nav: true
 	- [Inheritance](#inheritance)
 - [Implementing Behavior](#implementing-behavior)
 	- [Methods](#methods)
-	- [Contextualization](#contextualization)
 	- [Operations](#operations)
 	- [State Machines](#state-machines)
+	- [Contextualization](#contextualization)
 	- [Error Handling](#error-handling)
 - [Protected State](#protected-state)
 - [Building User Interfaces](#building-user-interfaces)
@@ -448,7 +448,7 @@ So far we have covered the very basic stuff. Let's continue and add a bit of dyn
 
 ## Implementing Behavior
 
-Dynamic parts of your application are implemented using methods, operations, and state machines. Let's start with methods, being a concept you already know of.
+Dynamic parts of your application are implemented using methods, operations, and state machines. Let's start with methods, being a concept you already know very well.
 
 ### Methods
 
@@ -504,7 +504,7 @@ the error is raised since we are calling protected method from the outer context
 Now, let's elaborate a little bit more on methods. Imagine the *MessageArchive* capsule with the ```process``` method declared differently (in the constructor):
 
 ```js
-var MessageArchive = capsula.defCapsule({
+var FakeMessageArchive = capsula.defCapsule({
     init: function(useEncryption){
         this.useEncryption = useEncryption;
         this.process = function(message){ // <--- fake method
@@ -529,89 +529,13 @@ var MessageArchive = capsula.defCapsule({
 Now let's try to execute the following:
 
 ```js
-var archive = new MessageArchive(true);
+var archive = new FakeMessageArchive(true);
 archive.process({body: 'Hello World!'});
 ```
 
-Yes, it fails. This is because the fake ```process``` method is not treated as a regular capsule's method and does not switch context to *MessageArchive* capsule when being called. It's code is actually being executed in the context from where the fake method was called (i.e. the outer context). Hence any inner attempt to access a property of *MessageArchive* capsule would fail with *out of context* error. In this case the line ```message = this.encrypt(message);``` would be the place where it fails, since this is the place where a *MessageArchive's* property is first being used. Had no property access occurred inside the process method, it would have completed without an error.
+Yes, it fails. This is because the fake ```process``` method is not treated as a regular capsule's method and does not switch context to message archive capsule when being called. The code of this method is actually being executed in the outer context (i.e. the context from where the fake method was called) instead of from the message archive context. Being in the outer context, any attempt to access a protected property of the message archive capsule would fail with *out of context* error. In this case the line ```message = this.encrypt(message);``` would be the place where it fails, since this is the place where a protected property is first being used. Had no property access occurred inside the process method, it would have completed without an error.
 
-One could ask why it didn't fail at the ```if (this.useEncryption)``` line? Well, this is because ```useEncryption``` datum is not special property of *MessageArchive* capsule. It is a simple JavaScript property (similarly to a fake method, we could name it a *fake property*). It could be regarded as public property accessible from anywhere in your code. To learn how to declare datum or data as capsule's property (having usual access protection), check [Protected State]({{ "/tutorial#protected-state" | relative_url }}) or just keep reading.
-
-### Contextualization
-
-As already explained, when accessing capsule's properties, the current context is always checked and compared to the capsule that owns the property being accessed. Once you get used to our encapsulation model this is usually fine, however in some cases you still might get surprised when *out of context* error pops up. Let's reach out for an example.
-
-Let's discuss what would happen if the ```persist``` method of the *MessageArchive* capsule persisted messages asynchronously (using some data source) and then called ```incNumPersisted``` method on success to increment internal counter of successfully persisted messages:
-
-```js
-// this mocks asynchronous persistence and returns after one second
-var dataSourceMock = {};
-dataSourceMock.save = function(){
-    var p = new Promise(function(resolve, reject){
-        setTimeout(function(){
-            resolve();
-        }, 1000); // one second delay
-    });
-    return p;
-};
-
-var MessageArchive = capsula.defCapsule({
-    init: function(useEncryption){
-        this.useEncryption = useEncryption;
-    },
-    incNumPersisted: function(){
-        if (this.numPersisted != null)
-            this.numPersisted++;
-        else
-            this.numPersisted = 1;
-    },
-    persist: function(message){ // asynchronous persistence
-        var that = this;
-        dataSourceMock.save(message).then(function (){ // callback
-            that.incNumPersisted();
-        });
-    },
-    encrypt: function(message){
-        // TODO encrypt the message
-        return message;
-    },
-    '+ process': function(message){
-        message.archivingTime = new Date();
-        if (this.useEncryption)
-            message = this.encrypt(message);
-        this.persist(message);
-    }
-});
-
-var archive = new MessageArchive(true);
-archive.process({body: 'Hello world!'});
-```
-
-Let's try to follow the context of execution of the code above. Calls to ```defCapsule```, ```new MessageArchive(true)```, and ```archive.process(...)``` all get executed from the top-level (main) context. The code inside the ```process``` method gets executed within the context of the ```archive``` capsule. The code inside the ```persist``` method also gets executed within the same context. This code calls the ```save``` method of the mock data source and immediately returns (because of the asynchronous nature of the ```save``` method). The ```process``` also returns and we leave the context of the ```archive``` capsule back to the top-level context. Everything settles down until the mock data source finishes its job after one second. When that happens, the callback method (see ```then```) is called from the current context, which is at this point in time the top-level context. The callback method fails on ```this.incNumPersisted``` with the *out of context* error because ```that.incNumPersisted``` is protected method of the ```archive``` capsule and the callback is trying to call it from the top-level context. In other words, we didn't switch to archive's context while trying to execute its protected method. So, how do we handle this?
-
-Basically, the problem occurs when capsule's property is being accessed from the context where this is not allowed. Usually, this happens after asynchronous calls get resolved (or rejected) or a when event-handlers' callbacks get called.
-
-The solution lies down in the ```contextualize``` method. Use it to contextualize another method, i.e. to wrap it so it gets executed within the context from where the ```contextualize``` method is called. For example, the ```persist``` method implemented like this would fix the problem:
-
-```js
-persist: function(message){
-    var that = this;
-    dataSourceMock.save(message).then(capsula.contextualize(function (){ // <---
-        that.incNumPersisted();
-    }));
-}
-```
-
-The only difference is in the callback method being contextualized. It has been contextualized to the context in which the ```contextualize``` method is called. And that would be the context of the ```archive``` capsule itself.
-
-Note that the ```contextualize``` method does not have a context parameter. It is not meant to be a silver bullet that lets you access any context you like. No; it only allows you to contextualize to the context you are in, i.e. to the context you own. In other words, you cannot break into someone else's context just like that. You need to be there to let others in.
-
-<table class="method">
-<thead><tr><th colspan="2">[static method] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}#.contextualize" target="_blank">contextualize</a></th></tr></thead>
-<tbody>
-<tr><td>Description</td><td>Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called. When called, the returned function executes the function being an argument of contextualize within that "remembered" context.</td></tr>
-<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
-</tbody></table>
+One could ask why it didn't fail at the ```if (this.useEncryption)``` line? Well, this is because ```useEncryption``` datum is not special property of the message archive capsule. It is a simple JavaScript property (similarly to a fake method, we could name it a *fake property*). It could be regarded as public property accessible from anywhere in your code. To learn how to declare datum or data as capsule's property (having usual access protection), check [Protected State]({{ "/tutorial#protected-state" | relative_url }}) or just keep reading.
 
 ### Operations
 
@@ -650,20 +574,20 @@ var Application = capsula.defCapsule({
 });
 
 var app = new Application(true);
-app.newMessage({body: 'Hi!'}); // console: persisted {"body":"Hi!"}
+app.newMessage({body: 'Hi!'}); // console: encrypted + persisted
 ```
 
 Looking from the outside, the ```newMessage``` operation looks the same and is being called the same way as regular methods. From the inside however, we see that our operation has been declaratively bound (wired) to a method ```process``` of the capsule's ```archive``` part.
 
 > Input operations are declared with > sign.
 
-The same wiring of operations could be done imperatively using the ```wire``` method:
+The same wiring of operations could be done imperatively using the ```target``` method:
 
 ```js
 var Application = capsula.defCapsule({
     '> newMessage': null,
     init: function(){
-        this.newMessage.wire(this.archive.process); // imperative wiring using wire
+        this.newMessage.target(this.archive.process); // imperative way of wiring
     },
     archive: {
         capsule: MessageArchive,
@@ -677,8 +601,8 @@ Moreover, we could even create the ```newMessage``` operation imperatively:
 ```js
 var Application = capsula.defCapsule({
     init: function(){
-        this.newMessage = new capsula.Input(); // imperative creating
-        this.newMessage.wire(this.archive.process);
+        this.newMessage = new capsula.Input(); // imperative creation
+        this.newMessage.target(this.archive.process); // imperative wiring
     },
     archive: {
         capsule: MessageArchive,
@@ -701,16 +625,16 @@ var Application = capsula.defCapsule({
 });
 ```
 
-Imperative way of creating operations is particularly useful with capsules that have unknown number of operations at the moment of creating their capsule classes. For example, for capsules whose number of operations depends on the constructor argument or arguments.
+Imperative way of creating operations is particularly useful when number of operations is unknown at design time; for example, when number of operations depends on a certain runtime value.
 
 <table class="method">
-<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#wire" target="_blank">wire</a></th></tr></thead>
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#target" target="_blank">target</a></th></tr></thead>
 <tbody>
-<tr><td>Description</td><td>Wires this operation to the given operations and methods in the current context of execution.</td></tr>
+<tr><td>Description</td><td>Wires this operation acting as a source in the current context of execution to the given targets (operations and methods). The method accepts both comma separated list of operations and methods and an array of operations and methods.</td></tr>
 <tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
 </tbody></table>
 
-Now that we have archiving, let's add a delivery module to our application. Let's start by creating new *MessageDelivery* capsule:
+Now that we have archiving in our application, let's add a delivery module. Let's start by creating *MessageDelivery* capsule:
 
 ```js
 var MessageDelivery = capsula.defCapsule({
@@ -718,46 +642,64 @@ var MessageDelivery = capsula.defCapsule({
     '> process': function(message){ // wiring of input operation to a method
         // TODO delivery
         message.delivered = true;
-        if (message.delivered)
+        if (message.delivered){
+            console.log('delivered ' + JSON.stringify(message));
             this.onDelivered(message);
+        }
     }
 });
 ```
 
+Two things should be noted here. First:
+
 > Output operations are declared with < sign.
 
-Instead of declaratively, the same could be achieved by creating output operation imperatively. Have in mind that unlike input operations, output operations' constructor doesn't have optional function argument, since the behavior triggered by the output operation is always unknown in the context where output operation gets created:
+And second: input operation ```process``` has been wired on-spot to the protected method that handles it. You can think of this as declaration of ```process``` input operation and declaration of ```process``` protected method wired to it (handles all calls to operation). 
+
+Now that we've tackled this particular situation of having operation and method sharing the same name, it makes sense to explain how to override (in sub-classes) behavior of such a pair. It's easy. Both operation and method get inherited in sub-capsule. However, only methods could be overridden, so simply write:
+
+```js
+    ...
+    process: function(message){
+        // TODO
+    }
+    ...
+```
+
+and you are good to go.
+
+Now, let's go back to our example. Instead of declaratively, creating output operation could be achieved imperatively as well:
 
 ```js
 var MessageDelivery = capsula.defCapsule({
     init: function(){
-        this.onDelivered = new capsula.Output(); // imperative creating
+        this.onDelivered = new capsula.Output(); // imperative creation
     },
     '> process': function(message){ // wiring of input operation to a method
         // TODO delivery
         message.delivered = true;
-        if (message.delivered)
+        if (message.delivered){
+            console.log('delivered ' + JSON.stringify(message));
             this.onDelivered(message);
+        }
     }
 });
 ```
 
-Delivery module works this way: accepts the message through the ```process``` input operation, tries to deliver it, and signals that to the outside world by calling the output operation ```onDelivered``` in case of successful delivery. We follow the convention of naming output operations using the pattern ```on...```.
+Output operations never really do anything themselves. Unlike input operation's constructor, output operation's constructor doesn't have optional function argument, since the behavior triggered by the output operation is always unknown in the context where it gets created. Output operations only serve to propagate calls and events to the outside world. Hence, the ```onDelivered``` output operation has been declared with null value. It could have been declared with an empty-body function only to specify operation's signature, but the effect of doing that is the same as simply putting null value. Calling an output operation that hasn't been wired to any other operation or method outside is a *no-op*.
 
-Note that the ```process``` input operation has been wired on-spot to a method that would handle all calls to the operation.
-
-Finally, have in mind that output operations never really do anything themselves. They only serve to propagate calls and events to the outside world. Hence, the ```onDelivered``` output operation has been declared with null value. It could have been declared with an empty-body function only to be able to specify operation's signature, but the effect of doing that is the same as simply putting null value. Calling an output operation that hasn't been wired to any other operation or method outside is a *no-op*.
+So, our delivery module works this way: it accepts the message through the ```process``` input operation, tries to deliver it, and signals that to the outside world by calling the output operation ```onDelivered``` (in case of successful delivery). We follow the convention of naming output operations using the pattern ```on...```.
 
 Had we wanted to short-circuit each received message immediately to the ```onDelivered``` output operation we would have done it by simply doing this:
 
 ```js
-var MessageDelivery = capsula.defCapsule({
+var ShortCircuitMessageDelivery = capsula.defCapsule({
     '< onDelivered': function(message){}, // operation's signature provided
-    '> process': 'this.onDelivered'
+    '> process': 'this.onDelivered' // declarative wiring of operations
 });
 ```
 
-Now, our application could look like this:
+Now that we have both archiving and delivery modules ready, our application could look like this:
 
 ```js
 var Application = capsula.defCapsule({
@@ -771,12 +713,12 @@ var Application = capsula.defCapsule({
 });
 
 var app = new Application(true);
-app.newMessage({body: 'Hello!'}); // persisted {"body":"Hello!","delivered":true}
+app.newMessage({body: 'Hello!'}); // console: delivered + encrypted + persisted
 ```
 
 Implemented like this, the application tries to deliver each message, archiving only successfully delivered ones. According to the console output, the message has been both delivered and persisted.
 
-Operations could be wired to more than one operation (and method). To demonstrate that, let's add the ```onDelivered``` output operation to the *Application* capsule:
+Operations could be wired to more than one operation (and method). To demonstrate that, let's add the ```onDelivered``` output operation to the application capsule:
 
 ```js
 var Application = capsula.defCapsule({
@@ -791,7 +733,7 @@ var Application = capsula.defCapsule({
 });
 ```
 
-As shown in the last line of the *Application* capsule's body, an output operation of the delivery module has been wired to an input operation of archive module and an output operation of the application capsule itself. The same could be done imperatively:
+As shown in the last line of the application capsule's body, an output operation of the delivery module has been wired to an input operation of archive module and an output operation of the application capsule itself. The same could be done imperatively:
 
 ```js
 var Application = capsula.defCapsule({
@@ -803,25 +745,16 @@ var Application = capsula.defCapsule({
         args: 'this.args'
     },
     init: function(){
-        this.delivery.onDelivered.wire(this.archive.process, this.onDelivered);
+        this.delivery.onDelivered.target(this.archive.process, this.onDelivered);
         // or using an array:
-        // this.delivery.onDelivered.wire([this.archive.process, this.onDelivered]);
+        // this.delivery.onDelivered.target([this.archive.process, this.onDelivered]);
     }
 });
 ```
 
-In this case, we could say that the ```this.delivery.onDelivered``` output operation acts as source, while the ```this.archive.process``` and the ```this.onDelivered``` act as targets.
+In this case, we say that the ```this.delivery.onDelivered``` output operation acts as source, while the ```this.archive.process``` and the ```this.onDelivered``` act as targets.
 
 > Each source operation could be wired to many targets. Similarly, each target operation could be wired to many source operations. A method can only act as a target when being wired.
-
-Method ```wire``` is sort of "reflexive", meaning that ```a.wire(b)``` is the same as ```b.wire(a)```. ```wire``` is therefore easy to use - no need to think about direction of flow, however it has a small drawback. When looking at the ```a.wire(b)``` you cannot immediately tell which one is the source and which one is the target. That's why there are two additional methods that can be used when you want your code to tell the story about who is who. These two methods are ```source``` and ```target```.
-
-<table class="method">
-<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#target" target="_blank">target</a></th></tr></thead>
-<tbody>
-<tr><td>Description</td><td>Wires this operation acting as a source in the current context of execution to the given operations and functions (targets).</td></tr>
-<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
-</tbody></table>
 
 <table class="method">
 <thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#source" target="_blank">source</a></th></tr></thead>
@@ -830,11 +763,9 @@ Method ```wire``` is sort of "reflexive", meaning that ```a.wire(b)``` is the sa
 <tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}" target="_blank">Operation</a></td></tr>
 </tbody></table>
 
-Obviously where there is collection there is ordering as well. So, where there are multiple targets for a single source operation in some cases it could be significant to specify ordering of targets. In those cases ```wireAt``` and ```targetAt``` methods should be used.
+Obviously where there is collection there is ordering as well. So, where there are multiple targets for a single source operation it may be useful to specify ordering of targets. In those cases ```targetAt``` (see API reference) method should be used.
 
-Finally, operations get unwired or rewired as easily as they get wired. Have in mind the following methods: ```unwire```, ```untarget```, ```unsource```, ```rewire```, ```retarget```, ```resource```, ```unwireAll```, ```untargetAll```, and ```unsourceAll```.
-
-Also, you can check whether wiring exist between operations (and methods) with: ```isWiredTo```, ```isSourceOf```, and ```isTargetOf```.
+Finally, operations get unwired or rewired as easily as they get wired. Have in mind the following methods: ```untarget```, ```unsource```, ```retarget```, ```resource```, ```untargetAll```, and ```unsourceAll```. Also, you can check whether wiring exist between operations (and methods) with: ```isSourceOf```, and ```isTargetOf```.
 
 #### Operation Result
 
@@ -842,21 +773,22 @@ As shown above, operation calls are propagated according to the wiring. Wiring n
 
 a) an array of method results, if there is more than one downstream method,
 
-b) a method result, if there is only one downstream method (this is by default, but can be changed to return array, see ```setUnpackResult```), 
+b) a method result itself, if there is only one downstream method (this is by default, but can be changed to return array, see ```setUnpackResult```), 
 
 c) undefined, if there are no downstream methods.
 
 #### Asynchronous Invocation
 
-Calling and operation the same way as calling a regular JavaScript method means synchronous call. That means control is returned to the caller once all of the downstream operations and methods are executed. There is however an asynchronous way of calling an operation. This is done by using the operation's ```send``` method:
+Calling and operation the same way as calling a regular JavaScript method means synchronous call. That means control is returned to the caller once all of the downstream methods are executed. There is however an asynchronous way of calling an operation. This is done by using the operation's ```send``` method:
 
 ```js
 app.newMessage.send({body: 'Hello!'}).then(function(result){
-    // processing result...
+    // TODO processing results...
+    console.log('Processing results...');
 });
 ```
 
-Call to send returns Promise object which allows for handling the results in both successful and erroneous use cases. In case of an asynchronous operation call, the control is returned to the caller immediately and propagation of calls is done in asynchronous manner at some point in future.
+Call to ```send``` returns *Promise* object which allows for handling the results in both successful and erroneous use cases. In case of an asynchronous operation call, the control is returned to the caller immediately and propagation of calls is done in asynchronous manner at some point in future.
 
 <table class="method">
 <thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#send" target="_blank">send</a></th></tr></thead>
@@ -1083,6 +1015,82 @@ In our example, after calling the ```init``` method of the ```applicationLifecyc
 If the ```pause``` event happens (i.e. if we call ```process('pause')```), the transition with that name is selected for firing. Before firing its guard is tested and it returns true; so the lifecycle continues to the ```TOP.working.pausing``` state executing the transitions's effect along the way. Now, the host object settles down in the ```pausing``` state. Again, the host object waits for the new event.
 
 If the ```stop``` event happens at this point, the host object would react since the ```stop``` event is declared for the parent (```working```) state which means it is relevant for all its child states (```running``` and ```pausing```). The guard does not exit, so we immediately move to the ```final``` state, executing the exit action of the ```pausing``` state and entry action of the ```final``` state in this order.
+
+### Contextualization
+
+As already explained, when accessing capsule's properties, the current context is always checked and compared to the capsule that owns the property being accessed. Once you get used to our encapsulation model this is usually fine, however in some cases you still might get surprised when *out of context* error pops up. Let's reach out for an example.
+
+Let's discuss what would happen if the ```persist``` method of the *MessageArchive* capsule persisted messages asynchronously (using some data source) and then called ```incNumPersisted``` method on success to increment internal counter of successfully persisted messages:
+
+```js
+// this mocks asynchronous persistence and returns after one second
+var dataSourceMock = {};
+dataSourceMock.save = function(){
+    var p = new Promise(function(resolve, reject){
+        setTimeout(function(){
+            resolve();
+        }, 1000); // one second delay
+    });
+    return p;
+};
+
+var MessageArchive = capsula.defCapsule({
+    init: function(useEncryption){
+        this.useEncryption = useEncryption;
+    },
+    incNumPersisted: function(){
+        if (this.numPersisted != null)
+            this.numPersisted++;
+        else
+            this.numPersisted = 1;
+    },
+    persist: function(message){ // asynchronous persistence
+        var that = this;
+        dataSourceMock.save(message).then(function (){ // callback
+            that.incNumPersisted();
+        });
+    },
+    encrypt: function(message){
+        // TODO encrypt the message
+        return message;
+    },
+    '+ process': function(message){
+        message.archivingTime = new Date();
+        if (this.useEncryption)
+            message = this.encrypt(message);
+        this.persist(message);
+    }
+});
+
+var archive = new MessageArchive(true);
+archive.process({body: 'Hello world!'});
+```
+
+Let's try to follow the context of execution of the code above. Calls to ```defCapsule```, ```new MessageArchive(true)```, and ```archive.process(...)``` all get executed from the top-level (main) context. The code inside the ```process``` method gets executed within the context of the ```archive``` capsule. The code inside the ```persist``` method also gets executed within the same context. This code calls the ```save``` method of the mock data source and immediately returns (because of the asynchronous nature of the ```save``` method). The ```process``` also returns and we leave the context of the ```archive``` capsule back to the top-level context. Everything settles down until the mock data source finishes its job after one second. When that happens, the callback method (see ```then```) is called from the current context, which is at this point in time the top-level context. The callback method fails on ```this.incNumPersisted``` with the *out of context* error because ```that.incNumPersisted``` is protected method of the ```archive``` capsule and the callback is trying to call it from the top-level context. In other words, we didn't switch to archive's context while trying to execute its protected method. So, how do we handle this?
+
+Basically, the problem occurs when capsule's property is being accessed from the context where this is not allowed. Usually, this happens after asynchronous calls get resolved (or rejected) or a when event-handlers' callbacks get called.
+
+The solution lies down in the ```contextualize``` method. Use it to contextualize another method, i.e. to wrap it so it gets executed within the context from where the ```contextualize``` method is called. For example, the ```persist``` method implemented like this would fix the problem:
+
+```js
+persist: function(message){
+    var that = this;
+    dataSourceMock.save(message).then(capsula.contextualize(function (){ // <---
+        that.incNumPersisted();
+    }));
+}
+```
+
+The only difference is in the callback method being contextualized. It has been contextualized to the context in which the ```contextualize``` method is called. And that would be the context of the ```archive``` capsule itself.
+
+Note that the ```contextualize``` method does not have a context parameter. It is not meant to be a silver bullet that lets you access any context you like. No; it only allows you to contextualize to the context you are in, i.e. to the context you own. In other words, you cannot break into someone else's context just like that. You need to be there to let others in.
+
+<table class="method">
+<thead><tr><th colspan="2">[static method] <a href="{{ "/api-reference/module-capsula.html" | relative_url }}#.contextualize" target="_blank">contextualize</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Creates and returns new contextualized function that "remembers" the context in which this function (contextualize) is called. When called, the returned function executes the function being an argument of contextualize within that "remembered" context.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-capsula.html" | relative_url }}" target="_blank">Capsula</a></td></tr>
+</tbody></table>
 
 ### Error Handling
 
