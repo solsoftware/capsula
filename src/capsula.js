@@ -4704,7 +4704,7 @@ limitations under the License.
         // Utility Functions
         // *****************************
 
-        function getPieceType_(owner, name, compiled, in1, in2) {
+        function getPieceType_(owner, name, compiled) {
             var targetCompiledDef;
             if (owner === 'this') {
                 targetCompiledDef = compiled;
@@ -4732,8 +4732,10 @@ limitations under the License.
                 return ElementType.METHOD;
             else if (Object.keys(targetCompiledDef['publicMethods']).indexOf(name) > -1)
                 return ElementType.METHOD;
-            else
+            else if (owner === 'this')
                 return ElementType.OTHER;
+            else
+                return ElementType.UNKNOWN;
         }
 
         /**
