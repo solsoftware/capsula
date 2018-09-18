@@ -19,7 +19,7 @@ require.config({
     waitSeconds: 5
 });
 
-requirejs(['capsula', 'html', 'services'], function (capsula, html, services) {
+requirejs(['capsula', 'html', 'services', 'sm'], function (capsula, html, services, sm) {
 
     var theSandbox = new capsula.ElementRef(document.getElementById('sandbox'));
 
