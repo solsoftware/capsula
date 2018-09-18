@@ -132,7 +132,15 @@ git push origin --tags
 
 Add release notes if necessary.
 
-Create npm release by running the following from the root folder: 
+Finally, let's create npm release. 
+
+If you are not already logged in to npm, log in from your terminal with:
+
+```
+npm login
+```
+
+and your username and password. Then just run the following from the root folder: 
 
 ```
 npm publish --access public

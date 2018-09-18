@@ -5,11 +5,11 @@
 **Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". With Capsula you can:
 
 - create your application out of **encapsulated components** - capsules.
-- have **multi-level architectural views** of your application and **handle complexity better**.
-- easily implement complex behavioral lifecycles using **state machines**.
-- be **both declarative and imperative** having the best of both worlds. Artifacts developed either way speak the same language and could seamlessly be combined and used together.
-- **increase flexibility** of your UI components by managing layout and behavior in quite a unique way.
+- have **multi-level architectural views** of your application which helps handle complexity better.
+- easily implement complex lifecycles using **state machines**.
+- **build user interfaces flexibly** by leveraging quite a unique way of managing layout.
 - **handle asynchronous communication** focusing only on what's essential.
+- be **both declarative and imperative** having the best of both worlds.
 - exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
 
 ## Getting started
