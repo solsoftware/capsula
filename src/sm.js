@@ -156,8 +156,10 @@ limitations under the License.
 					if (state.isFinal)
 						throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure final states are always steady. State: ' + state.name));
 				}
+				state.isSteady = steadyFlag;
+			} else {
+				state.isSteady = !state.isComposite && !state.isInitial;
 			}
-			state.isSteady = !state.isComposite && !state.isInitial;
 
             if (state.isComposite && (state.isFinal || state.isInitial))
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the composite state ' + state.name + ' is neither initial nor final.'));
