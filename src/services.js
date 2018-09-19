@@ -18,7 +18,7 @@ limitations under the License.
  * @file Services module enables capsules to communicate with third-parties in an optimal way, free of implementation-level details. Read [more]{@link module:services}.
  * @copyright 2018 SOL Software
  * @license Apache-2.0
- * @version 0.1.0
+ * @since 0.1.0
  */
 
 (function (root, factory) {
@@ -631,7 +631,7 @@ limitations under the License.
          * <p> Each module has its own built-in service types: [services.js]{@link module:services.ServiceType}, [capsula.js]{@link module:capsula.ServiceType}, and [html.js]{@link module:html.ServiceType} service types. If there is no suitable service type within the collection of built-in service types, one can easily create new service type using [registerType]{@link module:services.registerType} function.
          *
          * @exports services
-         * @version 0.1.0
+         * @since 0.1.0
          */
         var ns = {
             ServiceType: ServiceType,

@@ -18,7 +18,7 @@ limitations under the License.
  * @file State machines module provides support for implementing behavior using state machines. Read [more]{@link module:sm}.
  * @copyright 2018 SOL Software
  * @license Apache-2.0
- * @version 0.2.0
+ * @since 0.2.0
  */
 
 (function (root, factory) {
@@ -487,7 +487,7 @@ limitations under the License.
          * <p> sm.js module provides means to create and use <a href="https://en.wikipedia.org/wiki/Finite-state_machine" target="_blank">state machines</a>. State machines are very powerful tool for handling behavior and dynamic aspects of any software.
          *
          * @exports sm
-         * @version 0.1.0
+         * @since 0.2.0
          */
         var ns = {
             defSM: defSM

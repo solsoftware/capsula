@@ -18,7 +18,7 @@ limitations under the License.
  * @file Capsula.js module introduces the encapsulation model and all the essential concepts of the Capsula library. Read [more]{@link module:capsula}.
  * @copyright 2018 SOL Software
  * @license Apache-2.0
- * @version 0.1.0
+ * @since 0.1.0
  */
 
 (function (root, factory) {
@@ -5399,7 +5399,7 @@ limitations under the License.
          * <p> To create new Capsule class, use [defCapsule]{@link module:capsula.defCapsule} method.
          * @exports capsula
          * @requires module:services
-         * @version 0.1.0
+         * @since 0.1.0
          */
         var ns = {
             // define capsule
