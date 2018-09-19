@@ -12,7 +12,7 @@
 - be **both declarative and imperative** having the best of both worlds.
 - exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
 
-## Getting started
+## Getting Started
 
 Check out our [web site's home page](https://solsoftware.github.io/capsula) to start exploring Capsula.
 
