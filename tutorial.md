@@ -387,7 +387,7 @@ var Application = capsula.defCapsule({
 });
 ```
 
-> Use ```deferredArgs``` keyword to specify function that gets called just before part's instantiation to return arguments for part's instantiation. The function would be called with the same arguments as the ones used to instantiate the owner capsule. The function should return either a single value or an array of values in cases when part's constructor requires multiple arguments.
+> Use ```deferredArgs``` keyword to specify function that gets called just before part's instantiation to return arguments for part's instantiation. The function would be called with the same arguments as the ones used to instantiate the owner capsule. The function should return either a single value or an array of values in cases when part's constructor requires multiple arguments. Reference ```this``` inside the function points to the owner capsule instance.
 
 Now, this:
 
@@ -686,16 +686,16 @@ var MessageDelivery = capsula.defCapsule({
 });
 ```
 
-Output operations never really do anything themselves. Unlike input operation's constructor, output operation's constructor doesn't have optional function argument, since the behavior triggered by the output operation is always unknown in the context where it gets created. Output operations only serve to propagate calls and events to the outside world. Hence, the ```onDelivered``` output operation has been declared with null value. It could have been declared with an empty-body function only to specify operation's signature, but the effect of doing that is the same as simply putting null value. Calling an output operation that hasn't been wired to any other operation or method outside is a *no-op*.
+Output operations never really do anything themselves. Unlike input operation's constructor, output operation's constructor doesn't have optional function argument, since the behavior triggered by the output operation is always unknown in the context where it gets created. Output operations only serve to propagate calls and events to the outside world. Hence, the ```onDelivered``` output operation has been declared with null value. It could have been declared with an empty-body function only to make operation's signature visible, but in runtime the effect of doing that is the same as simply putting null value. Calling an output operation that hasn't been wired to any other operation or method outside is a *no-op*.
 
 So, our delivery module works this way: it accepts the message through the ```process``` input operation, tries to deliver it, and signals that to the outside world by calling the output operation ```onDelivered``` (in case of successful delivery). We follow the convention of naming output operations using the pattern ```on...```.
 
-Had we wanted to short-circuit each received message immediately to the ```onDelivered``` output operation we would have done it by simply doing this:
+Had we wanted to short-circuit each received message immediately to the ```onDelivered``` output operation we would have done it by simply like this:
 
 ```js
 var ShortCircuitMessageDelivery = capsula.defCapsule({
-    '< onDelivered': function(message){}, // operation's signature provided
-    '> process': 'this.onDelivered' // declarative wiring of operations
+    '< onDelivered': null,
+    '> process': 'this.onDelivered' // wires process directly to onDelivered
 });
 ```
 
@@ -709,12 +709,14 @@ var Application = capsula.defCapsule({
         capsule: MessageArchive,
         args: 'this.args'
     },
-    'delivery.onDelivered': 'archive.process'
+    'delivery.onDelivered': 'archive.process' // declarative wiring
 });
 
 var app = new Application(true);
 app.newMessage({body: 'Hello!'}); // console: delivered + encrypted + persisted
 ```
+
+Please note the declarative wiring of operations in the code above. The notation is simple: for each operation, start with the name of operation's owner capsule (which can be *this* as well), then add a dot, and finally end with the name of operation (or method) itself.
 
 Implemented like this, the application tries to deliver each message, archiving only successfully delivered ones. According to the console output, the message has been both delivered and persisted.
 
@@ -722,7 +724,7 @@ Operations could be wired to more than one operation (and method). To demonstrat
 
 ```js
 var Application = capsula.defCapsule({
-    '< onDelivered': function(message){},
+    '< onDelivered': null,
     '> newMessage': 'delivery.process',
     delivery: MessageDelivery,
     archive: {
@@ -737,7 +739,7 @@ As shown in the last line of the application capsule's body, an output operation
 
 ```js
 var Application = capsula.defCapsule({
-    '< onDelivered': function(message){},
+    '< onDelivered': null,
     '> newMessage': 'delivery.process',
     delivery: MessageDelivery,
     archive: {
@@ -754,7 +756,7 @@ var Application = capsula.defCapsule({
 
 In this case, we say that the ```this.delivery.onDelivered``` output operation acts as source, while the ```this.archive.process``` and the ```this.onDelivered``` act as targets.
 
-> Each source operation could be wired to many targets. Similarly, each target operation could be wired to many source operations. A method can only act as a target when being wired.
+> Each source operation could be wired to many targets. Similarly, each target operation could be wired to many source operations. When being wired, a method can only act as a target.
 
 <table class="method">
 <thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Operation.html" | relative_url }}#source" target="_blank">source</a></th></tr></thead>
@@ -803,7 +805,7 @@ Capsula provides support for handling complex behavioral aspects of your system 
 
 State machine models the lifecycle of an object, usually called *the host object*. During its lifecycle, the host object moves from one state to another according to transitions that connect states and events that trigger these moves. At any point in time, the state machine keeps track of the host object's state. What's more, by running the host object's lifecycle the state machine orchestrates execution of pieces of behavior that reside in host object's methods and functions of the state machine itself.
 
-The ```sm``` module doesn't really depend on other modules, so you can use it in isolation to model lifecycle of any JavaScript object, i.e. it is not exclusively built for capsules.
+The ```sm``` module doesn't really depend on other modules, so you can use it in isolation. It allows you to model lifecycle of any JavaScript object i.e. it's not exclusively built for capsules.
 
 A simple scenario of using state machines is given bellow:
 
@@ -811,16 +813,16 @@ A simple scenario of using state machines is given bellow:
 // create the state machine (class, constructor) 
 // out of the state machine definition object
 var ApplicationLifecycle = sm.defSM({
-    // state machine definition object
+    // TODO state machine definition (explained in a moment, keep reading)
 });
 
 // take the object (in this case application) 
 // whose lifecycle is to be modeled by the state machine
 // (it doesn't have to be a capsule)
-var application = ...;
+var host = app;
 
 // create state machine instance that handles the application (host) object
-var applicationLifecycle = new ApplicationLifecycle(application);
+var applicationLifecycle = new ApplicationLifecycle(host);
 
 // start the application's lifecycle
 applicationLifecycle.init();
@@ -835,7 +837,7 @@ applicationLifecycle.process('eventName');
 console.log(applicationLifecycle.getState());
 ```
 
-To create a state machine according to the given state machine definition the ```defSM``` method of the ```sm``` module is used. In our case, the state machine class is represented by the ```ApplicationLifecycle``` object which is actually a constructor function. We can have as many state machine classes as we want, according to the number of lifecycle types that we recognize in our system.
+So, the state machine is created using the ```defSM``` method of the ```sm``` module, according to the given state machine definition object. 
 
 <table class="method">
 <thead><tr><th colspan="2">[static method] <a href="{{ "/api-reference/module-sm.html" | relative_url }}#.defSM" target="_blank">defSM</a></th></tr></thead>
@@ -844,9 +846,19 @@ To create a state machine according to the given state machine definition the ``
 <tr><td>Module</td><td> <a href="{{ "/api-reference/module-sm.html" | relative_url }}" target="_blank">sm</a></td></tr>
 </tbody></table>
 
-In our case, the host object is the ```application``` object. As already stated, the host object can be any JavaScript object.
+In the code above, the state machine definition object is empty, because we want to stay focused on the usage scenario and not on the lifecycle details. The state machine class is represented by the ```ApplicationLifecycle``` object which is actually a constructor function. We can have as many state machine classes as we want, according to the number of lifecycle types that we recognize in our system.
 
-To handle lifecycle of the host object we instantiate state machine class with the host object as an argument; the result is the ```applicationLifecycle``` object. This object we use to:
+In our case, the host object is the application (```app```) object. As already stated, the host object can be any JavaScript object whatsoever.
+
+To handle lifecycle of the host object we instantiate state machine class with the host object as an argument; the result is the ```applicationLifecycle``` object. 
+
+Sometimes it makes sense to place the reference to lifecycle object directly into the host object so it's always at hand (no need to track both references), for example:
+
+```js
+host.lifecycle = applicationLifecycle;
+```
+
+Anyhow, the lifecycle object we use to:
 - start the host object's lifecycle (using the ```init``` method),
 - trigger the host object's lifecycle with events (using the ```process``` method), and
 - read the host object's state (using the ```getState``` method).
@@ -872,7 +884,11 @@ To handle lifecycle of the host object we instantiate state machine class with t
 <tr><td>Class</td><td> <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}" target="_blank">StateMachine</a></td></tr>
 </tbody></table>
 
-Now, let's create one simple state machine and explain all the supported concepts.
+Note that instantiating state machine class with the host object as an argument allows the same host object to have multiple state machines (and multiple states); this is when the host object has lifecycles in multiple semantic contexts and we want manage all of them.
+
+#### States
+
+Now that we've covered the basic usage scenario, let's focus on lifecycle and create one simple state machine that explains all the supported concepts in lifecycle management.
 
 ```js
 var ApplicationLifecycle = sm.defSM({
@@ -906,7 +922,7 @@ var ApplicationLifecycle = sm.defSM({
                 target: 'TOP.working.running' // target state: 'running'
             },
             exit: function(){ // executed when leaving this state (keyword)
-                console.log('Let`s get back to work');
+                console.log('Enough of pausing...');
             }
         },
         stop: { // transition, fires on 'stop' trigger (event)
@@ -919,13 +935,31 @@ var ApplicationLifecycle = sm.defSM({
         }
     }
 });
-```
 
-#### States
+var host = app;
+
+host.lifecycle = new ApplicationLifecycle(host);
+
+host.lifecycle.init(); // console: start running
+
+console.log(host.lifecycle.getState()); // console: TOP.working.running
+
+host.lifecycle.process('pause'); // console: Taking a break...
+
+console.log(host.lifecycle.getState()); // console: TOP.working.pausing
+
+host.lifecycle.process('resume'); // console: Enough of pausing... + start running
+
+console.log(host.lifecycle.getState()); // console: TOP.working.running
+
+host.lifecycle.process('stop'); // console: application stopped
+
+console.log(host.lifecycle.getState()); // console: TOP.final
+```
 
 State machine definition object is a collection of objects that represent states.
 
-State can either be steady or not. Steady state means the host object may reside in it for a longer period of time. If not steady, once entered the host object immediately tries to resume to another state by following the transition given in state's ```next``` property. If no such a transition is given, or if it cannot be fired due to a guard (guards are explained later), an error is thrown.
+State can either be steady or not. Steady state means the host object may reside in it for a longer period of time. If not steady, once entered the host object immediately tries to resume to another state by following the transition given in state's ```next``` property. If no such a transition is given, or if it cannot be followed due to a guard (guards are explained later), an error is thrown.
 
 Several types of states exist:
 - simple states,
@@ -933,7 +967,7 @@ Several types of states exist:
 - initial states, and
 - final states.
 
-> Simple states don't have sub-states. 
+> Simple states don't have sub-states.
 
 Simple states are steady by default. To make them not steady set the ```steady``` property to false and make sure you provide the ```next``` property with transition that points to another state.
 
@@ -941,9 +975,9 @@ Simple states are steady by default. To make them not steady set the ```steady``
 
 The host object cannot reside in a composite state without residing in one of its direct or indirect steady sub-states. In that sense we say that composite state is not steady, although the host object can indirectly reside in it for a longer period of time.
 
-The state machine definition object is also considered a composite state.
+The state machine definition object itself is considered to be a state (most often a composite one).
 
-> Initial state is a starting point of a lifecycle of its parent composite state. Initial states are designated with the *initial* keyword. Composite state must have an initial state in it.
+> Initial state is a starting point of a lifecycle of its parent (composite) state. Initial states are designated with the *initial* keyword. Composite state must have an initial state in it.
 
 Initial states are like a simple states: they must not have inner states. Initial states are never steady, i.e. they always have the ```next``` transition pointing to another state.
 
@@ -951,19 +985,19 @@ Initial states are like a simple states: they must not have inner states. Initia
 
 Final state has neither inner states nor transitions. Final state is always steady.
 
-Even though it doesn't have transitions of its own, it does inherit transitions from its parent states, so the host object may continue its lifecycle, but not inside the final state's context i.e. its direct parent state.
+Even though it doesn't have transitions of its own, it does inherit transitions from its parent states, so the host object may continue its lifecycle, but not inside the final state's context i.e. not inside its direct parent state.
 
 A state can have an entry and / or exit action.
 
 Entry and exit actions are designated with ```entry``` and ```exit``` properties inside the state object. 
 
-> Entry action is a function that gets executed once the host object enters the state in which the entry action is declared. Exit action is a function that gets executed once the host object leaves the state in which the exit action is declared.
+> Entry action is a function that gets executed once the host object enters the state in which the entry action is declared. 
 
-Entry or exit action can either be a JavaScript function (as in our example above) or a string designating a method of the host object.
+> Exit action is a function that gets executed once the host object leaves the state in which the exit action is declared. 
+
+> Entry or exit action can either be declared using a JavaScript function (as in our example above) or using a string designating a method of the host object.
 
 Inside entry or exit function the ```this``` reference points to the host object (```application``` object in our example). At the same time, the single argument of entry or exit function points to the state machine object (the ```applicationLifecycle``` object in our example).
-
-If not final, a state can have any number of transitions to other states.
 
 The lifecycle of our application object starts at the ```initial``` state. The ```running``` and the ```pausing``` states are both simple and steady. The ```working``` state is a composite state. Apart from the initial state, it comprises the ```running``` and ```pausing``` states. By entering the ```final``` state, our application object terminates its lifecycle.
 
@@ -988,9 +1022,9 @@ If the guard allows for making a transition to a target state, an effect of a tr
 Inside guard or effect function the ```this``` reference points to the host object. At the same time, the single argument of guard or effect function points to the state machine object.
 
 If a transition's guard allows for making a transition, three steps are executed in the following order:
-- exit actions of all exited states (in bottom-up order),
-- effect of the transition, and
-- entry actions of the entered states (in top-down order).
+- exit actions of all exited states (in the bottom-up order),
+- the effect of the transition, and
+- entry actions of all entered states (in the top-down order).
 
 There are two types of transitions:
 - regular transitions that fire explicitly on a specific event (given as an argument to the ```process``` method) and
