@@ -136,17 +136,27 @@ limitations under the License.
 					}
                 }
             }
-            if (isComposite && numInitial !== 1)
-                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has exactly one initial state.'));
-            if (isComposite && numFinal > 1)
-                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has at most one final state.'));
-
+			
             state.isComposite = isComposite;
             state.isFinal = defKey === FINAL;
             state.isInitial = defKey === INITIAL;
 			
 			if (state.isFinal && hasTransitions)
                 throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure final states don\'t have transitions of their own. State: ' + state.name));
+            if (state.isComposite && (state.isFinal || state.isInitial))
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure initial and final states like ' + state.name + ' are not composite.'));
+            if (state.isInitial && state.triggerless.length === 0)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the initial state ' + state.name + ' has at least one outgoing triggerless transition.'));
+            if (state.isFinal && state.triggerless.length > 0)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the final state ' + state.name + ' has no outgoing transitions at all.'));
+            if (state.isFinal) {
+                state.triggerless = parent.triggerless;
+            }
+			
+			if (state.isComposite && numInitial !== 1)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has exactly one initial state.'));
+            if (state.isComposite && numFinal > 1)
+                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure composite state ' + state.name + ' has at most one final state.'));
 			
 			if (isSteadyFlagSet){
 				if (steadyFlag){
@@ -160,16 +170,6 @@ limitations under the License.
 			} else {
 				state.isSteady = !state.isComposite && !state.isInitial;
 			}
-
-            if (state.isComposite && (state.isFinal || state.isInitial))
-                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the composite state ' + state.name + ' is neither initial nor final.'));
-            if (state.isInitial && state.triggerless.length === 0)
-                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the initial state ' + state.name + ' has at least one outgoing triggerless transition.'));
-            if (state.isFinal && state.triggerless.length > 0)
-                throw new Error(Errors.ILLEGAL_DESIGN.toString('Make sure the final state ' + state.name + ' has no outgoing transitions at all.'));
-            if (state.isFinal) {
-                state.triggerless = parent.triggerless;
-            }
         };
 
 		/**
