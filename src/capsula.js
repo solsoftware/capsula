@@ -648,7 +648,11 @@ limitations under the License.
          *         capsule: Part,
          *         args: 'this.args'
          *     },
-         *     p5: {                 // arguments created "on spot" using function
+         *     p5: {                 // the FullFeatured capsule instance (this) given as an argument
+         *         capsule: Part,
+         *         args: 'this'
+         *     },
+         *     p6: {                 // arguments created "on spot" using function
          *         capsule: Part,
          *         deferredArgs: function(){
          *             return {message: 'Hello world'};
@@ -4751,7 +4755,9 @@ limitations under the License.
                 args = def.deferredArgs.apply(capsule, initArgs);
             }
             if (args === INIT_ARGS)
-                args = initArgs; // forward owner's arguments
+                args = initArgs; // use owner's arguments
+			else if (args === THIS)
+                args = capsule; // use owner capsule
             if (!isArray_(args) && !isArguments_(args))
                 args = [args]; // make it array
             return args;
@@ -5060,6 +5066,12 @@ limitations under the License.
          * @private
          */
         INIT_ARGS = 'this.args',
+		
+		/**
+         * @const
+         * @private
+         */
+        THIS = 'this',
 
         /**
          * @const
