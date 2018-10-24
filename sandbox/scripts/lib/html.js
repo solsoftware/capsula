@@ -18,7 +18,7 @@ limitations under the License.
  * @file HTML module provides a mechanism to bind the world of capsules to the world of HTML using both templates and object-orientation. Read [more]{@link module:html}.
  * @copyright 2018 SOL Software
  * @license Apache-2.0
- * @version 0.1.0
+ * @since 0.1.0
  */
 
 (function (root, factory) {
@@ -254,7 +254,7 @@ limitations under the License.
          * let span = new HTMLElement('span'), // create an instance of HTMLElement
          * text = new html.Text('Hello world'); // create an instance of Text
          * span.hook.hook(text.loop); // put the text inside the span
-         * span.loop.render(document.body); // put the span into the body
+         * span.loop.renderInto(document.body); // put the span into the body
          * console.log(span.getInnerHTML()); // Hello world
          *
          * @memberof module:html
@@ -1264,7 +1264,7 @@ limitations under the License.
          * @exports html
          * @requires module:capsula
          * @requires module:services
-         * @version 0.1.0
+         * @since 0.1.0
          */
         var ns = {
             Text: Text$,

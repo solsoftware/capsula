@@ -18,7 +18,7 @@ limitations under the License.
  * @file Capsula.js module introduces the encapsulation model and all the essential concepts of the Capsula library. Read [more]{@link module:capsula}.
  * @copyright 2018 SOL Software
  * @license Apache-2.0
- * @version 0.1.0
+ * @since 0.1.0
  */
 
 (function (root, factory) {
@@ -648,7 +648,11 @@ limitations under the License.
          *         capsule: Part,
          *         args: 'this.args'
          *     },
-         *     p5: {                 // arguments created "on spot" using function
+         *     p5: {                 // the FullFeatured capsule instance (this) given as an argument
+         *         capsule: Part,
+         *         args: 'this'
+         *     },
+         *     p6: {                 // arguments created "on spot" using function
          *         capsule: Part,
          *         deferredArgs: function(){
          *             return {message: 'Hello world'};
@@ -2001,7 +2005,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default loop of this capsule, a loop that can act as a child in the current context of execution. When there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * Returns the default loop of this capsule, a loop that can act as a child in the current context of execution. 
+		 * <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one loop.
          *
          * @public
@@ -2016,7 +2021,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution. When there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution. 
+		 <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one hook.
          *
          * @public
@@ -2035,7 +2041,8 @@ limitations under the License.
         // *****************************
 
         /**
-         * Returns the default hook of this capsule, a hook that can act as a child in the current context of execution. When there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * Returns the default hook of this capsule, a hook that can act as a child in the current context of execution. 
+		 <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one hook.
          * <p> This method could only be called from the capsule's interior, i.e. only with "this".
          *
@@ -2051,7 +2058,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution. When there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution. 
+		 <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one loop.
          * <p> This method could only be called from the capsule's interior, i.e. only with "this".
          *
@@ -4704,7 +4712,7 @@ limitations under the License.
         // Utility Functions
         // *****************************
 
-        function getPieceType_(owner, name, compiled, in1, in2) {
+        function getPieceType_(owner, name, compiled) {
             var targetCompiledDef;
             if (owner === 'this') {
                 targetCompiledDef = compiled;
@@ -4732,8 +4740,10 @@ limitations under the License.
                 return ElementType.METHOD;
             else if (Object.keys(targetCompiledDef['publicMethods']).indexOf(name) > -1)
                 return ElementType.METHOD;
-            else
+            else if (owner === 'this')
                 return ElementType.OTHER;
+            else
+                return ElementType.UNKNOWN;
         }
 
         /**
@@ -4749,7 +4759,9 @@ limitations under the License.
                 args = def.deferredArgs.apply(capsule, initArgs);
             }
             if (args === INIT_ARGS)
-                args = initArgs; // forward owner's arguments
+                args = initArgs; // use owner's arguments
+			else if (args === THIS)
+                args = capsule; // use owner capsule
             if (!isArray_(args) && !isArguments_(args))
                 args = [args]; // make it array
             return args;
@@ -5058,6 +5070,12 @@ limitations under the License.
          * @private
          */
         INIT_ARGS = 'this.args',
+		
+		/**
+         * @const
+         * @private
+         */
+        THIS = 'this',
 
         /**
          * @const
@@ -5397,7 +5415,7 @@ limitations under the License.
          * <p> To create new Capsule class, use [defCapsule]{@link module:capsula.defCapsule} method.
          * @exports capsula
          * @requires module:services
-         * @version 0.1.0
+         * @since 0.1.0
          */
         var ns = {
             // define capsule
