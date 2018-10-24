@@ -28,7 +28,7 @@ nav: true
 	- [State Machines](#state-machines)
 	- [Contextualization](#contextualization)
 	- [Error Handling](#error-handling)
-- [Protected State](#protected-state)
+- [Protected Data](#protected-data)
 - [Building User Interfaces](#building-user-interfaces)
 	- [Object-Oriented Approach](#object-oriented-approach)
 	- [Working with Templates](#working-with-templates)
@@ -363,7 +363,7 @@ var Application = capsula.defCapsule({
 });
 ```
 
-> Use ```this.args``` keyword to tell that arguments of the owner capsule should be used to instantiate part capsule.
+> Use ```'this.args'``` string (keyword) to tell that arguments of the owner capsule should be used as well to instantiate the part capsule. Similarly, use ```'this'``` string (keyword) to tell that the owner capsule itself should be used to instantiate the part capsule.
 
 Now the *Application* capsule could be instantiated like this:
 
@@ -535,7 +535,7 @@ archive.process({body: 'Hello World!'});
 
 Yes, it fails. This is because the fake ```process``` method is not treated as a regular capsule's method and does not switch context to message archive capsule when being called. The code of this method is actually being executed in the outer context (i.e. the context from where the fake method was called) instead of from the message archive context. Being in the outer context, any attempt to access a protected property of the message archive capsule would fail with *out of context* error. In this case the line ```message = this.encrypt(message);``` would be the place where it fails, since this is the place where a protected property is first being used. Had no property access occurred inside the process method, it would have completed without an error.
 
-One could ask why it didn't fail at the ```if (this.useEncryption)``` line? Well, this is because ```useEncryption``` datum is not special property of the message archive capsule. It is a simple JavaScript property (similarly to a fake method, we could name it a *fake property*). It could be regarded as public property accessible from anywhere in your code. To learn how to declare datum or data as capsule's property (having usual access protection), check [Protected State]({{ "/tutorial#protected-state" | relative_url }}) or just keep reading.
+One could ask why it didn't fail at the ```if (this.useEncryption)``` line? Well, this is because ```useEncryption``` datum is not special property of the message archive capsule. It is a simple JavaScript property (similarly to a fake method, we could name it a *fake property*). It could be regarded as public property accessible from anywhere in your code. To learn how to declare datum or data as capsule's property (having usual access protection), check [Protected Data]({{ "/tutorial#protected-data" | relative_url }}) or just keep reading.
 
 ### Operations
 
@@ -801,9 +801,9 @@ Call to ```send``` returns *Promise* object which allows for handling the result
 
 ### State Machines
 
-Capsula provides support for handling complex behavioral aspects of your system using the well-known conceptual tool: [state machines](https://en.wikipedia.org/wiki/Finite-state_machine){:target="_blank"}.
+Capsula provides support for handling complex behavioral aspects of your system using the well-known conceptual tool: [state machines](https://en.wikipedia.org/wiki/Finite-state_machine){:target="_blank"}. State machines are really good and powerful. They allow us to model complex behavior in a declarative way, instead of using tons of ifology which is very hard to implement and later maintain.
 
-State machine models the lifecycle of an object, usually called *the host object*. During its lifecycle, the host object moves from one state to another according to transitions that connect states and events that trigger these moves. At any point in time, the state machine keeps track of the host object's state. What's more, by running the host object's lifecycle the state machine orchestrates execution of pieces of behavior that reside in host object's methods and functions of the state machine itself.
+State machine models the lifecycle of an object, usually called *the host object*. During its lifecycle, the host object moves from one state to another according to transitions that connect states and events that trigger these moves. At any point in time, the state machine keeps track of the host object's state. What's more, by running the host object's lifecycle the state machine orchestrates execution of pieces of host object's behavior that reside in host object's methods and functions of the state machine itself.
 
 The ```sm``` module doesn't really depend on other modules, so you can use it in isolation. It allows you to model lifecycle of any JavaScript object i.e. it's not exclusively built for capsules.
 
@@ -884,7 +884,7 @@ Anyhow, the lifecycle object we use to:
 <tr><td>Class</td><td> <a href="{{ "/api-reference/module-sm.StateMachine.html" | relative_url }}" target="_blank">StateMachine</a></td></tr>
 </tbody></table>
 
-Note that instantiating state machine class with the host object as an argument allows the same host object to have multiple state machines (and multiple states); this is when the host object has lifecycles in multiple semantic contexts and we want manage all of them.
+Note that instantiating state machine class with the host object as an argument allows the same host object to have multiple state machines (and multiple parallel states); this is when the host object has lifecycles in multiple semantic contexts and we want manage all of them.
 
 #### States
 
@@ -1044,11 +1044,13 @@ The ```next``` property can have one or more triggerless transitions listed in i
 
 A state may have multiple triggerless transitions, either directly in it or indirectly through parent states. When a state is entered, all the triggerless transitions that belong to states that just got entered are guard-tested and only the first one whose guard returns true is fired. It makes sense to ensure that exactly one guard returns true for any state at any point in time.
 
+The concept of triggerless transitions goes beyond what's typical for state machines. We introduce it since in some situations it proves very useful. For example, it allows us to create [algorithms](https://en.wikipedia.org/wiki/Algorithm){:target="_blank"} using the state-machine apparatus. 
+
 In our example, after calling the ```init``` method of the ```applicationLifecycle``` object the host object (```application```) starts from the initial state of our state machine. Since that state is not steady, the lifecycle immediately moves forward to the ```working``` state. The ```working``` state is composite so we continue from its initial state and immediately move to the ```TOP.working.running``` state executing its entry action before settling down in it. This is where the host object stays for a while and waits for the new event.
 
 If the ```pause``` event happens (i.e. if we call ```process('pause')```), the transition with that name is selected for firing. Before firing its guard is tested and it returns true; so the lifecycle continues to the ```TOP.working.pausing``` state executing the transitions's effect along the way. Now, the host object settles down in the ```pausing``` state. Again, the host object waits for the new event.
 
-If the ```stop``` event happens at this point, the host object would react since the ```stop``` event is declared for the parent (```working```) state which means it is relevant for all its child states (```running``` and ```pausing```). The guard does not exit, so we immediately move to the ```final``` state, executing the exit action of the ```pausing``` state and entry action of the ```final``` state in this order.
+If the ```stop``` event happens at this point, the host object would react since the ```stop``` event is declared for the parent (```working```) state which means it is relevant for all its child states (```running``` and ```pausing```). The guard does not exist, so we immediately move to the ```final``` state, executing the exit action of the ```pausing``` state and entry action of the ```final``` state in this order.
 
 ### Contextualization
 
@@ -1146,7 +1148,7 @@ app.newMessage({body: 'Hello!'}); // console: failed
 
 Make sure you don't have errors popping out of the ```handle``` method, since that would produce an endless recursion.
 
-## Protected State
+## Protected Data
 
 Now that we've covered how to work with methods and operations, let's see how to handle data in an encapsulated way, i.e. how to protect data inside capsules. Basically, the idea is to use a wrapper class that stores the data and enforces protection.
 
@@ -1215,7 +1217,7 @@ var Application = capsula.defCapsule({
 
     // wires
     'delivery.onDelivered': ['archive.process', 'this.onDelivered'],
-    'newMessage': 'delivery.process',
+    'this.newMessage': 'delivery.process',
 
     // constructor
     init: function(){
@@ -1236,22 +1238,22 @@ app.newMessage({body: 'The first message.'});
 app.newMessage({body: 'The second message.'});
 
 app.messageLog.get()[0]; // Error: Oops! Make sure you do this in the right context.
-app.getMessage(0); // "{"body":"The first message."}"
+app.getMessage(0); // "{"body":"The first message." ...}"
 
 app.resetLog();
 ```
 
-The following changes are introduced to the *Application* capsule. Constructor ```init``` function is added to create protected data, i.e. the protected message log array. The ```newMessage``` input operation is now wired to both ```delivery.process``` operation and function that stores each received message to the message log. Methods ```getMessage``` and ```resetLog``` are added to return logged message based on the order of appearance and to reset the log so it doesn't get too large.
+In the code above, the constructor ```init``` creates the protected data, i.e. the protected message log array. The ```newMessage``` input operation is now wired both to the function that stores each received message to the message log and to the ```delivery.process``` operation. Methods ```getMessage``` and ```resetLog``` are added to return logged message based on the order of appearance and to reset the log so it doesn't get too large, respectively.
 
 Creating protected data could be done declaratively as well. 
 
-For example, if we replace the constructor which initializes ```messageLog``` with a new array with the following:
+For example, we could replace the constructor which initializes ```messageLog``` with the following:
 
 ```js
-messageLog: '*[]',
+messageLog: '*[]'
 ```
 
-we would get exactly the same result. The ```'*[]'``` is basically a keyword that means *new array for every instance*. All supported keywords are given here:
+The ```'*[]'``` is basically a keyword that means *new array for every instance*. All supported keywords are given here:
 
 ```js
 myObject: '*{}',        // new Object in this.myObject
@@ -1265,10 +1267,10 @@ myWeakSet: '*WeakSet',  // new WeakSet in this.myWeakSet
 Of course, instead of any of the given keywords, we could use any other value to initialize protected data, however in that case each capsule instance would have its protected data initialized with that particular value. For example:
 
 ```js
-myArray: [1, 2, 3],
+myArray: [1, 2, 3]
 ```
 
-would mean that each capsule instance would have ```myArray``` protected data object initialized with the same array of three numbers.
+would mean that each capsule instance would have ```myArray``` protected data object initialized with exactly the same array of three numbers.
 
 Finally, let's see the most general case to specify protected data. It looks similar to specifying parts. For each data, you provide a function to be called once for each capsule instance and also arguments for that function. The function could be called with or without new operator, depending on whether you specify it with the ```call``` or with the ```new``` keyword.
 
@@ -1277,74 +1279,147 @@ myObject: {
     call: function(arg){ // "call" or "new"
         return {name: arg}; // myObject becomes what is returned here
     },
-    args: 'this.args' // (args / arguments / deferredArgs); the same as with parts
-},
+    args: ... // (args / arguments / deferredArgs); the same as with parts
+}
+```
+
+Having this in mind, let's add a state machine to our application capsule as a protected data:
+
+```js
+applicationLifecycle: {
+    new: ApplicationLifecycle,
+    args: 'this' // 'this' means application object as a constructor argument
+}
+```
+
+As you already know, state machine instance requires an object to work with (an object whose lifecycle is to be managed by it). Hence, we use ```'this'``` keyword to provide the state machine with the application object.
+
+Once we have our state machine set up, we can use it in the usual way throughout methods of the application capsule:
+
+```js
+this.applicationLifecycle.get().process('event_name');
 ```
 
 ## Building User Interfaces
 
-Apart from the novel encapsulation model which is useful in any application domain, Capsula exhibits concepts specifically dedicated to the domain of user interfaces. These concepts are developed to decouple managing hierarchy of widgets from managing any other behavior.
+In addition to concepts explained above, Capsula exhibits concepts specifically dedicated to the domain of user interfaces. These concepts are developed to decouple managing hierarchy of widgets from managing any other behavior.
 
-A capsule is not a widget per se. However, a capsule may represent a widget. What's more, it may represent a group of widgets. The layout of this group of widgets may be fixed inside the capsule or left partly or completely unspecified. In other words, Capsula allows engineers to combine mutually interacting widgets into a larger components (capsules) without necessarily gluing them together in terms of layout. This enables creating extremely rich and complex components that have very high reuse potential.
+A capsule is not a widget per se. However, a capsule may represent a widget. What's more, it may represent a group of widgets. The layout of this group of widgets may be fixed inside the capsule or left partly or completely unspecified. In other words, Capsula allows for combining mutually interacting widgets into a larger components (capsules) without necessarily gluing them together in terms of layout. This preserves reuse potential of capsules while increasing their complexity.
 
-Capsula provides both object-oriented and template-based way of building user interfaces. Anyhow, the same concepts are used in both ways. Let's say a few words on these concepts first and then proceed to explaining both of the supported ways of building user interfaces.
+In the Capsula library, widget hierarchy is built by managing hierarchies of hooks and loops. Hook is a public property of capsule. It is a representation of parent widget in the parent-child relationship. Loop is also a public property of capsule. Unlike hook which represents parent widget, loop is a representation of child widget in the parent-child relationship. A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent widget and more than one child widget, all at the same time.
 
-In the Capsula library, widget hierarchy is built by managing hierarchies of hooks and loops instead of dealing with widgets directly.
-
-Hook is a public property of a capsule. It is a representation of parent widget in the parent-child relationship. Loop is also a public property of a capsule. Unlike hook which represents parent widget, loop is a representation of child widget in the parent-child relationship. 
-
-A capsule may have as many hooks and as many loops as necessary. Hence, a capsule may represent more than one parent widget and more than one child widget, all at the same time. 
+Capsula provides both object-oriented and template-based way of building user interfaces; the same concepts are used in both ways.
 
 ### Object-Oriented Approach
 
-To work with DOM elements in an object-oriented way, we've provided Element capsule in the html module. Basically, it's a wrapper capsule for DOM elements and can be used either to wrap an existing DOM element or to create a new one (and wrap it).
+To work with DOM elements in an object-oriented way, we've provided ```Element``` capsule in the *html* module. Basically, it's a wrapper capsule for DOM elements and can be used either to wrap an existing DOM element or to create a new one (and wrap it).
 
-Element capsule has one loop named *loop*. This loop enables wrapped DOM element to be included on the page (as a child of another DOM element); in other words, this loop represents wrapped DOM element as a child widget. 
+Element capsule has one loop named *loop*. This loop represents wrapped DOM element as a child widget. In other words, this loop enables wrapped DOM element to be included on the page as a child of another DOM element.
 
-Element capsule has one hook named *hook*. This hook enables wrapped DOM element to include other DOM elements inside itself (as its children); in other words, this hook represents wrapped DOM element as a parent widget.
+Element capsule has one hook named *hook*. This hook represents wrapped DOM element as a parent widget. In other words, this hook enables wrapped DOM element to include other DOM elements inside itself as children.
 
 Element capsule also has many public methods that enable us to work with wrapped element's attributes, properties, CSS classes, inner HTML, etc.
 
-To create new HTML (DOM) element and new Element capsule as its wrapper:
+<table class="class">
+<thead><tr><th colspan="2">[class] <a href="{{ "/api-reference/module-html.Element.html" | relative_url }}" target="_blank">Element</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Wrapper capsule for DOM elements. Can be used either to wrap an existing DOM element or to create a new one (and wrap it).</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-html.html" | relative_url }}" target="_blank">html</a></td></tr>
+</tbody></table>
+
+To create new Element capsule as a wrapper of a new DOM element:
 
 ```js
-// using tag name
 var div = new html.Element('div');
 ```
 
-To create new Element capsule to wrap an existing DOM element:
+To create new Element capsule as a wrapper of an existing DOM element:
 
 ```js
 var div = new html.Element(document.getElementById('myDiv'));
 ```
 
-Now let's create one button and put it inside the div:
+To create a button and put it inside a div:
 
 ```js
 var button = new html.Element('button');
 button.setInnerHTML('Open');
-div.hook.tie(button.loop);
+div.hook.add(button.loop); // puts button into div
 ```
 
-Note that instead of adding one capsule to another, here we've added a loop of one capsule to a hook of another. This is because in general a capsule may represent more that one widget and we have to specify exactly what goes whare. 
+The ```button.loop``` is a representation of our button in a child role. The ```div.hook``` is a representation of our div in a parent role. Instead of using capsules directly, here we use these two representations to create a DOM hierarchy. The reason for this is in the fact that in general case one capsule may represent more widgets (may have more than one hook or more than one loop, or both) and we have to specify which two widgets are going to form a parent-child relationship.
 
-Hooks and loops are being added using the tie method. We call this tying while connections we call ties.
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Hook.html" | relative_url }}#add" target="_blank">add</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Ties this hook to the given hooks and loops.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Hook.html" | relative_url }}" target="_blank">Hook</a></td></tr>
+</tbody></table>
+
+But this is only in general case. In many other cases however, a capsule may represent only one widget in a child or a parent role. In such cases, the capsule itself may be used in creation of parent-child relationships. Element capsule is one such an example. It has only one hook and only one loop. So, it can appear either as a parent or as a child in statements that create widget hierarchy. In other words, the following line would be equivalent to the line given above:
+
+```js
+div.add(button); // equivalent to div.hook.add(button.loop)
+```
+
+When a capsule has only one hook or loop it is safe to use it in an abbreviated statement like the one above. Depending on the statement's context, capsule's single hook or capsule's single loop would be used. In our example, the ```div```'s single hook and the ```button```'s single loop are used to create a parent-child relationship.
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}#add" target="_blank">add</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Ties select hook or loop of this capsule (parent) to select hooks or loops of the given capsules (children).</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></td></tr>
+</tbody></table>
+
+However, capsules may have more than one hook or loop. In such cases, we have to either a) use non-abbreviated statements (like ```div.hook.add(button.loop)```) or b) modify or extend capsule classes in a way to provide implementation for methods that, depending on a context of usage, return hook or loop to be used in abbreviated statements. In other words, in a capsule class that has many hooks, we can override ```getDefaultParentHook``` method to return hook that would be used as a parent when capsule of that class is used in abbreviated statements. Similarly, in capsule class that has more than one loop, we override ```getDefaultChildLoop``` to return loop that would be used as a child in abbreviated statements.
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}#getDefaultParentHook" target="_blank">getDefaultParentHook</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></td></tr>
+</tbody></table>
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}#getDefaultChildLoop" target="_blank">getDefaultChildLoop</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Returns the default loop of this capsule, a loop that can act as a child in the current context of execution.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></td></tr>
+</tbody></table>
+
+In some cases a loop can act as a parent for other loops; similarly, a hook can sometimes act as a child to another hook. It makes sense to override additional two methods ```getDefaultParentLoop``` and ```getDefaultChildHook``` so that we can use the capsules in such cases as well. It would be explained later when these cases usually happen.
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}#getDefaultParentLoop" target="_blank">getDefaultParentLoop</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></td></tr>
+</tbody></table>
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}#getDefaultChildHook" target="_blank">getDefaultChildHook</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Returns the default hook of this capsule, a hook that can act as a child in the current context of execution.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></td></tr>
+</tbody></table>
+
+As show above, the Capsula library provides for the usual way of creating widget hierarchy by adding one widget to another. However, Capsula provides for the general case where a single capsule represents more widgets, both in parent and child roles. In the following lines you will learn when this becomes a real advantage.
 
 Now, let's add a bit of interaction to this example.
 
 ```js
 button.addEventOutput('click'); // let's listen for the click event
 
-var dialog = new html.Element('dialog'); // create a dialog element
+var dialog = new html.Element('dialog'); // create a dialog element (dialog HTML tag)
 dialog.setInnerHTML('This is a dialog!');
-div.hook.tie(dialog.loop); // add dialog to the div
+div.add(dialog);
 
 button.click.wire(function(){ // click handler
-    dialog.setAttribute('open', null); // opens it; attribute value not important
+    dialog.setAttribute('open', ''); // opens it; attribute value not important
 });
 ```
 
-So now we have a div with two interacting widgets inside. Let's try to encapsulate all this into a *ShowInfo* capsule that accepts info message as a constructor parameter that should appear inside the dialog.
+So now we have a div with two interacting widgets inside: a button and a dialog. Let's try to encapsulate all this into a *ShowInfo* capsule. It should accept a dialog message as a constructor argument.
 
 ```js
 var ShowInfo = capsula.defCapsule({
@@ -1352,29 +1427,62 @@ var ShowInfo = capsula.defCapsule({
     init: function(message){
         var div = new html.Element('div'); // creates a part
         var button = new html.Element('button'); // creates a part
+        var dialog = new html.Element('dialog'); // creates a part
         button.setInnerHTML('Open');
         button.addEventOutput('click');
-        div.hook.tie(button.loop);
-        this.dialog = new html.Element('dialog'); // creates a part in this.dialog
         dialog.setInnerHTML(message);
-        div.hook.tie(dialog.loop);
+        div.add(button); // i.e. div.hook.add(button.loop)
+        div.add(dialog); // i.e. div.hook.add(dialog.loop)
+        
         button.click.wire(this.clickHandler);
-        div.loop.tie(this.root); // this is how div gets represented by the root loop
+
+        // this is to represent div externally by the root loop
+        this.root.add(div.loop); // or simply: this.add(div)
+
+        this.dialog = dialog; // to be able to access dialog part in a clickHandler
     },
     clickHandler: function(){
-        this.dialog.setAttribute('open', null);
+        this.dialog.setAttribute('open', '');
     }
 });
 
 var info = new ShowInfo('Have a nice day.');
-info.root.renderInto(document.body); // let's put our capsule into the page body
+var body = new html.Element(document.body); // body wrapper
+body.hook.add(info.root); // i.e. body.add(info);
 ```
 
-Note that renderInto method allows you to directly couple the world of DOM elements with the world of capsules.
+Let's now discuss what we have here. In the second line, we create the ```root``` loop for the ```ShowInfo``` capsule. This loop will later be used to place this capsule into its parent. Exactly that is done in the last line where we put our ```info``` instance into the page's body. It remains to be answered what does the ```root``` loop represent from the interior of our ```ShowInfo``` capsule? That question is answered in the line ```this.root.add(div.loop);``` where we tie the ```root``` loop to the ```div```'s loop. In other words, when the ```root``` loop gets tied to its parent, it basically refers to the ```div```. In this case we see that the ```root``` loop acts as a parent to of the ```div```'s loop. It may look a bit strange but instead of thinking of it as a parent, you can think of it in a different way, i.e.: the ```root``` loop is a sort of public counterpart of the internal loop (a sort of *getter*).
 
-Here, the click handler is created as a protected method of ShowInfo capsule, representing a sort of its internal behavior.
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Loop.html" | relative_url }}#add" target="_blank">add</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Ties this loop to the given loops.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Loop.html" | relative_url }}" target="_blank">Loop</a></td></tr>
+</tbody></table>
 
-Now, the same thing could be achieved in a much more declarative way:
+Let's once more get back to abbreviated way of creating widget hierarchy. In our ```ShowInfo``` example, we could use ```this.add(div)``` instead of ```this.root.add(div.loop)```. This is because there is no ambiguity: the ```ShowInfo``` capsule has only one loop that can act as a parent in statements that get executed inside its context (internally). Had the ```ShowInfo``` capsule had more than one loop, we would have been forced to provide an implementation of ```getDefaultParentLoop``` method to return a default parent loop in order to be able to use ```ShowInfo``` capsule internally in abbreviated statements as a parent.
+
+Similarly, looked from the outside, had the ```ShowInfo``` capsule had more than one loop, we would have been forced to provide an implementation of ```getDefaultChildLoop``` method to return a default child loop in order to be able to use ```ShowInfo``` capsule externally in abbreviated statements as a child. (By the way, there's no problem in having default child loop and default parent loop being the same loop.)
+
+The similar logic holds for hooks. When used externally a capsule may provide a hook acting as a parent. Internally however, a capsule may provide hook acting as a child only. It is basically an inverted logic than the one behind loops.
+
+Let's continue with our example and explain a few more details. The ```dialog``` part had to be given a non-local reference in ```this.dialog = dialog;``` line in order to be able to use it in other methods of the ```ShowInfo``` capsule, like in ```clickHandler```. Dynamically created parts, such as our div, button, and dialog, are equivalent to declaratively created ones; the only difference is in the fact that they don't get explicitly referenced (from ```this```), unless you do it yourself.
+
+Final remark. In cases when we need to directly couple the world of capsules to the world of DOM elements, like in the last two lines of the example above, we can use the ```renderInto``` (shortcut) method:
+
+```js
+info.root.renderInto(document.body); // instead of the last two lines
+```
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Loop.html" | relative_url }}#renderInto" target="_blank">renderInto</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Renders this loop (i.e. the DOM element this loop represents) into the given DOM element.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Loop.html" | relative_url }}" target="_blank">Loop</a></td></tr>
+</tbody></table>
+
+Now, let's see how to implement the same capsule in a more declarative way:
+
 
 ```js
 var ShowInfo = capsula.defCapsule({
@@ -1397,7 +1505,7 @@ var ShowInfo = capsula.defCapsule({
     },
     'div.hook': ['button.loop', 'dialog.loop'],
     'this.root': 'div.loop',
-    'button.!click': 'this.clickHandler', // pay attention to ! sign (see bellow)
+    'button.click': 'this.clickHandler', // pay attention to ! sign (see bellow)
     clickHandler: function(){
         this.dialog.setAttribute('open', null);
     }
@@ -1409,17 +1517,22 @@ info.root.renderInto(document.body);
 
 As show above, creating parts, tying hooks and loops, and wiring operations (and methods in this case) can all be done in a declarative way.
 
-One thing should be noted here. Declarative wires and ties are being checked during execution of defCapsule so that errors in capsule definition object get discovered as early as possible. In cases when part creates its operation dynamically, for example in constructor, that operation cannot be checked at the time of defCapsule execution of its owner capsule. This is the case with our button. It creates its output click operation dynamically, so we have to designate that this operation should not be checked. We do that by saying ```button.!click``` instead of just ```button.click``` in the wire declaration.
-
-Also note that making the button listen to click events could be done during construction either as shown above where args property contains additional array of events, or in case of imperative construction like this:
+Also note that making the button listen to click events could be done during construction either as shown above where ```args``` property contains additional array of events, or in case of imperative construction like this:
 
 ```js
 var button = new html.Element('button', ['click']); // more events could be added
 ```
 
-Whether being a fan of imperative or declarative style, at this point you have the ShowInfo capsule encapsulating two interacting widgets. However, the ShowInfo capsule specifies not only how the two widgets interact, but also how they are positioned in terms of layout. That's not really flexible.
+Whether being a fan of imperative or declarative style, at this point you have the ```ShowInfo``` capsule encapsulating two interacting widgets. However, our capsule specifies not only how the two widgets interact, but also how they are positioned in terms of layout (both are placed inside a container div):
 
-Let's try to keep interaction encapsulated while leaving the layout of interacting widgets unspecified. We no longer need the div part, since we are not going to render button and dialog inside it. We are going to leave the layout decisions outside of the ShowInfo capsule.
+```html
+<div>
+    <button>Open</button>
+    <dialog open="null">Have a nice day.</dialog>
+</div>
+```
+
+Sometimes that may be a bit inflexible. What if we want to encapsulate these two interacting widgets without specifying how they are positioned? Are we able to encapsulate our dialog, button, and interaction between them, without placing them under a common container or one next to another? In Capsula, yes. We no longer need the div part, since we are not going to render button and dialog inside it. We are going to leave the layout decisions outside the ```ShowInfo``` capsule.
 
 ```js
 var ShowInfo = capsula.defCapsule({
@@ -1438,7 +1551,7 @@ var ShowInfo = capsula.defCapsule({
     },
     'this.buttonLoop': 'button.loop', // tying the button to the buttonLoop
     'this.dialogLoop': 'dialog.loop', // tying the dialog to the dialogLoop
-    'button.!click': 'this.clickHandler',
+    'button.click': 'this.clickHandler',
     clickHandler: function(){
         this.dialog.setAttribute('open', null);
     }
@@ -1446,72 +1559,59 @@ var ShowInfo = capsula.defCapsule({
 
 var info = new ShowInfo('Have a nice day.');
 
-// now, let's decide where to put the button and the dialog
+// now, let the user of info capsule decide where to put the button and the dialog
 info.dialogLoop.renderInto(document.getElementById('div1'));
 info.buttonLoop.renderInto(document.getElementById('div2'));
 ```
 
-Now we have our ShowInfo capsule much more flexible, since it only encapsulates interaction, while the layout of its parts is left for someone else (who is using ShowInfo capsule) to specify. This is the core idea behind the mechanism of hooks and loops.
+Now we have our ```ShowInfo``` capsule much more flexible, since it only encapsulates structure and interaction, while the layout of its parts is left for someone else to specify. This is the core idea behind the mechanism of hooks and loops. So, in this case we get:
 
-The mechanism of hooks and loops enables us to decide which layout decisions we want to make inside a capsule and which to leave out of it. This enables us to increase complexity of capsules while preserving the capsule's potential to be reused, because in user interface development most of inflexibility comes from fixing the layout of your components in advance.
-
-#### Working With Native DOM Elements
-
-Sometimes it is useful to have access to low-level APIs in order to be able to achieve your goals. Let's create our ShowInfo capsule using the native (DOM) code.
-
-```js
-var ShowInfo = capsula.defCapsule({
-    loops: ['buttonLoop', 'dialogLoop'], // one for the button, one for the dialog
-    init: function(message){
-        // native
-        var domButton = document.createElement('button');
-        domButton.innerHTML = 'Open';
-        domButton.addEventListener('click', capsula.contextualize(this.clickHandler));
-		
-        this.buttonLoop.render(domButton); // renders our button into its loop
-		
-        // native
-        this.domDialog = document.createElement('dialog');
-        this.domDialog.innerHTML = message;
-		
-        this.dialogLoop.render(this.domDialog); // renders our dialog into its loop
-    },
-    clickHandler: function(){
-        // native
-        this.domDialog.setAttribute('open', null);
-    }
-});
-
-var info = new ShowInfo('Have a nice day.');
-info.dialogLoop.renderInto(document.getElementById('div1'));
-info.buttonLoop.renderInto(document.getElementById('div2'));
+```html
+<div id="div1">
+    <dialog open="null">Have a nice day.</dialog>
+</div>
+...
+<div id="div2">
+    <button>Open</button>
+</div>
 ```
 
-Please note that even in cases when you use native code you can easily encapsulate it and then use your capsule like any other regular capsule.
+The ```dialog``` and the ```button``` are interacting as usual and this is nicely encapsulated into a single capsule. However, they are no longer fixed in terms of layout i.e. they can be placed anywhere on the screen independently of one another.
+
+The mechanism of hooks and loops enables us to decide which layout decisions we want to make inside a capsule and which to leave out of it. This enables us to increase complexity of capsules (by encapsulating ever more parts inside) while preserving the capsule's potential to be reused (since parts are not bound to one another in terms of layout). In user interface development most of inflexibility comes from fixing the layout of your components in advance.
 
 ### Working with Templates
 
-To build portions of user interface using templates, we've provided Templae capsule in the html module. 
+We've provided the ```Template``` capsule in the *html* module to allow for building portions of user interface using templates.
 
-Template capsule provides means to easily reuse portions of HTML code enriched with a bit of behavior. It introduces HTML-based templates to the capsules code. By doing so, it provides a coupling between capsules and HTML code and allows for making a perfect mix of template-based and object-oriented code, i.e. for having the benefits of both worlds.
+Template capsule provides means to easily reuse portions of HTML code and enrich them with a bit of behavior. It introduces HTML-based templates to the capsules code. By doing so, it provides a coupling between capsules and HTML code and allows for making a perfect mix of template-based and object-oriented code, i.e. for having the benefits of both worlds.
 
 Template capsule helps in situations when creating a portion of user interface is easier using templates over object-orientation. Still, the template capsule preserves semantics of capsules and acts as any other capsule with input and output operations, hooks, and loops which makes it easy to combine with other capsules. In other words, the world of templates and the world of capsules are perfectly compatible and semantically coupled.
+
+<table class="class">
+<thead><tr><th colspan="2">[class] <a href="{{ "/api-reference/module-html.Template.html" | relative_url }}" target="_blank">Template</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Template capsule provides means to easily reuse portions of HTML code and enrich them with a bit of behavior.</td></tr>
+<tr><td>Module</td><td> <a href="{{ "/api-reference/module-html.html" | relative_url }}" target="_blank">html</a></td></tr>
+</tbody></table>
 
 Template capsule is easily instantiated from the portion of HTML code: 
 
 ```js
-var template = new html.Template(`<div>HTML code here</div>`);
+var template = new html.Template(`...HTML code here...`);
 ```
 
-The HTML code of your template may have more root elements (tags), i.e. there is no requirement for it to be rooted in a single HTML element.
+There are several things here that should be remembered.
 
-The HTML code used for instantiating Template capsule may have special attributes, i.e. attribute-based extensions for hooks, loops, and operations. This is a) to enable template sections (root tags) to be included somewhere on the HTML page, b) to enable template to include other HTML content under its tags, and c) to enrich the template with a bit of behavior.
+Firstly, the HTML code of your template may have many root tags (elements), i.e. there is no requirement for template to be rooted in a single HTML tag. Each of the root HTML tags must have a ```loop``` attribute with a unique non-empty value. This is because a loop is created in a template capsule for each of them. Later we can use these loops to place our root tags somewhere on the page. Each loop would get its name from the value specified in the loop attribute of the corresponding tag.
 
-Initially, the Template capsule has no methods, operations, hooks, or loops. However it dynamically creates them during instantiation, depending on how the abovementioned attribures are being used within the template.
+Secondly, apart from loop attributes, the HTML code used for instantiating template capsule may have other attribute-based extensions, i.e. attributes for hooks and operations. All this is a) to enable template sections (root tags) to be included somewhere on the HTML page, b) to enable template to include other HTML content under its tags, and c) to enrich the template with a bit of behavior. According to these attributes, template capsule dynamically creates hooks, loops, and operations during instantiation.
+
+Finally, we usually use template literals (backticks) to surround template strings; this helps easily distinguish templates from other strings in your code (but be careful, IE doesn't support them yet).
 
 The following attributes of HTML elements (tags) inside the template are supported:
 
-- attribute *loop* - HTML element (tag) having loop="myLoop" attribute would be represented by a loop named "myLoop" of the Template capsule. For example, HTML code ```<div loop="myLoop">...</div>``` would make template capsule have loop named myLoop that represents the div element as a child. Element having loop attribute must be one of the root elements in the templete code. Moreover, root elements have to have loop attribute in order to be displayed on the page. Since HTML code of template capsule may have more than one root element, consequently the template capsule may have more than one loop.
+- attribute *loop* - HTML element (tag) having ```loop="myLoop"``` attribute would be represented by a loop named ```myLoop``` of the template capsule. For example, HTML code ```<div loop="myLoop">...</div>``` would make template capsule have loop named ```myLoop``` that represents the div element as a child. Element having loop attribute must be one of the root elements in the template code. Moreover, root elements must have ```loop``` attribute in order to be displayed on the page. Since HTML code of template capsule may have more than one root element, consequently the template capsule may have more than one loop.
 
 ```js
 var caps = ...; // this is an arbitrary capsule having hook named myHook
@@ -1526,7 +1626,7 @@ var template = new html.Template(`
 caps.myHook.tie(template.loopX); // places the div with id="abc" into its new parent
 ```
 
-- attribute *hook* - HTML element (tag) having hook="myHook" attribute would be represented as a parent by a hook named "myHook" of the Template capsule. Any element (tag) of the HTML template code may have the hook attribute. Usually however, the leaf elements of the template code have it, as they expect to be filled with new HTML content when their hooks get tied.
+- attribute *hook* - HTML element (tag) having ```hook="myHook"``` attribute would be represented as a parent by a hook named ```myHook``` of the template capsule. Any element (tag) of the HTML template code may have the hook attribute. Usually however, the leaf elements of the template code have it, as they expect to be filled with new HTML content when their hooks get tied.
 
 ```js
 var caps1 = ...; // this is an arbitrary capsule having hook named myHook
@@ -1547,8 +1647,8 @@ caps1.myHook.tie(template.loopX); // places the whole template into its new pare
 template.hookX.tie(caps2.myLoop);
 ```
 
-- attribute *prop* - HTML element (tag) having prop="setProp" attribute would act as a target for "setProp" input operation of the Template capsule. The operation sets new property value for the given property of the target element. The operation has two string arguments: the property name and the property value to be set.
-- attribute *getprop* - HTML element (tag) having getprop="getProp" attribute would act as a target for "getProp" input operation of the Template capsule. The operation returns the property value of the target element. The operation has one string argument: the property name whose value is to be returned.
+- attribute *prop* - HTML element (tag) having ```prop="setProp"``` attribute would act as a target for ```setProp``` input operation of the template capsule. The operation sets new property value for the given property of the target element. The operation has two string arguments: the property name and the property value to be set.
+- attribute *getprop* - HTML element (tag) having ```getprop="getProp"``` attribute would act as a target for ```getProp``` input operation of the template capsule. The operation returns the property value of the target element. The operation has one string argument: the property name whose value is to be returned.
 
 ```js
 // creates template capsule with input operations to get and set h1's properties
@@ -1561,9 +1661,9 @@ if (template.getH1Prop('dir') === 'rtl') // checks the property value
     template.setH1Prop('dir', 'ltr'); // sets the property value
 ```
 
-- attribute *attr* - HTML element (tag) having attr="setAttr" attribute would act as a target for "setAttr" input operation of the Template capsule. The operation sets new attribute value for the given attribute of the target element. The operation has two string arguments: the attribute name and the attribute value to be set.
-- attribute *getattr* - HTML element (tag) having getattr="getAttr" attribute would act as a target for "getAttr" input operation of the Template capsule. The operation returns the attribute value of the target element. The operation has one string argument: the attribute name whose value is to be read.
-- attribute *remattr* - HTML element having remattr="removeAttr" attribute would act as a target for "removeAttr" input operation of the Template capsule. The operation removes the attribute from the target element. The operation has one string argument: the attribute name to be removed.
+- attribute *attr* - HTML element (tag) having ```attr="setAttr"``` attribute would act as a target for ```setAttr``` input operation of the template capsule. The operation sets new attribute value for the given attribute of the target element. The operation has two string arguments: the attribute name and the attribute value to be set.
+- attribute *getattr* - HTML element (tag) having ```getattr="getAttr"``` attribute would act as a target for ```getAttr``` input operation of the template capsule. The operation returns the attribute value of the target element. The operation has one string argument: the attribute name whose value is to be read.
+- attribute *remattr* - HTML element having ```remattr="removeAttr"``` attribute would act as a target for ```removeAttr``` input operation of the template capsule. The operation removes the attribute from the target element. The operation has one string argument: the attribute name to be removed.
 
 ```js
 // creates template capsule with input operations to handle attributes
@@ -1578,7 +1678,7 @@ else
     template.setInputAttr('disabled', false); // sets the attribute value
 ```
 
-- attributes *on* and *output* - HTML element having on="click" and output="clicked" attributes would have 'click' event listener bound to the "clicked" output operation of the Template capsule. The event object itself would be provided as a parameter to the output operation.
+- attributes *on* and *output* - HTML element having ```on="click"``` and ```output="clicked"``` attributes would have *click* event listener bound to the ```clicked``` output operation of the template capsule. The event object itself would be provided as a parameter to the output operation.
 
 ```js
 // creates template capsule with output operation to signal the 'click' event
@@ -1593,7 +1693,7 @@ template.clicked.wire(function(e){
 });
 ```
 
-- attribute *get* - HTML element having get="getMe" attribute would act as a target for "getMe" input operation of the Template capsule. The operation returns the target (DOM) element itself.
+- attribute *get* - HTML element having ```get="getMe"``` attribute would act as a subject for ```getMe``` input operation of the template capsule. The operation simply returns the subject (DOM) element.
 
 ```js
 // creates template capsule with input operation that returns the label element

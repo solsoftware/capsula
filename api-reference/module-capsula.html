@@ -107,7 +107,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5404">line 5404</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5420">line 5420</a>
     </li></ul></dd>
     
 
@@ -247,7 +247,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5245">line 5245</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5261">line 5261</a>
     </li></ul></dd>
     
 
@@ -568,7 +568,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line697">line 697</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line701">line 701</a>
     </li></ul></dd>
     
 
@@ -658,7 +658,7 @@
 
         <p class="code-caption">Full-featured capsule (class)</p>
     
-    <pre class="prettyprint"><code>var FullFeatured = sol.defCapsule({    isAbstract: false, // or true (to prevent creation of direct instances)    base: TheSimplest, // inherit from TheSimplest    init: function(){  // the constructor function        // ...    },    handle: function(error){ // error handler function, for all errors thrown inside this capsule        // ...    },    // hooks and loops    hooks: ['h1', 'h2'], // an array of hooks, or a single string in case of a single hook    loops: 'l1',         // an array of loops, or a single string in case of a single loop    // input declarations    '> in1': null,       // declaration of an input operation    '> in2': function(){ // input operation wired to a protected method with the same name        return 'Hi';    },    '> in3': 'this.out1',            // input operation wired to an existing output operation    '> in4': ['this.out1', 'p1.in'], // input operation wired to several existing output operations    // output declarations    '&lt; out1': null,                   // declaration of an output operation    '&lt; out2': function(arg1, arg2){}, // operation parameters declaratively listed, the body does not count    // filters    'f this.in1': function(){ // operation filter returning an array of filtered values        return [...];    },    'f this.in2': function(){ // operation filter preventing propagation of operation calls        return sol.STOP;    },    // public and protected methods    '+ publicMethod': function(){ // declaration of public method        return 'Hi';    },    privateMethod: function(){    // declaration of protected method        return 'Hello world';    },    // part declarations    p1: Part,             // no arguments    p2: {                 // the same as above        capsule: Part    },    p3: {                 // fixed arguments        capsule: Part,        args: 'Hi world'  // args or arguments (can be used interchangeably)    },    p4: {                 // the same arguments used for instantiation of this (FullFeatured) capsule        capsule: Part,        args: 'this.args'    },    p5: {                 // arguments created "on spot" using function        capsule: Part,        deferredArgs: function(){            return {message: 'Hello world'};        }    },    // wires    'this.in1': ['this.out1', 'p1.in'],    'this.in2': 'this.out2',    'p2.out': 'this.out1',    'p3.out': ['this.out2', 'p4.in'],    // ties    'this.l1': 'p1.l',    'p1.h': ['p2.l', 'p3.l', 'this.h1'],    // data    sharedInitialValue: {...}, // all instances share the same value (object, array, or whatever), but the reference is not static, it is just initialized with the same value for each FullFeatured capsule    myObject: '*{}',        // each capsule gets its own Object in myObject    myArray: '*[]',         // each capsule gets its own Array in myArray    myMap: '*Map',          // each capsule gets its own Map in myMap    mySet: '*Set',          // each capsule gets its own Set in mySet    myWeakMap: '*WeakMap',  // each capsule gets its own WeakMap in myWeakMap    myWeakSet: '*WeakSet',  // each capsule gets its own WeakSet in myWeakSet    myData: {               // general case for data        call: function(){   // "call" can be replaced with "new" if the function is to be called using the "new" operator            return ...;     // myData becomes what is returned here        },        args: ...           // (arguments / deferredArgs) arguments for the function above it; the same as with parts (see above)    },});</code></pre>
+    <pre class="prettyprint"><code>var FullFeatured = sol.defCapsule({    isAbstract: false, // or true (to prevent creation of direct instances)    base: TheSimplest, // inherit from TheSimplest    init: function(){  // the constructor function        // ...    },    handle: function(error){ // error handler function, for all errors thrown inside this capsule        // ...    },    // hooks and loops    hooks: ['h1', 'h2'], // an array of hooks, or a single string in case of a single hook    loops: 'l1',         // an array of loops, or a single string in case of a single loop    // input declarations    '> in1': null,       // declaration of an input operation    '> in2': function(){ // input operation wired to a protected method with the same name        return 'Hi';    },    '> in3': 'this.out1',            // input operation wired to an existing output operation    '> in4': ['this.out1', 'p1.in'], // input operation wired to several existing output operations    // output declarations    '&lt; out1': null,                   // declaration of an output operation    '&lt; out2': function(arg1, arg2){}, // operation parameters declaratively listed, the body does not count    // filters    'f this.in1': function(){ // operation filter returning an array of filtered values        return [...];    },    'f this.in2': function(){ // operation filter preventing propagation of operation calls        return sol.STOP;    },    // public and protected methods    '+ publicMethod': function(){ // declaration of public method        return 'Hi';    },    privateMethod: function(){    // declaration of protected method        return 'Hello world';    },    // part declarations    p1: Part,             // no arguments    p2: {                 // the same as above        capsule: Part    },    p3: {                 // fixed arguments        capsule: Part,        args: 'Hi world'  // args or arguments (can be used interchangeably)    },    p4: {                 // the same arguments used for instantiation of this (FullFeatured) capsule        capsule: Part,        args: 'this.args'    },    p5: {                 // the FullFeatured capsule instance (this) given as an argument        capsule: Part,        args: 'this'    },    p6: {                 // arguments created "on spot" using function        capsule: Part,        deferredArgs: function(){            return {message: 'Hello world'};        }    },    // wires    'this.in1': ['this.out1', 'p1.in'],    'this.in2': 'this.out2',    'p2.out': 'this.out1',    'p3.out': ['this.out2', 'p4.in'],    // ties    'this.l1': 'p1.l',    'p1.h': ['p2.l', 'p3.l', 'this.h1'],    // data    sharedInitialValue: {...}, // all instances share the same value (object, array, or whatever), but the reference is not static, it is just initialized with the same value for each FullFeatured capsule    myObject: '*{}',        // each capsule gets its own Object in myObject    myArray: '*[]',         // each capsule gets its own Array in myArray    myMap: '*Map',          // each capsule gets its own Map in myMap    mySet: '*Set',          // each capsule gets its own Set in mySet    myWeakMap: '*WeakMap',  // each capsule gets its own WeakMap in myWeakMap    myWeakSet: '*WeakSet',  // each capsule gets its own WeakSet in myWeakSet    myData: {               // general case for data        call: function(){   // "call" can be replaced with "new" if the function is to be called using the "new" operator            return ...;     // myData becomes what is returned here        },        args: ...           // (arguments / deferredArgs) arguments for the function above it; the same as with parts (see above)    },});</code></pre>
 
 
 
@@ -795,7 +795,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5036">line 5036</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line5046">line 5046</a>
     </li></ul></dd>
     
 
@@ -933,7 +933,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4219">line 4219</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4227">line 4227</a>
     </li></ul></dd>
     
 
@@ -1093,7 +1093,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4233">line 4233</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4241">line 4241</a>
     </li></ul></dd>
     
 
@@ -1253,7 +1253,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4325">line 4325</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4333">line 4333</a>
     </li></ul></dd>
     
 
@@ -1413,7 +1413,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4283">line 4283</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4291">line 4291</a>
     </li></ul></dd>
     
 
@@ -1573,7 +1573,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4311">line 4311</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4319">line 4319</a>
     </li></ul></dd>
     
 
@@ -1733,7 +1733,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4360">line 4360</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line4368">line 4368</a>
     </li></ul></dd>
     
 
@@ -1939,7 +1939,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3210">line 3210</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3218">line 3218</a>
     </li></ul></dd>
     
 
@@ -2113,7 +2113,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2298">line 2298</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2306">line 2306</a>
     </li></ul></dd>
     
 
@@ -2280,7 +2280,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2281">line 2281</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2289">line 2289</a>
     </li></ul></dd>
     
 
@@ -2476,7 +2476,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3390">line 3390</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line3398">line 3398</a>
     </li></ul></dd>
     
 
@@ -2672,7 +2672,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2444">line 2444</a>
+        <a href="capsula.js.html">capsula.js</a>, <a href="capsula.js.html#line2452">line 2452</a>
     </li></ul></dd>
     
 
@@ -2751,7 +2751,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Sep 19 2018 13:19:11 GMT+0200 (Central Europe Summer Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed Oct 24 2018 12:17:47 GMT+0200 (Central Europe Summer Time)
 </footer>
 
 <script> prettyPrint(); </script>
