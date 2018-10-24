@@ -2005,7 +2005,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default loop of this capsule, a loop that can act as a child in the current context of execution. When there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * Returns the default loop of this capsule, a loop that can act as a child in the current context of execution. 
+		 * <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one loop.
          *
          * @public
@@ -2020,7 +2021,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution. When there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution. 
+		 <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one hook.
          *
          * @public
@@ -2039,7 +2041,8 @@ limitations under the License.
         // *****************************
 
         /**
-         * Returns the default hook of this capsule, a hook that can act as a child in the current context of execution. When there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * Returns the default hook of this capsule, a hook that can act as a child in the current context of execution. 
+		 <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one hook.
          * <p> This method could only be called from the capsule's interior, i.e. only with "this".
          *
@@ -2055,7 +2058,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution. When there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution. 
+		 <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one loop.
          * <p> This method could only be called from the capsule's interior, i.e. only with "this".
          *
