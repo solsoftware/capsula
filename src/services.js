@@ -53,13 +53,6 @@ limitations under the License.
             FUNCTION: 'FUNCTION',
 
             /**
-             * Service type that enables delivery of requests to the target worker thread. Each service of this type should have the following properties specified in its service config object (the second argument of the service registration [register]{@link module:services.register} function):
-             * <p> - (string) type - set to services.ServiceType.WORKER <br>
-             * - (Worker) worker - target worker (in case of using dedicated worker) or target worker's port (in case of using shared worker) to which to deliver the package (of requests)
-             */
-            WORKER: 'WORKER',
-
-            /**
              * Service type that enables delivery of asynchronous requests to the target JavaScript function. Each service of this type should have the following properties specified in its service config object (the second argument of the service registration [register]{@link module:services.register} function):
              * <p> - (string) type - set to services.ServiceType.ASYNC_FUNCTION <br>
              * - (Function) func - target function to which to deliver the package (of requests)
@@ -438,27 +431,6 @@ limitations under the License.
             }
             resolveAllSuccessful(requests, responses);
             setServiceStatus(serviceName, 'online');
-        });
-
-        registerType(ServiceType.WORKER, function (requests, config, serviceName) {
-            var packed = [];
-            for (var i = 0; i < requests.length; i++)
-                packed.push(requests[i].body);
-
-            config.worker.postMessage(packed);
-
-            config.worker.addEventListener('message', function (result) {
-                var responses = result.data;
-                if (!isArray_(responses) || responses.length !== requests.length)
-                    rejectAll(requests, new Error(Errors.ILLEGAL_RESPONSE_SIZE.toString()));
-                else
-                    resolveAllSuccessful(requests, responses);
-                setServiceStatus(serviceName, 'online');
-            });
-            config.worker.addEventListener('error', function (err) {
-                rejectAll(requests, err);
-                setServiceStatus(serviceName, 'offline');
-            });
         });
 
         registerType(ServiceType.ASYNC_FUNCTION, function (requests, config, serviceName) {
