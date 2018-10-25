@@ -201,11 +201,17 @@ Require Capsula modules:
 ```js
 var capsula = require('@solsoftware/capsula');
 var services = require('@solsoftware/capsula/dist/services');
-var html = require('@solsoftware/capsula/dist/html');
 var sm = require('@solsoftware/capsula/dist/sm');
+var html = require('@solsoftware/capsula/dist/html');
 ```
 
-Have in mind that html module depends on the DOM API.
+Have in mind that html module depends on the DOM API which is not available in Node.js. However, you can install [jsdom](https://www.npmjs.com/package/jsdom){:target="_blank"} and execute the following code before you start using things from the html module:
+
+```js
+var jsdom = require('jsdom');
+var window = new jsdom.JSDOM('...HTML code goes here...').window;
+html.setWindow(window); // providing the window object to the html module
+```
 
 ### RequireJS
 
@@ -1734,7 +1740,7 @@ It is quite usual for applications to have components that perform remote proced
 
 The key concept that handles this is *service*: a named facade that simplifies clients' code and handles communication. It handles all RPC asynchronously.
 
-Each service is of a certain type. A service type depends on the type of the server or the type of channel used in communication, or both. Server can be an HTTP server, a Worker, a Capsule, a JavaScript function, or anything else able to handle clients' requests. Whatever the server is, the clients' code looks the same which is great because you can easily alter server side without ever affecting clients.
+Each service is of a certain type. A service type depends on the type of the server or the type of channel used in communication, or both. Server can be an HTTP server, a Capsule, a JavaScript function, or anything else able to handle clients' requests. Whatever the server is, the clients' code looks the same which is great because you can easily alter server side without ever affecting clients.
 
 It is quite possible and very easy to create custom service types as will be shown later. But let's go one step at a time.
 
@@ -1799,7 +1805,6 @@ Services module provides three of its own types:
 
 - [services.ServiceType.FUNCTION](/api-reference/module-services.ServiceType.html#.FUNCTION){:target="_blank"} - communication with simple JavaScript function acting as a server (good for mocking server in the early stage of development)
 - [services.ServiceType.ASYNC_FUNCTION](/api-reference/module-services.ServiceType.html#.ASYNC_FUNCTION){:target="_blank"} - communication with a JavaScript function that returns results as a Promise
-- [services.ServiceType.WORKER](/api-reference/module-services.ServiceType.html#.WORKER){:target="_blank"} - communication with a JavaScript Worker acting as a server
 
 Finally, capsula module provides its own service type for operations:
 
