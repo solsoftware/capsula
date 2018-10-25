@@ -34,6 +34,29 @@ limitations under the License.
 
         'use strict';
 
+        /**
+         * Window (global) object reference.
+         *
+         * @private
+         */
+        var wnd_ = typeof window !== 'undefined' ? window : null;
+
+        /**
+         * Sets the window object reference for the html module to use. For browser environment there is no need to call this method. For Node.js environment (or any other that doesn't provide window object in global scope) you have to call it before you start using things from the html module. One option for Node.js is to use jsdom library and provide its window object to this method.
+         *
+         * @memberof module:html
+         * @public
+         * @since 0.2.2
+         * @static
+         * @param wnd {Object} - object that acts like the DOM's window object
+         * @throws {Error} [ILLEGAL_ARGUMENT]{@link module:html.Errors.ILLEGAL_ARGUMENT}
+         */
+        function setWindow(wnd) {
+            if (!isObject_(wnd))
+                throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure the wnd argument is an object (either a DOM window object or object that closely resembles it).'));
+            wnd_ = wnd;
+        }
+
         cps.setDefaultElementHandlers(
             function onHookDefault_(hookElement, loopElement, afterElement, classes) {
             if (afterElement)
@@ -109,7 +132,7 @@ limitations under the License.
                         if (isTextNode_(textOrTextNode))
                             return textOrTextNode;
                         else if (isString_(textOrTextNode))
-                            return document.createTextNode(textOrTextNode);
+                            return wnd_.document.createTextNode(textOrTextNode);
                         else
                             throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure the first argument of the Text constructor is String or Text node.'));
                     }
@@ -203,7 +226,7 @@ limitations under the License.
                     }
 
                     var output = new cps.Output();
-					output.setName(outputName);
+                    output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
@@ -642,7 +665,7 @@ limitations under the License.
                     }
 
                     var output = new cps.Output();
-					output.setName(outputName);
+                    output.setName(outputName);
                     this[outputName] = output;
 
                     var listener = cps.contextualize(function (e) {
@@ -665,9 +688,9 @@ limitations under the License.
                         if (isElement_(tagNameOrNamespaceOrElement))
                             return tagNameOrNamespaceOrElement;
                         else if (isString_(tagNameOrNamespaceOrElement) && isString_(opt_tagNameOrEventOutputs))
-                            return document.createElementNS(tagNameOrNamespaceOrElement, opt_tagNameOrEventOutputs);
+                            return wnd_.document.createElementNS(tagNameOrNamespaceOrElement, opt_tagNameOrEventOutputs);
                         else if (isString_(tagNameOrNamespaceOrElement))
-                            return document.createElement(tagNameOrNamespaceOrElement);
+                            return wnd_.document.createElement(tagNameOrNamespaceOrElement);
                         else
                             throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure you call Element constructor with appropriate arguments.'));
                     }
@@ -721,7 +744,7 @@ limitations under the License.
                     if (!isString_(htmlCode))
                         throw new Error(Errors.ILLEGAL_ARGUMENT.toString('Make sure you call Template constructor with template literal argument (or String).'));
 
-                    var temp = document.createElement('div');
+                    var temp = wnd_.document.createElement('div');
                     temp.innerHTML = htmlCode;
                     // loops
                     for (var i = 0; i < temp.children.length; i++) {
@@ -939,7 +962,14 @@ limitations under the License.
          * @private
          */
         function isElement_(obj) {
-            return obj instanceof Node && obj instanceof Element;
+            return obj instanceof wnd_.Node && obj instanceof wnd_.Element;
+        }
+
+        /**
+         * @private
+         */
+        function isObject_(obj) {
+            return obj && typeof obj === 'object' && !isArray_(obj);
         }
 
         /**
@@ -963,7 +993,7 @@ limitations under the License.
          * @private
          */
         function isTextNode_(obj) {
-            return obj instanceof Node && obj instanceof Text;
+            return obj instanceof wnd_.Node && obj instanceof wnd_.Text;
         }
 
         /**
@@ -1214,11 +1244,11 @@ limitations under the License.
          */
         function createXMLHTTPRequest_() {
             var xhttp;
-            if (window.XMLHttpRequest) {
-                xhttp = new XMLHttpRequest();
+            if (wnd_.XMLHttpRequest) {
+                xhttp = new wnd_.XMLHttpRequest();
             } else {
                 // for IE6, IE5
-                xhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                xhttp = new wnd_.ActiveXObject("Microsoft.XMLHTTP");
             }
             return xhttp;
         }
@@ -1272,7 +1302,8 @@ limitations under the License.
             Element: Element$,
             Template: Template,
             Errors: Errors,
-            ServiceType: ServiceType
+            ServiceType: ServiceType,
+            setWindow: setWindow
         }
 
         return ns;
