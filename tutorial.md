@@ -208,7 +208,7 @@ var sm = require('@solsoftware/capsula/dist/sm');
 var html = require('@solsoftware/capsula/dist/html');
 ```
 
-Have in mind that html module depends on the DOM API which is not available in Node.js. However, you can install [jsdom](https://www.npmjs.com/package/jsdom){:target="_blank"} and execute the following code before you start using things from the html module:
+Have in mind that html module depends on the DOM API which is not available in Node.js. If you are keen to using DOM in Node.js environment, we suggest checking out [NW.js](https://nwjs.io/){:target="_blank"} or [Electron](https://electronjs.org/){:target="_blank"} platforms that enable just that. If not, it may be that the [jsdom](https://www.npmjs.com/package/jsdom){:target="_blank"} is the right choice for you; in that case execute the following code before you start using things from the html module:
 
 ```js
 var jsdom = require('jsdom');
@@ -501,7 +501,7 @@ var MessageArchive = capsula.defCapsule({
 });
 ```
 
-Protected are the ```persist``` and the ```encrypt``` methods, while the ```process``` is public. 
+Protected are the ```persist``` and the ```encrypt``` methods, while the ```process``` method is public. 
 
 > Public methods should have a + sign prefix to distinguish them from protected ones.
 
@@ -522,6 +522,10 @@ archive.encrypt({body: 'Hello World!'}); // Error: Out of context...
 ```
 
 the error is raised since we are calling protected method from the outer context.
+
+#### Overriding Methods
+
+As one would expect, overriding a method from the parent capsule class in a child capsule class is supported and very simple: just create the method with the same signature as the method you are overriding. Make sure you don't change its visibility, since that is not allowed.
 
 #### Fake Methods
 
@@ -1487,6 +1491,14 @@ Let's now discuss what we have here. In the second line, we create the ```root``
 Let's once more get back to abbreviated way of creating widget hierarchy. In our ```ShowInfo``` example, we could use ```this.add(div)``` instead of ```this.root.add(div.loop)```. This is because there is no ambiguity: the ```ShowInfo``` capsule has only one loop that can act as a parent in statements that get executed inside its context (internally). Had the ```ShowInfo``` capsule had more than one loop, we would have been forced to provide an implementation of ```getDefaultParentLoop``` method to return a default parent loop in order to be able to use ```ShowInfo``` capsule internally in abbreviated statements as a parent.
 
 Similarly, looked from the outside, had the ```ShowInfo``` capsule had more than one loop, we would have been forced to provide an implementation of ```getDefaultChildLoop``` method to return a default child loop in order to be able to use ```ShowInfo``` capsule externally in abbreviated statements as a child. (By the way, there's no problem in having default child loop and default parent loop being the same loop.)
+
+Instead of using declarative we could use imperative way to create the ```root``` loop. So, instead of the line ```loops: 'root',``` we could add this line to the constructor:
+
+```js
+this.root = new capsula.Loop();
+```
+
+Everything else stays the same.
 
 The similar logic holds for hooks. When used externally a capsule may provide a hook acting as a parent. Internally however, a capsule may provide hook acting as a child only. It is basically an inverted logic than the one behind loops.
 
