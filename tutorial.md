@@ -6,8 +6,8 @@ order: 1
 nav: true
 ---
 
-- [About This Tutorial](#about-this-tutorial)
 - [What Is Capsula?](#what-is-capsula)
+- [About This Tutorial](#about-this-tutorial)
 - [Main Concepts](#main-concepts)
 	- [Introducing Capsules](#introducing-capsules)
 	- [Encapsulation Model](#encapsulation-model)
@@ -22,6 +22,7 @@ nav: true
 	- [Parts](#parts)
 	- [Constructor And Arguments](#constructor-and-arguments)
 	- [Inheritance](#inheritance)
+	- [Destroying Capsules](#destroying-capsules)
 - [Implementing Behavior](#implementing-behavior)
 	- [Methods](#methods)
 	- [Operations](#operations)
@@ -36,6 +37,31 @@ nav: true
 	- [Performing AJAX Calls](#performing-ajax-calls)
 	- [Other Types Of RPC](#other-types-of-rpc)
 	- [Creating Custom RPC Types](#creating-custom-rpc-types)
+
+## What Is Capsula?
+
+**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". Capsula helps you develop web-based applications that run in a browser and server-side Node.js applications. You can even build cross-platform desktop applications using Capsula on top of [NW.js](https://nwjs.io/){:target="_blank"}, [Electron](https://electronjs.org/){:target="_blank"}, or similar platform.
+
+With Capsula you can:
+
+- create your application out of **encapsulated components** - capsules.
+- have **multi-level architectural views** of your application which helps handle complexity better.
+- easily implement complex lifecycles using **state machines**.
+- **build user interfaces flexibly** by leveraging quite a unique way of managing layout.
+- **handle asynchronous communication** focusing only on what's essential.
+- be **both declarative and imperative** having the best of both worlds.
+- exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
+- expect even more, according to our [goals]({{ "/the-goals-of-capsula" | relative_url }}){:target="_blank"}.
+
+Capsula is a sort of dynamic, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming){:target="_blank"} "language" that accommodates many new and concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It is especially suitable for applications that exploit composite design pattern, i.e. for applications that could be built by recursively composing encapsulated modules into larger modules all the way up to the whole application.
+
+Capsula provides state machines as mechanism for handling complex lifecycles, i.e. objects that have many different states and move from one to another during their lifetime. 
+
+Capsula also addresses communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with essential matters only, as well as to easily mock server-side part of communication.
+
+Capsula is quite suitable for building user interfaces since they are usually built by using composition. Capsula provides both for templates and object-oriented way of widget manipulation. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
+
+Applications built with Capsula are neatly structured, ease to manage, and with clearly visible multi-level architecture.
 
 ## About This Tutorial
 
@@ -74,29 +100,6 @@ For methods we follow a similar style:
 </tbody></table>
 
 Please let us know of any issue you run into while reading the tutorial. We would be more than happy to improve the tutorial according to that and help you overcome the problems.
-
-## What Is Capsula?
-
-**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". With Capsula you can:
-
-- create your application out of **encapsulated components** - capsules.
-- have **multi-level architectural views** of your application which helps handle complexity better.
-- easily implement complex lifecycles using **state machines**.
-- **build user interfaces flexibly** by leveraging quite a unique way of managing layout.
-- **handle asynchronous communication** focusing only on what's essential.
-- be **both declarative and imperative** having the best of both worlds.
-- exploit **really fast dev cycle** of plain JavaScript; no transpiling in the process.
-- expect even more, according to our [goals]({{ "/the-goals-of-capsula" | relative_url }}){:target="_blank"}.
-
-Capsula is a sort of dynamic, [object-oriented](https://en.wikipedia.org/wiki/Object-oriented_programming){:target="_blank"} "language" that accommodates many new and concepts designed to handle complexity and favor abstraction, encapsulation, flexibility, and reuse. It is especially suitable for applications that exploit composite design pattern, i.e. for applications that could be built by recursively composing encapsulated modules into larger modules all the way up to the whole application.
-
-Capsula provides state machines as mechanism for handling complex lifecycles, i.e. objects that have many different states and move from one to another during their lifetime. 
-
-Capsula also addresses communication based on the client-server (request-response) paradigm. It provides for decoupling clients from technical details of communication and enables programmers to deal with essential matters only, as well as to easily mock server-side part of communication.
-
-Capsula is quite suitable for building user interfaces since they are usually built by using composition. Capsula provides both for templates and object-oriented way of widget manipulation. By default, Capsula supports building web UIs (relies on the DOM API), however this can be changed by extending it to work with any other JavaScript widget API, both client- or server-side.
-
-Applications built with Capsula are neatly structured, ease to manage, and with clearly visible multi-level architecture.
 
 ## Main Concepts
 
@@ -155,7 +158,7 @@ It's essential to understand the encapsulation model since it interweaves with e
 
 ## Installation
 
-Capsula library is executable both within the browser and Node.js. At this point it comprises three modules:
+Capsula library is executable both within the browser and Node.js. At this point it comprises the following modules:
 
 - capsula,
 - services,
@@ -451,6 +454,21 @@ var archive = new Archive(); // Error: Abstract capsules cannot be instantiated
 > Abstract capsules that cannot be instantiated.
 
 So far we have covered the very basic stuff. Let's continue and add a bit of dynamic with methods and operations.
+
+### Destroying Capsules
+
+When capsule instance is no longer needed you need to do two things to have it garbage collected: a) call the ```detach``` method on it and b) dereference the capsule, i.e. destroy (null) all the references that point to it.
+
+Calling the ```detach``` method on a capsule is necessary in order to null the reference between its owner capsule and it; a reference which is invisible to you and which is implicitly maintained by the Capsula library. This implicit reference is used internally to perform context checks, i.e. checks that enforce our encapsulation model. So, this is where we pay for the benefits of strict encapsulation.
+
+Also, when detaching a capsule, its protected method ```onDetach``` would be called if implemented (a chance to release resources). The same method would be called recursively on all its descendant capsules as well.
+
+<table class="method">
+<thead><tr><th colspan="2">[method] <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}#detach" target="_blank">detach</a></th></tr></thead>
+<tbody>
+<tr><td>Description</td><td>Detaches this capsule as a part of the capsule that represents the current context of execution. Destroys an implicit reference between the two capsules.</td></tr>
+<tr><td>Class</td><td> <a href="{{ "/api-reference/module-capsula.Capsule.html" | relative_url }}" target="_blank">Capsule</a></td></tr>
+</tbody></table>
 
 ## Implementing Behavior
 
@@ -1108,7 +1126,7 @@ var archive = new MessageArchive(true);
 archive.process({body: 'Hello world!'});
 ```
 
-Let's try to follow the context of execution of the code above. Calls to ```defCapsule```, ```new MessageArchive(true)```, and ```archive.process(...)``` all get executed from the top-level (main) context. The code inside the ```process``` method gets executed within the context of the ```archive``` capsule. The code inside the ```persist``` method also gets executed within the same context. This code calls the ```save``` method of the mock data source and immediately returns (because of the asynchronous nature of the ```save``` method). The ```process``` also returns and we leave the context of the ```archive``` capsule back to the top-level context. Everything settles down until the mock data source finishes its job after one second. When that happens, the callback method (see ```then```) is called from the current context, which is at this point in time the top-level context. The callback method fails on ```this.incNumPersisted``` with the *out of context* error because ```that.incNumPersisted``` is protected method of the ```archive``` capsule and the callback is trying to call it from the top-level context. In other words, we didn't switch to archive's context while trying to execute its protected method. So, how do we handle this?
+Let's try to follow the context of execution of the code above. Calls to ```defCapsule```, ```new MessageArchive(true)```, and ```archive.process(...)``` all get executed from the top-level (main) context. The code inside the ```process``` method gets executed within the context of the ```archive``` capsule. The code inside the ```persist``` method also gets executed within the same context. This code calls the ```save``` method of the mock data source and immediately returns (because of the asynchronous nature of the ```save``` method). The ```process``` also returns and we leave the context of the ```archive``` capsule back to the top-level context. Everything settles down until the mock data source finishes its job after one second. When that happens, the callback method (see ```then```) is called from the current context, which is at this point in time the top-level context. The callback method fails on ```that.incNumPersisted``` with the *out of context* error because ```that.incNumPersisted``` is protected method of the ```archive``` capsule and the callback is trying to call it from the top-level context. In other words, we didn't switch to archive's context while trying to execute its protected method. So, how do we handle this?
 
 Basically, the problem occurs when capsule's property is being accessed from the context where this is not allowed. Usually, this happens after asynchronous calls get resolved (or rejected) or a when event-handlers' callbacks get called.
 
