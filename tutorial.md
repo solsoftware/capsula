@@ -40,7 +40,7 @@ nav: true
 
 ## What Is Capsula?
 
-**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". Capsula helps you develop web-based applications that run in a browser and server-side Node.js applications. You can even build cross-platform desktop applications using Capsula on top of [NW.js](https://nwjs.io/){:target="_blank"}, [Electron](https://electronjs.org/){:target="_blank"}, or similar platform.
+**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". Capsula helps you develop web-based applications that run in the browser and server-side Node.js applications. You can even build cross-platform desktop applications using Capsula on top of [NW.js](https://nwjs.io/){:target="_blank"}, [Electron](https://electronjs.org/){:target="_blank"}, or similar platform.
 
 With Capsula you can:
 
@@ -208,7 +208,7 @@ var sm = require('@solsoftware/capsula/dist/sm');
 var html = require('@solsoftware/capsula/dist/html');
 ```
 
-Have in mind that html module depends on the DOM API which is not available in Node.js. If you are keen to using DOM in Node.js environment, we suggest checking out [NW.js](https://nwjs.io/){:target="_blank"} or [Electron](https://electronjs.org/){:target="_blank"} platforms that enable just that. If not, it may be that the [jsdom](https://www.npmjs.com/package/jsdom){:target="_blank"} is the right choice for you; in that case execute the following code before you start using things from the html module:
+Have in mind that html module depends on the DOM API which is not available in Node.js. To obtain full-blown DOM API in your Node.js environment, we suggest checking out [NW.js](https://nwjs.io/){:target="_blank"} or [Electron](https://electronjs.org/){:target="_blank"} platforms. In that case you would be able to use all Capsula modules, including html. If on the other hand your needs would be satisfied with emulated (headless) DOM, it may be that the [jsdom](https://www.npmjs.com/package/jsdom){:target="_blank"} is the right choice for you; in that case execute the following code before you start using things from the html module:
 
 ```js
 var jsdom = require('jsdom');
