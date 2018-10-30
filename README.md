@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/capsula-js/Lobby](https://badges.gitter.im/capsula-js/Lobby.svg)](https://gitter.im/capsula-js/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". Capsula helps you develop web-based applications that run in the browser and server-side Node.js applications. You can even build cross-platform desktop applications using Capsula on top of [NW.js](https://nwjs.io/){:target="_blank"}, [Electron](https://electronjs.org/){:target="_blank"}, or similar platform.
+**Capsula** library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called "capsules". Capsula helps you develop web-based applications that run in the browser and server-side Node.js applications. You can even build cross-platform desktop applications using Capsula on top of [NW.js](https://nwjs.io/), [Electron](https://electronjs.org/), or similar platform.
 
 With Capsula you can:
 
