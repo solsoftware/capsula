@@ -2313,4 +2313,28 @@ describe('operations', function () {
             expect(c2.iX()).toEqual('Hi');
         });
     });
+	
+	describe('calling output operation directly from init (constructor)', function () {
+		it('should verify calling output operation from constructor works', function () {
+			var result = '';
+			var f = sol.contextualize(function(c){
+				c.out.target(function(){
+					return 'hi';
+				});
+			});
+            var C = sol.defCapsule({
+				'< out': function (){},
+				init: function(){
+					f(this); // to wire output operation to something before we call it.
+					result = this.out();
+				}
+			});
+			
+			expect(function () {
+				new C();
+			}).not.toThrowError();
+			
+			expect(result).toEqual('hi');
+        });
+	});
 });
