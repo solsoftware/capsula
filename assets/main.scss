@@ -99,3 +99,20 @@ table.module thead th, table.class thead th, table.method thead th {
 hr {
     margin-bottom: 1em;
 }
+
+.capsulaSandbox {
+	position: fixed;
+    top: 0;
+    left: 0;
+    border: 1px solid #ccc;
+	background-color: rgba(192, 192, 192, 0.2);
+	margin-top: 6em;
+	margin-left: 2em;
+	padding: 1em;
+    font-size: 0.7em;
+}
+
+.capsulaSandbox .header {
+	margin-bottom: 1em;
+    border-bottom: 1px solid #ccc;
+}

@@ -29,3 +29,41 @@
   </div>
 
 </footer>
+<script type="text/javascript" src="{{ "/assets/js/services.js" | relative_url }}"></script>
+<script type="text/javascript" src="{{ "/assets/js/sm.js" | relative_url }}"></script>
+<script type="text/javascript" src="{{ "/assets/js/capsula.js" | relative_url }}"></script>
+<script type="text/javascript" src="{{ "/assets/js/html.js" | relative_url }}"></script>
+<script type="text/javascript">
+  (function(){
+    var Sandbox = capsula.defCapsule({
+      loops: 'root',
+      hooks: 'content',
+      sandbox: {
+        capsule: html.Element,
+        args: 'div'
+      },
+      headerDiv: {
+        capsule: html.Element,
+        args: 'div'
+      },
+      contentDiv: {
+        capsule: html.Element,
+        args: 'div'
+      },
+      init: function(){
+        this.sandbox.getElement().style.display = 'none'; // initially invisible
+        this.sandbox.addClass('capsulaSandbox');
+        this.headerDiv.setInnerHTML('Tutorial Sandbox');
+        this.headerDiv.addClass('header');
+        this.content.setEventHandlers(function onHook(){
+          this.sandbox.getElement().style.display = 'block'; // gets visible when used
+        });
+      },
+      'sandbox.hook': ['headerDiv.loop', 'contentDiv.loop'],
+      'this.content': 'contentDiv.hook',
+      'this.root': 'sandbox.loop'
+    });
+    window.sandbox = new Sandbox();
+    sandbox.root.renderInto(document.body);
+  })();
+</script>
