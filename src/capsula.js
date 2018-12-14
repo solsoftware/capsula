@@ -1664,7 +1664,7 @@ limitations under the License.
             checkCapsuleAsThis_(this);
             var hooksAndLoops = this._.hooks.concat(this._.loops);
             for (var i = 0; i < hooksAndLoops.length; i++) {
-                hooksAndLoops[i].untieAll();
+                hooksAndLoops[i].clear();
             }
         };
 
@@ -5410,6 +5410,13 @@ limitations under the License.
         // Public Section
         // *****************************
 
+		function enableDebugging(){
+            window.mainCapsule = main_; // this is to make the main capsule (reachable)
+            Operation.prototype.toJSON = function(){ // this is to allow stringification of operations
+    			return {'_': this._};
+    		};
+        }
+		
         /**
          * <p> Capsula.js is the core module of Capsula library. The base concept of Capsula library is the [Capsule class]{@link module:capsula.Capsule}, a class similar to an OO class with different encapsulation model and many new and powerful concepts like [operations]{@link module:capsula.Operation}, [hooks]{@link module:capsula.Hook}, [loops]{@link module:capsula.Loop}, and many more.
          * <p> To create new Capsule class, use [defCapsule]{@link module:capsula.defCapsule} method.
@@ -5464,7 +5471,10 @@ limitations under the License.
             STOP: STOP,
 
             // services
-            ServiceType: ServiceType
+            ServiceType: ServiceType,
+			
+			// debugging
+			enableDebugging: enableDebugging
         };
 
         return ns;
