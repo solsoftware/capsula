@@ -717,7 +717,8 @@ limitations under the License.
 
                 Capsule.apply(that, arguments);
 
-                var args = arguments;
+                var args = arguments,
+                c = ctx_;
                 executeInContext_(function () {
                     newInterface_(that, cd.inputs, Input);
                     newInterface_(that, cd.outputs, Output);
@@ -731,15 +732,14 @@ limitations under the License.
                     newWires_(that, cd.wires);
                     newTies_(that, cd.ties);
                     newUnclassified_(that, cd.unclassified);
+                    if (c != null) { // this should be done before init is called
+                        that._.owner = c;
+                        c._.parts.push(that);
+                    }
                     that.init.apply(that, args);
-                }, that);
-
-                if (ctx_) {
-                    that._.owner = ctx_;
-                    ctx_._.parts.push(that);
-                    if (typeof that.onAttach === 'function')
+                    if (c != null && typeof that.onAttach === 'function')
                         executeInContext_(that.onAttach, that, that);
-                }
+                }, that);
 
                 return that;
             };
@@ -1664,7 +1664,7 @@ limitations under the License.
             checkCapsuleAsThis_(this);
             var hooksAndLoops = this._.hooks.concat(this._.loops);
             for (var i = 0; i < hooksAndLoops.length; i++) {
-                hooksAndLoops[i].untieAll();
+                hooksAndLoops[i].clear();
             }
         };
 
@@ -2005,8 +2005,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default loop of this capsule, a loop that can act as a child in the current context of execution. 
-		 * <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * Returns the default loop of this capsule, a loop that can act as a child in the current context of execution.
+         * <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one loop.
          *
          * @public
@@ -2021,8 +2021,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution. 
-		 <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * Returns the default hook of this capsule, a hook that can act as a parent in the current context of execution.
+        <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one hook.
          *
          * @public
@@ -2041,8 +2041,8 @@ limitations under the License.
         // *****************************
 
         /**
-         * Returns the default hook of this capsule, a hook that can act as a child in the current context of execution. 
-		 <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
+         * Returns the default hook of this capsule, a hook that can act as a child in the current context of execution.
+        <p> By default this method works this way: when there is only one hook in this capsule, that hook is returned. When there is none or when there are more than one hook, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one hook.
          * <p> This method could only be called from the capsule's interior, i.e. only with "this".
          *
@@ -2058,8 +2058,8 @@ limitations under the License.
         };
 
         /**
-         * Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution. 
-		 <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
+         * Returns the default loop of this capsule, a loop that can act as a parent in the current context of execution.
+        <p> By default this method works this way: when there is only one loop in this capsule, that loop is returned. When there is none or when there are more than one loop, an error is thrown.
          * <p> The method is meant to be overridden in cases when capsule has more than one loop.
          * <p> This method could only be called from the capsule's interior, i.e. only with "this".
          *
@@ -4760,7 +4760,7 @@ limitations under the License.
             }
             if (args === INIT_ARGS)
                 args = initArgs; // use owner's arguments
-			else if (args === THIS)
+            else if (args === THIS)
                 args = capsule; // use owner capsule
             if (!isArray_(args) && !isArguments_(args))
                 args = [args]; // make it array
@@ -5070,8 +5070,8 @@ limitations under the License.
          * @private
          */
         INIT_ARGS = 'this.args',
-		
-		/**
+
+        /**
          * @const
          * @private
          */
@@ -5410,6 +5410,15 @@ limitations under the License.
         // Public Section
         // *****************************
 
+        function enableDebugging() {
+            window.mainCapsule = main_; // this is to make the main capsule (reachable)
+            Operation.prototype.toJSON = function () { // this is to allow stringification of operations
+                return {
+                    '_': this._
+                };
+            };
+        }
+
         /**
          * <p> Capsula.js is the core module of Capsula library. The base concept of Capsula library is the [Capsule class]{@link module:capsula.Capsule}, a class similar to an OO class with different encapsulation model and many new and powerful concepts like [operations]{@link module:capsula.Operation}, [hooks]{@link module:capsula.Hook}, [loops]{@link module:capsula.Loop}, and many more.
          * <p> To create new Capsule class, use [defCapsule]{@link module:capsula.defCapsule} method.
@@ -5464,7 +5473,10 @@ limitations under the License.
             STOP: STOP,
 
             // services
-            ServiceType: ServiceType
+            ServiceType: ServiceType,
+
+            // debugging
+            enableDebugging: enableDebugging
         };
 
         return ns;

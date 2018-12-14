@@ -1,6 +1,6 @@
 {
     "name": "@solsoftware/capsula",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "description": "Capsula library lets you build JavaScript applications using highly reusable, flexible, and encapsulated software components called capsules. Executable both within the browser and node.js.",
     "keywords": [
         "capsula",
@@ -41,5 +41,8 @@
         "grunt-contrib-jasmine": "^2.0.3",
         "grunt-contrib-uglify": "^3.3.0",
         "grunt-jsdoc": "^2.2.1"
+    },
+    "dependencies": {
+        "npm": "^6.5.0"
     }
 }
