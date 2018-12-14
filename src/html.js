@@ -276,7 +276,7 @@ limitations under the License.
          * });
          * let span = new HTMLElement('span'), // create an instance of HTMLElement
          * text = new html.Text('Hello world'); // create an instance of Text
-         * span.hook.hook(text.loop); // put the text inside the span
+         * span.hook.add(text.loop); // put the text inside the span
          * span.loop.renderInto(document.body); // put the span into the body
          * console.log(span.getInnerHTML()); // Hello world
          *
