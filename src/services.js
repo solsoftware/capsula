@@ -57,7 +57,15 @@ limitations under the License.
              * <p> - (string) type - set to services.ServiceType.ASYNC_FUNCTION <br>
              * - (Function) func - target function to which to deliver the package (of requests)
              */
-            ASYNC_FUNCTION: 'ASYNC_FUNCTION'
+            ASYNC_FUNCTION: 'ASYNC_FUNCTION',
+
+            /**
+             * Service type that enables delivery of asynchronous requests to the target SOAP Web service operation. Each service of this type should have the following properties specified in its service config object (the second argument of the service registration [register]{@link module:services.register} function):
+             * <p> - (string) type - set to services.ServiceType.ASYNC_FUNCTION <br>
+             * - (string) operationName - target operation to which to deliver the package (of requests)
+             * - (string) wsdlURL - URL of WSDL file
+             */
+            SOAP_SERVICE: 'SOAP_SERVICE'
         };
 
         /**
@@ -452,6 +460,50 @@ limitations under the License.
                 rejectAll(requests, err);
                 setServiceStatus(serviceName, 'offline');
             });
+        });
+
+        registerType(ServiceType.SOAP_SERVICE, function (requests, config, serviceName) {
+
+            var packed = [];
+            for (let i = 0; i < requests.length; i++)
+                packed.push(requests[i].body);
+
+            var soap = require("soap");
+            var url = config.wsdlURL;
+
+            var responses = [];
+            var remainingResponses = requests.length;
+            for (let i = 0; i < requests.length; i++) {
+                responses.push(0);
+            }
+
+            var reqURL = soap.createClient(url, function (err, client) {
+                    for (let i = 0; i < requests.length; i++) {
+                        if (err) {
+                            console.log(err);
+                            return;
+                        }
+
+                        client[config.operationName + 'Async'](packed[i]).then(function (result) {
+                            responses[i] = result[0];
+
+                            if (--remainingResponses === 0) {
+                                try {
+                                    if (responses.length !== requests.length)
+                                        throw new Error(Errors.ILLEGAL_RESPONSE_SIZE.toString());
+                                } catch (err) {
+                                    rejectAll(requests, err);
+                                    return;
+                                }
+                                resolveAllSuccessful(requests, responses);
+
+                            }
+                        }).catch(function (err) {
+                            console.log(err);
+                        });
+                    }
+                });
+
         });
 
         /**
